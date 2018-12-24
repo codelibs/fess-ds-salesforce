@@ -135,7 +135,9 @@
 							<artifactSet>
 								<includes>
 									<include>org.jetbrains.kotlin:kotlin-stdlib</include>
+									<include>com.fasterxml.jackson.module:jackson-module-kotlin</include>
 									<include>com.force.api:force-wsc</include>
+									<include>com.force.api:force-partner-api</include>
 								</includes>
 							</artifactSet>
 						</configuration>
@@ -295,8 +297,18 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.force.api</groupId>
 			<artifactId>force-wsc</artifactId>
+			<version>${force.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.force.api</groupId>
+			<artifactId>force-partner-api</artifactId>
 			<version>${force.version}</version>
 		</dependency>
 	</dependencies>
