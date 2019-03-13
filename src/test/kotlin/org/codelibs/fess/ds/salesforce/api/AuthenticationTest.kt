@@ -1,12 +1,13 @@
-package org.codelibs.fess.ds.salesforce
+package org.codelibs.fess.ds.salesforce.api
 
+import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException
 import org.dbflute.utflute.lastadi.ContainerTestCase
 import org.slf4j.LoggerFactory
 
-class ForceHelperTest : ContainerTestCase() {
+class AuthenticationTest : ContainerTestCase() {
 
     companion object {
-        const val HOST = ""
+        const val BASE_URL = ""
         const val USERNAME = ""
         const val PASSWORD = ""
         const val SECURITY_TOKEN = ""
@@ -15,7 +16,7 @@ class ForceHelperTest : ContainerTestCase() {
         const val PRIVATE_KEY = ""
     }
 
-    private val logger = LoggerFactory.getLogger(ForceHelperTest::class.java)
+    private val logger = LoggerFactory.getLogger(AuthenticationTest::class.java)
 
     override fun prepareConfigFile(): String = "test_app.xml"
     override fun isSuppressTestCaseTransaction(): Boolean = true
@@ -37,7 +38,7 @@ class ForceHelperTest : ContainerTestCase() {
 
     private fun doGetTokenResponse() {
         try {
-            val response = ForceHelper.getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, HOST)
+            val response = getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL)
             logger.debug("AccessToken: ${response.accessToken}")
         } catch (e: SalesforceDataStoreException) {
             fail("Failed to get AccessToken by '${e.message}'")
@@ -46,18 +47,24 @@ class ForceHelperTest : ContainerTestCase() {
 
     private fun doGetTokenResponseByPassword() {
         try {
-            val response = ForceHelper.getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, HOST)
+            val response = getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL)
             logger.debug("AccessToken: ${response.accessToken}")
         } catch (e: SalesforceDataStoreException) {
             fail("Failed to get AccessToken by '${e.message}'")
         }
     }
 
-    fun testGetBulkConnection() {
-        // doGetBulkConnection()
+    fun testGetConnection() {
+        // doGetConnection()
+        // doGetConnectionByPassword()
     }
 
-    private fun doGetBulkConnection() {
-        ForceHelper.getBulkConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, HOST)
+    private fun doGetConnection() {
+        getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL)
     }
+
+    private fun doGetConnectionByPassword() {
+        getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL)
+    }
+
 }
