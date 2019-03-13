@@ -15,10 +15,22 @@
  */
 package org.codelibs.fess.ds.salesforce
 
+import org.codelibs.fess.ds.callback.IndexUpdateCallback
+import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.BASE_URL
+import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.CLIENT_ID
+import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.PRIVATE_KEY
+import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.USERNAME
+import org.codelibs.fess.es.config.exentity.DataConfig
 import org.codelibs.fess.util.ComponentUtil
 import org.dbflute.utflute.lastadi.ContainerTestCase
+import org.slf4j.LoggerFactory
+import java.util.*
+
 
 class SalesforceDataStoreTest : ContainerTestCase() {
+
+    private val logger = LoggerFactory.getLogger(SalesforceDataStoreTest::class.java)
+
     private lateinit var dataStore: SalesforceDataStore
 
     override fun prepareConfigFile(): String = "test_app.xml"
@@ -36,8 +48,53 @@ class SalesforceDataStoreTest : ContainerTestCase() {
         super.tearDown()
     }
 
-    fun test_xxx() {
-        // TODO
-        assertTrue(true)
+    fun testStoreData() {
+        // doStoreData()
     }
+
+    private fun doStoreData() {
+        val dataConfig = DataConfig()
+        val paramMap = mapOf(
+                "auth_type" to "oauth",
+                "username" to USERNAME,
+                "client_id" to CLIENT_ID,
+                "private_key" to PRIVATE_KEY,
+                "base_url" to BASE_URL
+        )
+        val fessConfig = ComponentUtil.getFessConfig()
+        val scriptMap = mapOf(
+                fessConfig.indexFieldTitle to "sobject.title",
+                fessConfig.indexFieldContent to "sobject.content",
+                fessConfig.indexFieldContent to "sobject.digest",
+                fessConfig.indexFieldCreated to "sobject.created",
+                fessConfig.indexFieldLastModified to "sobject.last_modified",
+                fessConfig.indexFieldUrl to "sobject.url",
+                fessConfig.indexFieldThumbnail to "sobject.thumbnail"
+        )
+        val defaultDataMap = HashMap<String, Any>()
+        dataStore.storeData(dataConfig, object : TestCallback() {
+            override fun test(paramMap: Map<String, String>, dataMap: Map<String, Any>) {
+                logger.debug(dataMap.toString())
+            }
+        }, paramMap, scriptMap, defaultDataMap)
+    }
+
+}
+
+internal abstract class TestCallback : IndexUpdateCallback {
+    private var documentSize: Long = 0L
+    private var executeTime: Long = 0L
+
+    abstract fun test(paramMap: Map<String, String>, dataMap: Map<String, Any>)
+
+    override fun store(paramMap: Map<String, String>, dataMap: Map<String, Any>) {
+        val startTime = System.currentTimeMillis()
+        test(paramMap, dataMap)
+        executeTime += System.currentTimeMillis() - startTime
+        documentSize++
+    }
+
+    override fun getDocumentSize(): Long = documentSize
+    override fun getExecuteTime(): Long = executeTime
+    override fun commit() {}
 }
