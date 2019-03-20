@@ -97,6 +97,7 @@ class SalesforceDataStore : AbstractDataStore() {
         objectMap[fessConfig.indexFieldCreated] = searchable.created()
         objectMap[fessConfig.indexFieldLastModified] = searchable.lastModified()
         objectMap[fessConfig.indexFieldUrl] = "$instanceUrl${searchable.urlPath()}"
+        objectMap[fessConfig.indexFieldThumbnail] = searchable.thumbnail()
         resultMap[SOBJECT] = objectMap
         try {
             for ((key, value) in scriptMap) {
