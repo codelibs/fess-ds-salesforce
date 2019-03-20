@@ -17,6 +17,51 @@ package org.codelibs.fess.ds.salesforce.api.sobject
 
 import kotlin.reflect.KClass
 
-enum class SObjects(val dataClass: KClass<out Searchable>) {
-    User(SUser::class)
+enum class SObjects(val dataClass: KClass<out SObject>) {
+    /** D&B 企業 */
+    DandBCompany(SDandBCompany::class),
+    /** ToDo */
+    Task(STask::class),
+    /** おすすめ */
+    Recommendation(SRecommendation::class),
+    /** アイデア */
+    Idea(SIdea::class),
+    /** キャンペーン */
+    Campaign(SCampaign::class),
+    /** クイックテキスト */
+    QuickText(SQuickText::class),
+    /** グループ */
+    CollaborationGroup(SCollaborationGroup::class),
+    /** ケース */
+    Case(SCase::class),
+    /** ソリューション */
+    Solution(SSolution::class),
+    /** マクロ */
+    Macro(SMacro::class),
+    /** ユーザ */
+    User(SUser::class),
+    /** リストメール */
+    ListEmail(SListEmail::class),
+    /** リード */
+    Lead(SLead::class),
+    /** 価格表 */
+    Pricebook2(SPricebook2::class),
+    /** 取引先 */
+    Account(SAccount::class),
+    /** 取引先責任者 */
+    Contact(SContact::class),
+    /** 商品 */
+    Product2(SProduct2::class),
+    /** 商談 */
+    Opportunity(SOpportunity::class),
+    /** 契約 */
+    Contract(SContract::class),
+    /** 注文 */
+    Order(SOrder::class),
+    /** 画像 */
+    Image(SImage::class),
+    /** 納入商品 */
+    Asset(SAsset::class),
+    /** 納入商品リレーション */
+    AssetRelationship(SAssetRelationship::class)
 }
