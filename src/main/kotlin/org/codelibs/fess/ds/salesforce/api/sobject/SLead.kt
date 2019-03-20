@@ -94,7 +94,8 @@ data class SLead(
         /** メール不達発生日 */
         val emailBouncedDate: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, title, company, phone, mobilePhone, fax, email, website, description, status, industry).joinToString("\n")
+    override fun thumbnail(): String? = photoUrl
     override val objectType: SObjects = SObjects.Lead
 }

@@ -48,7 +48,8 @@ data class SImage(
         /** キャプチャ角度 */
         val capturedAngle: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, imageTitle, imageAlternateText, imageUrl).joinToString("\n")
+    override fun thumbnail(): String? = imageUrl
     override val objectType: SObjects = SObjects.Image
 }

@@ -108,7 +108,8 @@ data class SContact(
         /** 状況をクリーンアップ */
         val cleanStatus: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, phone, fax, mobilePhone, homePhone, otherPhone, email, title, department, description).joinToString("\n")
+    override fun thumbnail(): String? = photoUrl
     override val objectType: SObjects = SObjects.Contact
 }

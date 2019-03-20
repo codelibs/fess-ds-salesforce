@@ -54,7 +54,7 @@ data class SOpportunity(
         /** 最終参照日 */
         val lastReferencedDate: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, description, stageName, type, nextStep).joinToString("\n")
     override val objectType: SObjects = SObjects.Opportunity
 }

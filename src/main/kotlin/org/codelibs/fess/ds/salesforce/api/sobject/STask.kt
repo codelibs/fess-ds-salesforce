@@ -64,7 +64,7 @@ data class STask(
         /** 完了日 */
         val completedDateTime: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $subject"
+    override fun content(): String = listOfNotNull(id, subject, status, priority, description).joinToString("\n")
     override val objectType: SObjects = SObjects.Task
 }

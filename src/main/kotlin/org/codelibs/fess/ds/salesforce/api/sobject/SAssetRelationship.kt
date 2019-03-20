@@ -40,7 +40,7 @@ data class SAssetRelationship(
         /** リレーション種別 */
         val relationshipType: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $assetRelationshipNumber"
+    override fun content(): String = listOfNotNull(id, assetRelationshipNumber).joinToString("\n")
     override val objectType: SObjects = SObjects.AssetRelationship
 }

@@ -48,7 +48,7 @@ data class SProduct2(
         /** 商品 SKU */
         val stockKeepingUnit: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, productCode, description, family, externalId, displayUrl).joinToString("\n")
     override val objectType: SObjects = SObjects.Product2
 }

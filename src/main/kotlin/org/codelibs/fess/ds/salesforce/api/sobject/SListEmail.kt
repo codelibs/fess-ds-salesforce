@@ -48,7 +48,7 @@ data class SListEmail(
         /** 予定日 */
         val scheduledDate: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, subject, textBody, fromName, fromAddress, status).joinToString("\n")
     override val objectType: SObjects = SObjects.ListEmail
 }

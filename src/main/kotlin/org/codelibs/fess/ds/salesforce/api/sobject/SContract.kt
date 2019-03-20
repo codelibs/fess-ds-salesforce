@@ -72,7 +72,7 @@ data class SContract(
         /** 最終参照日 */
         val lastReferencedDate: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $contractNumber"
+    override fun content(): String = listOfNotNull(id, status, description, contractNumber).joinToString("\n")
     override val objectType: SObjects = SObjects.Contract
 }

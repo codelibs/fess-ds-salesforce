@@ -40,7 +40,7 @@ data class SQuickText(
         /** チャネル */
         val channel: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, message, category, channel).joinToString("\n")
     override val objectType: SObjects = SObjects.QuickText
 }

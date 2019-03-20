@@ -48,7 +48,7 @@ data class SIdea(
         /** 作成者の名前 */
         val creatorName: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $title"
+    override fun content(): String = listOfNotNull(id, title, body, categories, status, creatorName).joinToString("\n")
     override val objectType: SObjects = SObjects.Idea
 }

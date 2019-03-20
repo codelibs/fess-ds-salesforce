@@ -40,7 +40,7 @@ data class SSolution(
         /** 最終参照日 */
         val lastReferencedDate: Date?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $solutionName"
+    override fun content(): String = listOfNotNull(id, solutionName, status, solutionNote).joinToString("\n")
     override val objectType: SObjects = SObjects.Solution
 }

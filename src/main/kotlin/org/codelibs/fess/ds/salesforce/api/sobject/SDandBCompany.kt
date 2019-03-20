@@ -226,7 +226,7 @@ data class SDandBCompany(
         /** 第 6 SIC8 の説明 */
         val sixthSic8Desc: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, dunsNumber, phone, fax, uRL, locationStatus, description).joinToString("\n")
     override val objectType: SObjects = SObjects.DandBCompany
 }

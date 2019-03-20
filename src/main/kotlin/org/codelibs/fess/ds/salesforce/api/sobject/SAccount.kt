@@ -106,7 +106,8 @@ data class SAccount(
         /** 産業区分の説明 */
         val sicDesc: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, type, phone, fax, website, tickerSymbol, description, site, dunsNumber).joinToString("\n")
+    override fun thumbnail(): String? = photoUrl
     override val objectType: SObjects = SObjects.Account
 }

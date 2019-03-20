@@ -54,7 +54,8 @@ data class SCollaborationGroup(
         /** バナー写真の URL */
         val bannerPhotoUrl: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, description, informationTitle, informationBody, groupEmail).joinToString("\n")
+    override fun thumbnail(): String? = smallPhotoUrl
     override val objectType: SObjects = SObjects.CollaborationGroup
 }

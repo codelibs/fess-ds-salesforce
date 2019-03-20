@@ -38,7 +38,7 @@ data class SMacro(
         /** 適用先 */
         val startingContext: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, name, description, startingContext).joinToString("\n")
     override val objectType: SObjects = SObjects.Macro
 }

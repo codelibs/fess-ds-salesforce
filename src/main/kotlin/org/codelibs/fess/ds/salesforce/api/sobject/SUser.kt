@@ -130,7 +130,8 @@ data class SUser(
         /** Android バナー写真の URL */
         val mediumBannerPhotoUrl: String?
 ) : SObject {
-    override fun title(): String = "${super.title()}"
-    override fun content(): String = listOfNotNull("").joinToString("\n")
+    override fun title(): String = "${super.title()} $name"
+    override fun content(): String = listOfNotNull(id, username, name, companyName, division, department, title, email, phone, fax, mobilePhone, alias, communityNickname, aboutMe).joinToString("\n")
+    override fun thumbnail(): String? = smallPhotoUrl
     override val objectType: SObjects = SObjects.User
 }
