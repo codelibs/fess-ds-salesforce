@@ -22,7 +22,7 @@
 		<url>http://fess.codelibs.org/</url>
 	</organization>
 	<issueManagement>
-		<url>https://github.com/codelibs/fess/issues</url>
+		<url>https://github.com/codelibs/fess-ds-salesforce/issues</url>
 	</issueManagement>
 	<scm>
 		<connection>scm:git:git@github.com:codelibs/fess-ds-salesforce.git</connection>

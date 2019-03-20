@@ -36,16 +36,6 @@ class AuthenticationTest : ContainerTestCase() {
     override fun prepareConfigFile(): String = "test_app.xml"
     override fun isSuppressTestCaseTransaction(): Boolean = true
 
-    @Throws(Exception::class)
-    override fun setUp() {
-        super.setUp()
-    }
-
-    @Throws(Exception::class)
-    override fun tearDown() {
-        super.tearDown()
-    }
-
     fun testGetTokenResponse() {
         // doGetTokenResponse()
         // doGetTokenResponseByPassword()
