@@ -16,7 +16,9 @@
 package org.codelibs.fess.ds.salesforce
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.sforce.async.BulkConnection
 import com.sforce.soap.partner.PartnerConnection
 import org.codelibs.fess.crawler.exception.CrawlingAccessException
 import org.codelibs.fess.ds.AbstractDataStore
@@ -65,6 +67,10 @@ class SalesforceDataStore : AbstractDataStore() {
         val bulk = getBulkConnection(connection)
         val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+        storeSearchablesData(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
+    }
+
+    private fun storeSearchablesData(bulk: BulkConnection, mapper: ObjectMapper, callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>, instanceUrl: String) {
         SObjects.values().forEach { o ->
             val job = createJob(bulk, o.name)
             val fields = o.dataClass.primaryConstructor?.parameters?.mapNotNull { it.name } ?: ArrayList()
