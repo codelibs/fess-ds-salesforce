@@ -55,7 +55,7 @@
 		<!-- Partner Library -->
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>2.9.1</log4j.version>
-		<jackson.version>2.8.10</jackson.version>
+		<jackson.version>2.9.8</jackson.version>
 		<commons.fileupload.version>1.3.3</commons.fileupload.version>
 		<asm.version>5.1</asm.version>
 		<force.version>45.0.0</force.version>
@@ -135,9 +135,12 @@
 							<artifactSet>
 								<includes>
 									<include>org.jetbrains.kotlin:kotlin-stdlib</include>
+									<include>org.jetbrains.kotlin:kotlin-reflect</include>
 									<include>com.fasterxml.jackson.module:jackson-module-kotlin</include>
 									<include>com.force.api:force-wsc</include>
 									<include>com.force.api:force-partner-api</include>
+									<include>org.codehaus.jackson:jackson-core-asl</include>
+									<include>org.codehaus.jackson:jackson-mapper-asl</include>
 								</includes>
 							</artifactSet>
 						</configuration>
@@ -238,6 +241,11 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib</artifactId>
+			<version>${kotlin.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-reflect</artifactId>
 			<version>${kotlin.version}</version>
 		</dependency>
 		<dependency>

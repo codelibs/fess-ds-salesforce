@@ -26,7 +26,6 @@ import org.dbflute.utflute.lastadi.ContainerTestCase
 import org.slf4j.LoggerFactory
 import java.util.*
 
-
 class SalesforceDataStoreTest : ContainerTestCase() {
 
     private val logger = LoggerFactory.getLogger(SalesforceDataStoreTest::class.java)

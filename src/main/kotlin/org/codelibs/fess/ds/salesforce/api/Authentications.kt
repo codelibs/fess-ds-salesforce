@@ -15,18 +15,17 @@
  */
 package org.codelibs.fess.ds.salesforce.api
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.google.api.client.util.SecurityUtils
 import com.sforce.async.BulkConnection
 import com.sforce.soap.partner.Connector
 import com.sforce.soap.partner.PartnerConnection
 import com.sforce.ws.ConnectorConfig
 import org.apache.commons.codec.binary.Base64
-import org.codehaus.jackson.annotate.JsonIgnoreProperties
 import org.codelibs.curl.Curl
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException
 import java.io.InputStream
@@ -87,8 +86,7 @@ internal fun getTokenResponseByPassword(username: String, password: String, secu
 
 internal fun getPrivateKey(privateKeyPem: String): RSAPrivateKey {
     val keySpec = PKCS8EncodedKeySpec(Base64.decodeBase64(privateKeyPem))
-    val keyFactory = SecurityUtils.getRsaKeyFactory()
-    return keyFactory.generatePrivate(keySpec) as RSAPrivateKey
+    return KeyFactory.getInstance("RSA").generatePrivate(keySpec) as RSAPrivateKey
 }
 
 internal fun createJWT(username: String, clientId: String, privateKeyPem: String, baseUrl: String): String {
@@ -101,8 +99,7 @@ internal fun createJWT(username: String, clientId: String, privateKeyPem: String
     token.append(".")
     token.append(Base64.encodeBase64URLSafeString(payload.toByteArray(Charsets.UTF_8)))
 
-    val keySpec = PKCS8EncodedKeySpec(Base64.decodeBase64(privateKeyPem))
-    val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpec) as RSAPrivateKey
+    val privateKey = getPrivateKey(privateKeyPem)
     val signature = Signature.getInstance("SHA256withRSA")
     signature.initSign(privateKey)
     signature.update(token.toString().toByteArray(Charsets.UTF_8))
