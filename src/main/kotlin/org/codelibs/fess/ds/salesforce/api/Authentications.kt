@@ -85,7 +85,8 @@ internal fun getTokenResponseByPassword(username: String, password: String, secu
 }
 
 internal fun getPrivateKey(privateKeyPem: String): RSAPrivateKey {
-    val keySpec = PKCS8EncodedKeySpec(Base64.decodeBase64(privateKeyPem))
+    val key = privateKeyPem.replace(Regex("\\\\n|-----[A-Z ]+-----"), "")
+    val keySpec = PKCS8EncodedKeySpec(Base64.decodeBase64(key))
     return KeyFactory.getInstance("RSA").generatePrivate(keySpec) as RSAPrivateKey
 }
 
