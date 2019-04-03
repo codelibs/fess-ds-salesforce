@@ -15,38 +15,40 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SCampaign.Field.*
 
 /** キャンペーン */
 data class SCampaign(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Type, Status, Description).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** キャンペーン ID */
-        override val id: String,
+        Id,
         /** 名前 */
-        val name: String,
+        Name,
         /** 種別 */
-        val type: String?,
+        Type,
         /** 状況 */
-        val status: String?,
+        Status,
         /** 開始日 */
-        val startDate: Date?,
+        StartDate,
         /** 終了日 */
-        val endDate: Date?,
+        EndDate,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(name, type, status, description).joinToString("\n")
-    override val objectType: SObjects = SObjects.Campaign
+        LastReferencedDate
+    }
 }

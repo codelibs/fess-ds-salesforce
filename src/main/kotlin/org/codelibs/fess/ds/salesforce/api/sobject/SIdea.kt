@@ -15,40 +15,42 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SIdea.Field.*
 
 /** アイデア */
 data class SIdea(
+        override val title: String = Title.name,
+        override val contents: List<String> = listOf(Title, Body, Categories, Status, CreatorName).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** アイデア ID */
-        override val id: String,
+        Id,
         /** タイトル */
-        val title: String,
+        Title,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** アイデア本文 */
-        val body: String?,
+        Body,
         /** カテゴリ */
-        val categories: String?,
+        Categories,
         /** 状況 */
-        val status: String?,
+        Status,
         /** 最終アイデアのコメント日 */
-        val lastCommentDate: Date?,
+        LastCommentDate,
         /** 作成者のプロファイル写真の URL */
-        val creatorFullPhotoUrl: String?,
+        CreatorFullPhotoUrl,
         /** 作成者の写真のサムネイルの URL */
-        val creatorSmallPhotoUrl: String?,
+        CreatorSmallPhotoUrl,
         /** 作成者の名前 */
-        val creatorName: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $title"
-    override fun content(): String = listOfNotNull(id, title, body, categories, status, creatorName).joinToString("\n")
-    override val objectType: SObjects = SObjects.Idea
+        CreatorName
+    }
 }

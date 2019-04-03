@@ -15,40 +15,42 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SListEmail.Field.*
 
 /** リストメール */
 data class SListEmail(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Subject, TextBody, FromName, FromAddress, Status).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** リストメール ID */
-        override val id: String,
+        Id,
         /** 名前 */
-        val name: String,
+        Name,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** 件名 */
-        val subject: String?,
+        Subject,
         /** HTML 内容 */
-        val htmlBody: String?,
+        HtmlBody,
         /** テキスト内容 */
-        val textBody: String?,
+        TextBody,
         /** 差出人名 */
-        val fromName: String?,
+        FromName,
         /** 送信元アドレス */
-        val fromAddress: String,
+        FromAddress,
         /** 状況 */
-        val status: String,
+        Status,
         /** 予定日 */
-        val scheduledDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, subject, textBody, fromName, fromAddress, status).joinToString("\n")
-    override val objectType: SObjects = SObjects.ListEmail
+        ScheduledDate
+    }
 }

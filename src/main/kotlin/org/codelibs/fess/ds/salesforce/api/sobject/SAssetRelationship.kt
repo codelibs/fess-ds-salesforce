@@ -15,32 +15,34 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SAssetRelationship.Field.AssetRelationshipNumber
 
 /** 納入商品リレーション */
 data class SAssetRelationship(
+        override val title: String = AssetRelationshipNumber.name,
+        override val contents: List<String> = listOf(AssetRelationshipNumber).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 納入商品リレーション ID */
-        override val id: String,
+        Id,
         /** 納入商品リレーション番号 */
-        val assetRelationshipNumber: String,
+        AssetRelationshipNumber,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** 開始日 */
-        val fromDate: Date?,
+        FromDate,
         /** 終了日 */
-        val toDate: Date?,
+        ToDate,
         /** リレーション種別 */
-        val relationshipType: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $assetRelationshipNumber"
-    override fun content(): String = listOfNotNull(id, assetRelationshipNumber).joinToString("\n")
-    override val objectType: SObjects = SObjects.AssetRelationship
+        RelationshipType
+    }
 }

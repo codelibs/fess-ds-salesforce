@@ -15,40 +15,42 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SProduct2.Field.*
 
 /** 商品 */
 data class SProduct2(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, ProductCode, Description, Family, ExternalId, DisplayUrl).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 商品 ID */
-        override val id: String,
+        Id,
         /** 商品名 */
-        val name: String,
+        Name,
         /** 商品コード */
-        val productCode: String?,
+        ProductCode,
         /** 商品 説明 */
-        val description: String?,
+        Description,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 商品ファミリ */
-        val family: String?,
+        Family,
         /** 外部 ID */
-        val externalId: String?,
+        ExternalId,
         /** 表示 URL */
-        val displayUrl: String?,
+        DisplayUrl,
         /** 基準数量単位 */
-        val quantityUnitOfMeasure: String?,
+        QuantityUnitOfMeasure,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** 商品 SKU */
-        val stockKeepingUnit: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, productCode, description, family, externalId, displayUrl).joinToString("\n")
-    override val objectType: SObjects = SObjects.Product2
+        StockKeepingUnit
+    }
 }

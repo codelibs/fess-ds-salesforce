@@ -13,16 +13,17 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api.sobject
+package org.codelibs.fess.ds.salesforce.api
 
-import java.util.*
+interface SearchLayout {
+    val title: String
+    val contents: List<String>
+    val digests: List<String> get() = contents
+    val thumbnail: String? get() = null
 
-interface Searchable {
-    fun title(): String
-    fun content(): String
-    fun digest(): String = content()
-    fun urlPath(): String
-    fun created(): Date
-    fun lastModified(): Date
-    fun thumbnail(): String? = null
+    val id: String get() = "Id"
+    val created: String get() = "CreatedDate"
+    val lastModified: String get() = "LastModifiedDate"
+
+    fun fields(): List<String> = (contents + digests + listOfNotNull(id, created, lastModified, thumbnail)).distinct()
 }

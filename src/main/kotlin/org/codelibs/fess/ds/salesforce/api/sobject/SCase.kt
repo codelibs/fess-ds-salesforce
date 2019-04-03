@@ -15,60 +15,62 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SCase.Field.*
 
 /** ケース */
 data class SCase(
+        override val title: String = Subject.name,
+        override val contents: List<String> = listOf(CaseNumber, SuppliedName, SuppliedEmail, SuppliedPhone, SuppliedCompany, Type, Status, Reason, Origin, Subject, Description, ContactPhone, ContactMobile, ContactEmail, ContactFax, Comments).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** ケース ID */
-        override val id: String,
+        Id,
         /** ケース番号 */
-        val caseNumber: String,
+        CaseNumber,
         /** 名前 */
-        val suppliedName: String?,
+        SuppliedName,
         /** メールアドレス */
-        val suppliedEmail: String?,
+        SuppliedEmail,
         /** 電話 */
-        val suppliedPhone: String?,
+        SuppliedPhone,
         /** 会社名 */
-        val suppliedCompany: String?,
+        SuppliedCompany,
         /** ケース種別 */
-        val type: String?,
+        Type,
         /** 状況 */
-        val status: String?,
+        Status,
         /** 原因 */
-        val reason: String?,
+        Reason,
         /** 発生源 */
-        val origin: String?,
+        Origin,
         /** 件名 */
-        val subject: String?,
+        Subject,
         /** 優先度 */
-        val priority: String?,
+        Priority,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 完了日 */
-        val closedDate: Date?,
+        ClosedDate,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 取引先責任者 電話 */
-        val contactPhone: String?,
+        ContactPhone,
         /** 取引先責任者 携帯 */
-        val contactMobile: String?,
+        ContactMobile,
         /** 取引先責任者 メール */
-        val contactEmail: String?,
+        ContactEmail,
         /** 取引先責任者 Fax */
-        val contactFax: String?,
+        ContactFax,
         /** 社内コメント */
-        val comments: String?,
+        Comments,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $subject"
-    override fun content(): String = listOfNotNull(id, caseNumber, suppliedName, suppliedEmail, suppliedPhone, suppliedCompany, type, status, reason, origin, subject, description, contactPhone, contactMobile, contactEmail, contactFax, comments).joinToString("\n")
-    override val objectType: SObjects = SObjects.Case
+        LastReferencedDate
+    }
 }

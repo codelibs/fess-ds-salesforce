@@ -15,64 +15,66 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SContract.Field.*
 
 /** 契約 */
 data class SContract(
+        override val title: String = ContractNumber.name,
+        override val contents: List<String> = listOf(Status, Description, ContractNumber).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 契約 ID */
-        override val id: String,
+        Id,
         /** 所有者に対する終了通知 */
-        val ownerExpirationNotice: String?,
+        OwnerExpirationNotice,
         /** 契約開始日 */
-        val startDate: Date?,
+        StartDate,
         /** 契約終了日 */
-        val endDate: Date?,
+        EndDate,
         /** 町名・番地(請求先) */
-        val billingStreet: String?,
+        BillingStreet,
         /** 市区郡(請求先) */
-        val billingCity: String?,
+        BillingCity,
         /** 都道府県(請求先) */
-        val billingState: String?,
+        BillingState,
         /** 郵便番号(請求先) */
-        val billingPostalCode: String?,
+        BillingPostalCode,
         /** 国(請求先) */
-        val billingCountry: String?,
+        BillingCountry,
         /** Billing Geocode Accuracy */
-        val billingGeocodeAccuracy: String?,
+        BillingGeocodeAccuracy,
         /** 状況 */
-        val status: String,
+        Status,
         /** 自社 契約日 */
-        val companySignedDate: Date?,
+        CompanySignedDate,
         /** 顧客 調印者役職 */
-        val customerSignedTitle: String?,
+        CustomerSignedTitle,
         /** 顧客 契約日 */
-        val customerSignedDate: Date?,
+        CustomerSignedDate,
         /** 特記事項 */
-        val specialTerms: String?,
+        SpecialTerms,
         /** 有効日 */
-        val activatedDate: Date?,
+        ActivatedDate,
         /** 状況のカテゴリ */
-        val statusCode: String,
+        StatusCode,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 契約番号 */
-        val contractNumber: String,
+        ContractNumber,
         /** 最終承認日 */
-        val lastApprovedDate: Date?,
+        LastApprovedDate,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $contractNumber"
-    override fun content(): String = listOfNotNull(id, status, description, contractNumber).joinToString("\n")
-    override val objectType: SObjects = SObjects.Contract
+        LastReferencedDate
+    }
 }

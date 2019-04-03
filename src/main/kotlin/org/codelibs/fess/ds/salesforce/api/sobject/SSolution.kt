@@ -15,32 +15,34 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SSolution.Field.*
 
 /** ソリューション */
 data class SSolution(
+        override val title: String = SolutionName.name,
+        override val contents: List<String> = listOf(SolutionName, Status, SolutionNote).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** ソリューション ID */
-        override val id: String,
+        Id,
         /** ソリューション 番号 */
-        val solutionNumber: String,
+        SolutionNumber,
         /** ソリューション名 */
-        val solutionName: String,
+        SolutionName,
         /** 状況 */
-        val status: String,
+        Status,
         /** 説明 */
-        val solutionNote: String?,
+        SolutionNote,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $solutionName"
-    override fun content(): String = listOfNotNull(id, solutionName, status, solutionNote).joinToString("\n")
-    override val objectType: SObjects = SObjects.Solution
+        LastReferencedDate
+    }
 }

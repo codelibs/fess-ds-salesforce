@@ -15,123 +15,125 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SUser.Field.*
 
 /** ユーザ */
 data class SUser(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Username, Name, CompanyName, Division, Department, Title, Email, Phone, Fax, MobilePhone, Alias, CommunityNickname, AboutMe).map { it.name },
+        override val thumbnail: String = SmallPhotoUrl.name
+) : SearchLayout {
+    enum class Field {
         /** ユーザ ID */
-        override val id: String,
+        Id,
         /** ユーザ名 */
-        val username: String,
+        Username,
         /** 姓 */
-        val lastName: String,
+        LastName,
         /** 名 */
-        val firstName: String?,
+        FirstName,
         /** 氏名 */
-        val name: String,
+        Name,
         /** 会社名 */
-        val companyName: String?,
+        CompanyName,
         /** ディビジョン */
-        val division: String?,
+        Division,
         /** 部署 */
-        val department: String?,
+        Department,
         /** 役職 */
-        val title: String?,
+        Title,
         /** 町名・番地 */
-        val street: String?,
+        Street,
         /** 市区郡 */
-        val city: String?,
+        City,
         /** 都道府県 */
-        val state: String?,
+        State,
         /** 郵便番号 */
-        val postalCode: String?,
+        PostalCode,
         /** 国 */
-        val country: String?,
+        Country,
         /** Geocode Accuracy */
-        val geocodeAccuracy: String?,
+        GeocodeAccuracy,
         /** メール */
-        val email: String,
+        Email,
         /** 送信者のメールアドレス */
-        val senderEmail: String?,
+        SenderEmail,
         /** メール送信者の名前 */
-        val senderName: String?,
+        SenderName,
         /** メールの署名 */
-        val signature: String?,
+        Signature,
         /** 登録情報照会メールの件名 */
-        val stayInTouchSubject: String?,
+        StayInTouchSubject,
         /** 登録情報照会メールの署名 */
-        val stayInTouchSignature: String?,
+        StayInTouchSignature,
         /** 登録情報照会メールのメモ */
-        val stayInTouchNote: String?,
+        StayInTouchNote,
         /** 電話 */
-        val phone: String?,
+        Phone,
         /** Fax */
-        val fax: String?,
+        Fax,
         /** モバイル */
-        val mobilePhone: String?,
+        MobilePhone,
         /** 別名 */
-        val alias: String,
+        Alias,
         /** ニックネーム */
-        val communityNickname: String,
+        CommunityNickname,
         /** ユーザの写真のバッジテキストのフロート表示 */
-        val badgeText: String?,
+        BadgeText,
         /** タイムゾーン */
-        val timeZoneSidKey: String,
+        TimeZoneSidKey,
         /** 地域 */
-        val localeSidKey: String,
+        LocaleSidKey,
         /** メールの文字コード */
-        val emailEncodingKey: String,
+        EmailEncodingKey,
         /** ユーザ種別 */
-        val userType: String?,
+        UserType,
         /** 言語 */
-        val languageLocaleKey: String,
+        LanguageLocaleKey,
         /** 従業員番号 */
-        val employeeNumber: String?,
+        EmployeeNumber,
         /** 最終ログイン */
-        val lastLoginDate: Date?,
+        LastLoginDate,
         /** 前回のパスワードの変更またはリセット */
-        val lastPasswordChangeDate: Date?,
+        LastPasswordChangeDate,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** Force.com Connect Offline トライアル期限 */
-        val offlineTrialExpirationDate: Date?,
+        OfflineTrialExpirationDate,
         /** Sales Anywhere トライアル期限 */
-        val offlinePdaTrialExpirationDate: Date?,
+        OfflinePdaTrialExpirationDate,
         /** 内線 */
-        val extension: String?,
+        Extension,
         /** SAML 統合 ID */
-        val federationIdentifier: String?,
+        FederationIdentifier,
         /** 自己紹介 */
-        val aboutMe: String?,
+        AboutMe,
         /** 実寸大の写真の URL */
-        val fullPhotoUrl: String?,
+        FullPhotoUrl,
         /** 写真 */
-        val smallPhotoUrl: String?,
+        SmallPhotoUrl,
         /** 不在通知 */
-        val outOfOfficeMessage: String?,
+        OutOfOfficeMessage,
         /** プロファイル写真 (中) の URL */
-        val mediumPhotoUrl: String?,
+        MediumPhotoUrl,
         /** Chatter メールハイライト送信頻度 */
-        val digestFrequency: String,
+        DigestFrequency,
         /** グループに参加する場合のデフォルト通知頻度 */
-        val defaultGroupNotificationFrequency: String,
+        DefaultGroupNotificationFrequency,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** バナー写真の URL */
-        val bannerPhotoUrl: String?,
+        BannerPhotoUrl,
         /** iOS バナー写真の URL */
-        val smallBannerPhotoUrl: String?,
+        SmallBannerPhotoUrl,
         /** Android バナー写真の URL */
-        val mediumBannerPhotoUrl: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, username, name, companyName, division, department, title, email, phone, fax, mobilePhone, alias, communityNickname, aboutMe).joinToString("\n")
-    override fun thumbnail(): String? = smallPhotoUrl
-    override val objectType: SObjects = SObjects.User
+        MediumBannerPhotoUrl
+    }
 }

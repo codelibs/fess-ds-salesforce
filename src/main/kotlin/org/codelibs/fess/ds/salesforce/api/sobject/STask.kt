@@ -15,56 +15,58 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.STask.Field.*
 
 /** ToDo */
 data class STask(
+        override val title: String = Subject.name,
+        override val contents: List<String> = listOf(Subject, Status, Priority, Description).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 活動 ID */
-        override val id: String,
+        Id,
         /** 件名 */
-        val subject: String?,
+        Subject,
         /** 期日のみ */
-        val activityDate: Date?,
+        ActivityDate,
         /** 状況 */
-        val status: String,
+        Status,
         /** 優先度 */
-        val priority: String,
+        Priority,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 通話種別 */
-        val callType: String?,
+        CallType,
         /** 通話結果 */
-        val callDisposition: String?,
+        CallDisposition,
         /** 通話オブジェクト ID */
-        val callObject: String?,
+        CallObject,
         /** アラーム日付/時間 */
-        val reminderDateTime: Date?,
+        ReminderDateTime,
         /** 繰り返しの開始 */
-        val recurrenceStartDateOnly: Date?,
+        RecurrenceStartDateOnly,
         /** 繰り返しの終了 */
-        val recurrenceEndDateOnly: Date?,
+        RecurrenceEndDateOnly,
         /** 繰り返しタイムゾーン */
-        val recurrenceTimeZoneSidKey: String?,
+        RecurrenceTimeZoneSidKey,
         /** 繰り返し種別 */
-        val recurrenceType: String?,
+        RecurrenceType,
         /** 繰り返しインスタンス */
-        val recurrenceInstance: String?,
+        RecurrenceInstance,
         /** 繰り返し月 */
-        val recurrenceMonthOfYear: String?,
+        RecurrenceMonthOfYear,
         /** この ToDo を繰り返す */
-        val recurrenceRegeneratedType: String?,
+        RecurrenceRegeneratedType,
         /** ToDo のサブ種別 */
-        val taskSubtype: String?,
+        TaskSubtype,
         /** 完了日 */
-        val completedDateTime: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $subject"
-    override fun content(): String = listOfNotNull(id, subject, status, priority, description).joinToString("\n")
-    override val objectType: SObjects = SObjects.Task
+        CompletedDateTime
+    }
 }

@@ -15,30 +15,32 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SMacro.Field.*
 
 /** マクロ */
 data class SMacro(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Description, StartingContext).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** マクロ ID */
-        override val id: String,
+        Id,
         /** マクロ名 */
-        val name: String,
+        Name,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 適用先 */
-        val startingContext: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, description, startingContext).joinToString("\n")
-    override val objectType: SObjects = SObjects.Macro
+        StartingContext
+    }
 }

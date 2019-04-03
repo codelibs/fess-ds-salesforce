@@ -15,101 +15,102 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SContact.Field.*
 
 /** 取引先責任者 */
 data class SContact(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Phone, Fax, MobilePhone, HomePhone, OtherPhone, Email, Title, Department, Description).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 取引先責任者 ID */
-        override val id: String,
+        Id,
         /** 姓 */
-        val lastName: String,
+        LastName,
         /** 名 */
-        val firstName: String?,
+        FirstName,
         /** 敬称 */
-        val salutation: String?,
+        Salutation,
         /** 氏名 */
-        val name: String,
+        Name,
         /** 町名・番地(その他) */
-        val otherStreet: String?,
+        OtherStreet,
         /** 市区郡(その他) */
-        val otherCity: String?,
+        OtherCity,
         /** 都道府県(その他) */
-        val otherState: String?,
+        OtherState,
         /** 郵便番号(その他) */
-        val otherPostalCode: String?,
+        OtherPostalCode,
         /** 国(その他) */
-        val otherCountry: String?,
+        OtherCountry,
         /** Other Geocode Accuracy */
-        val otherGeocodeAccuracy: String?,
+        OtherGeocodeAccuracy,
         /** 町名・番地(郵送先) */
-        val mailingStreet: String?,
+        MailingStreet,
         /** 市区郡(郵送先) */
-        val mailingCity: String?,
+        MailingCity,
         /** 都道府県(郵送先) */
-        val mailingState: String?,
+        MailingState,
         /** 郵便番号(郵送先) */
-        val mailingPostalCode: String?,
+        MailingPostalCode,
         /** 国(郵送先) */
-        val mailingCountry: String?,
+        MailingCountry,
         /** Mailing Geocode Accuracy */
-        val mailingGeocodeAccuracy: String?,
+        MailingGeocodeAccuracy,
         /** 電話 */
-        val phone: String?,
+        Phone,
         /** Fax */
-        val fax: String?,
+        Fax,
         /** 携帯電話 */
-        val mobilePhone: String?,
+        MobilePhone,
         /** 自宅電話 */
-        val homePhone: String?,
+        HomePhone,
         /** その他の電話 */
-        val otherPhone: String?,
+        OtherPhone,
         /** アシスタント電話 */
-        val assistantPhone: String?,
+        AssistantPhone,
         /** メール */
-        val email: String?,
+        Email,
         /** 役職 */
-        val title: String?,
+        Title,
         /** 部署 */
-        val department: String?,
+        Department,
         /** アシスタント名 */
-        val assistantName: String?,
+        AssistantName,
         /** リードソース */
-        val leadSource: String?,
+        LeadSource,
         /** 誕生日 */
-        val birthdate: Date?,
+        Birthdate,
         /** 取引先責任者 説明 */
-        val description: String?,
+        Description,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 登録情報照会 最終依頼日 */
-        val lastCURequestDate: Date?,
+        LastCURequestDate,
         /** 登録情報照会 最終更新日 */
-        val lastCUUpdateDate: Date?,
+        LastCUUpdateDate,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** メール不達の理由 */
-        val emailBouncedReason: String?,
+        EmailBouncedReason,
         /** メール不達発生日 */
-        val emailBouncedDate: Date?,
+        EmailBouncedDate,
         /** 写真の URL */
-        val photoUrl: String?,
+        PhotoUrl,
         /** Data.com キー */
-        val jigsaw: String?,
+        Jigsaw,
         /** Jigsaw Contact ID */
-        val jigsawContactId: String?,
+        JigsawContactId,
         /** 状況をクリーンアップ */
-        val cleanStatus: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, phone, fax, mobilePhone, homePhone, otherPhone, email, title, department, description).joinToString("\n")
-    override fun thumbnail(): String? = photoUrl
-    override val objectType: SObjects = SObjects.Contact
+        CleanStatus
+    }
 }

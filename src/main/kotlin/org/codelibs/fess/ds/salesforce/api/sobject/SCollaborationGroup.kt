@@ -15,47 +15,49 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SCollaborationGroup.Field.*
 
 /** グループ */
 data class SCollaborationGroup(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Description, InformationTitle, InformationBody, GroupEmail).map { it.name },
+        override val thumbnail: String = SmallPhotoUrl.name
+) : SearchLayout {
+    enum class Field {
         /** グループ ID */
-        override val id: String,
+        Id,
         /** 名前 */
-        val name: String,
+        Name,
         /** アクセス種別 */
-        val collaborationType: String,
+        CollaborationType,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 実寸大の写真の URL */
-        val fullPhotoUrl: String?,
+        FullPhotoUrl,
         /** プロファイル写真 (中) の URL */
-        val mediumPhotoUrl: String?,
+        MediumPhotoUrl,
         /** 写真 */
-        val smallPhotoUrl: String?,
+        SmallPhotoUrl,
         /** 最終フィード更新日 */
-        val lastFeedModifiedDate: Date,
+        LastFeedModifiedDate,
         /** 情報のタイトル */
-        val informationTitle: String?,
+        InformationTitle,
         /** 情報 */
-        val informationBody: String?,
+        InformationBody,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** グループのメール */
-        val groupEmail: String?,
+        GroupEmail,
         /** バナー写真の URL */
-        val bannerPhotoUrl: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, description, informationTitle, informationBody, groupEmail).joinToString("\n")
-    override fun thumbnail(): String? = smallPhotoUrl
-    override val objectType: SObjects = SObjects.CollaborationGroup
+        BannerPhotoUrl
+    }
 }

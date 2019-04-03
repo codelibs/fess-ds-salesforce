@@ -56,7 +56,7 @@ fun getQueryResultStream(connection: BulkConnection, job: JobInfo, batch: BatchI
                     result.complete(queryResults.result)
                 }
                 Failed -> {
-                    logger.debug("Batch:${batch.id} Failed caused by '${info.stateMessage}'")
+                    logger.warn("Batch:${batch.id} Failed caused by '${info.stateMessage}'")
                     result.complete(arrayOf())
                 }
                 else -> {

@@ -15,87 +15,88 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SLead.Field.*
 
 /** リード */
 data class SLead(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Title, Company, Phone, MobilePhone, Fax, Email, Website, Description, Status, Industry).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** リード ID */
-        override val id: String,
+        Id,
         /** 姓 */
-        val lastName: String,
+        LastName,
         /** 名 */
-        val firstName: String?,
+        FirstName,
         /** 敬称 */
-        val salutation: String?,
+        Salutation,
         /** 氏名 */
-        val name: String,
+        Name,
         /** 役職 */
-        val title: String?,
+        Title,
         /** 会社名 */
-        val company: String,
+        Company,
         /** 町名・番地 */
-        val street: String?,
+        Street,
         /** 市区郡 */
-        val city: String?,
+        City,
         /** 都道府県 */
-        val state: String?,
+        State,
         /** 郵便番号 */
-        val postalCode: String?,
+        PostalCode,
         /** 国 */
-        val country: String?,
+        Country,
         /** Geocode Accuracy */
-        val geocodeAccuracy: String?,
+        GeocodeAccuracy,
         /** 電話 */
-        val phone: String?,
+        Phone,
         /** 携帯電話 */
-        val mobilePhone: String?,
+        MobilePhone,
         /** Fax */
-        val fax: String?,
+        Fax,
         /** メール */
-        val email: String?,
+        Email,
         /** Web サイト */
-        val website: String?,
+        Website,
         /** 写真の URL */
-        val photoUrl: String?,
+        PhotoUrl,
         /** 説明 */
-        val description: String?,
+        Description,
         /** リードソース */
-        val leadSource: String?,
+        LeadSource,
         /** 状況 */
-        val status: String,
+        Status,
         /** 業種 */
-        val industry: String?,
+        Industry,
         /** 評価 */
-        val rating: String?,
+        Rating,
         /** 取引開始日 */
-        val convertedDate: Date?,
+        ConvertedDate,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** Data.com キー */
-        val jigsaw: String?,
+        Jigsaw,
         /** Jigsaw Contact ID */
-        val jigsawContactId: String?,
+        JigsawContactId,
         /** 状況をクリーンアップ */
-        val cleanStatus: String?,
+        CleanStatus,
         /** 会社 D-U-N-S 番号 */
-        val companyDunsNumber: String?,
+        CompanyDunsNumber,
         /** メール不達の理由 */
-        val emailBouncedReason: String?,
+        EmailBouncedReason,
         /** メール不達発生日 */
-        val emailBouncedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, title, company, phone, mobilePhone, fax, email, website, description, status, industry).joinToString("\n")
-    override fun thumbnail(): String? = photoUrl
-    override val objectType: SObjects = SObjects.Lead
+        EmailBouncedDate
+    }
 }

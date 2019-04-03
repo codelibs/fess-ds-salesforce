@@ -15,41 +15,42 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SImage.Field.*
 
 /** 画像 */
 data class SImage(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, ImageTitle, ImageAlternateText, ImageUrl).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 画像 ID */
-        override val id: String,
+        Id,
         /** 名前 */
-        val name: String,
+        Name,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** 画像ビュー種別 */
-        val imageViewType: String?,
+        ImageViewType,
         /** 画像タイトル */
-        val imageTitle: String?,
+        ImageTitle,
         /** 画像の代替テキスト */
-        val imageAlternateText: String?,
+        ImageAlternateText,
         /** 画像の URL */
-        val imageUrl: String?,
+        ImageUrl,
         /** 画像クラス */
-        val imageClass: String?,
+        ImageClass,
         /** 画像クラスオブジェクト種別 */
-        val imageClassObjectType: String?,
+        ImageClassObjectType,
         /** キャプチャ角度 */
-        val capturedAngle: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, imageTitle, imageAlternateText, imageUrl).joinToString("\n")
-    override fun thumbnail(): String? = imageUrl
-    override val objectType: SObjects = SObjects.Image
+        CapturedAngle
+    }
 }

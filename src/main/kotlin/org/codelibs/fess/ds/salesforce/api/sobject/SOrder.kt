@@ -15,76 +15,78 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SOrder.Field.*
 
 /** 注文 */
 data class SOrder(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Status, Description, Type, Name, OrderNumber).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 注文 ID */
-        override val id: String,
+        Id,
         /** 注文開始日 */
-        val effectiveDate: Date,
+        EffectiveDate,
         /** 注文終了日 */
-        val endDate: Date?,
+        EndDate,
         /** 状況 */
-        val status: String,
+        Status,
         /** 説明 */
-        val description: String?,
+        Description,
         /** 顧客 承認日 */
-        val customerAuthorizedDate: Date?,
+        CustomerAuthorizedDate,
         /** 自社 承認日 */
-        val companyAuthorizedDate: Date?,
+        CompanyAuthorizedDate,
         /** 注文種別 */
-        val type: String?,
+        Type,
         /** 町名・番地(請求先) */
-        val billingStreet: String?,
+        BillingStreet,
         /** 市区郡(請求先) */
-        val billingCity: String?,
+        BillingCity,
         /** 都道府県(請求先) */
-        val billingState: String?,
+        BillingState,
         /** 郵便番号(請求先) */
-        val billingPostalCode: String?,
+        BillingPostalCode,
         /** 国(請求先) */
-        val billingCountry: String?,
+        BillingCountry,
         /** Billing Geocode Accuracy */
-        val billingGeocodeAccuracy: String?,
+        BillingGeocodeAccuracy,
         /** 町名・番地(納入先) */
-        val shippingStreet: String?,
+        ShippingStreet,
         /** 市区郡(納入先) */
-        val shippingCity: String?,
+        ShippingCity,
         /** 都道府県(納入先) */
-        val shippingState: String?,
+        ShippingState,
         /** 郵便番号(納入先) */
-        val shippingPostalCode: String?,
+        ShippingPostalCode,
         /** 国(納入先) */
-        val shippingCountry: String?,
+        ShippingCountry,
         /** Shipping Geocode Accuracy */
-        val shippingGeocodeAccuracy: String?,
+        ShippingGeocodeAccuracy,
         /** 注文名 */
-        val name: String?,
+        Name,
         /** PO 日付 */
-        val poDate: Date?,
+        PoDate,
         /** PO 番号 */
-        val poNumber: String?,
+        PoNumber,
         /** 注文参照番号 */
-        val orderReferenceNumber: String?,
+        OrderReferenceNumber,
         /** 有効化日 */
-        val activatedDate: Date?,
+        ActivatedDate,
         /** 状況のカテゴリ */
-        val statusCode: String,
+        StatusCode,
         /** 注文番号 */
-        val orderNumber: String,
+        OrderNumber,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, status, description, type, name, orderNumber).joinToString("\n")
-    override val objectType: SObjects = SObjects.Order
+        LastReferencedDate
+    }
 }

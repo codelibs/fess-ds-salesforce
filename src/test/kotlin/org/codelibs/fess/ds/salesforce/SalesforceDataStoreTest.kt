@@ -24,7 +24,6 @@ import org.codelibs.fess.es.config.exentity.DataConfig
 import org.codelibs.fess.util.ComponentUtil
 import org.dbflute.utflute.lastadi.ContainerTestCase
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class SalesforceDataStoreTest : ContainerTestCase() {
 
@@ -61,34 +60,22 @@ class SalesforceDataStoreTest : ContainerTestCase() {
                 "base_url" to BASE_URL
         )
         val fessConfig = ComponentUtil.getFessConfig()
-        val scriptMap = mapOf(
-                fessConfig.indexFieldTitle to "sobject.title",
-                fessConfig.indexFieldContent to "sobject.content",
-                fessConfig.indexFieldContent to "sobject.digest",
-                fessConfig.indexFieldCreated to "sobject.created",
-                fessConfig.indexFieldLastModified to "sobject.last_modified",
-                fessConfig.indexFieldUrl to "sobject.url",
-                fessConfig.indexFieldThumbnail to "sobject.thumbnail"
-        )
-        val defaultDataMap = HashMap<String, Any>()
-        dataStore.storeData(dataConfig, object : TestCallback() {
-            override fun test(paramMap: Map<String, String>, dataMap: Map<String, Any>) {
-                logger.debug(dataMap.toString())
-            }
+        val scriptMap = emptyMap<String, String>()
+        val defaultDataMap = emptyMap<String, Any>()
+        dataStore.storeData(dataConfig, testCallback { dataMap: Map<String, Any> ->
+            logger.debug(dataMap[fessConfig.indexFieldTitle].toString())
         }, paramMap, scriptMap, defaultDataMap)
     }
 
 }
 
-internal abstract class TestCallback : IndexUpdateCallback {
+private fun testCallback(action: (Map<String, Any>) -> Unit): IndexUpdateCallback = object : IndexUpdateCallback {
     private var documentSize: Long = 0L
     private var executeTime: Long = 0L
 
-    abstract fun test(paramMap: Map<String, String>, dataMap: Map<String, Any>)
-
     override fun store(paramMap: Map<String, String>, dataMap: Map<String, Any>) {
         val startTime = System.currentTimeMillis()
-        test(paramMap, dataMap)
+        action(dataMap)
         executeTime += System.currentTimeMillis() - startTime
         documentSize++
     }

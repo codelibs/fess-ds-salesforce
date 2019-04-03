@@ -15,99 +15,101 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SAccount.Field.*
 
 /** 取引先 */
 data class SAccount(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Type, Phone, Fax, Website, TickerSymbol, Description, Site, DunsNumber).map { it.name },
+        override val thumbnail: String = PhotoUrl.name
+) : SearchLayout {
+    enum class Field {
         /** 取引先 ID */
-        override val id: String,
+        Id,
         /** 取引先名 */
-        val name: String,
+        Name,
         /** 取引先 種別 */
-        val type: String?,
+        Type,
         /** 町名・番地(請求先) */
-        val billingStreet: String?,
+        BillingStreet,
         /** 市区郡(請求先) */
-        val billingCity: String?,
+        BillingCity,
         /** 都道府県(請求先) */
-        val billingState: String?,
+        BillingState,
         /** 郵便番号(請求先) */
-        val billingPostalCode: String?,
+        BillingPostalCode,
         /** 国(請求先) */
-        val billingCountry: String?,
+        BillingCountry,
         /** Billing Geocode Accuracy */
-        val billingGeocodeAccuracy: String?,
+        BillingGeocodeAccuracy,
         /** 町名・番地(納入先) */
-        val shippingStreet: String?,
+        ShippingStreet,
         /** 市区郡(納入先) */
-        val shippingCity: String?,
+        ShippingCity,
         /** 都道府県(納入先) */
-        val shippingState: String?,
+        ShippingState,
         /** 郵便番号(納入先) */
-        val shippingPostalCode: String?,
+        ShippingPostalCode,
         /** 国(納入先) */
-        val shippingCountry: String?,
+        ShippingCountry,
         /** Shipping Geocode Accuracy */
-        val shippingGeocodeAccuracy: String?,
+        ShippingGeocodeAccuracy,
         /** 取引先 電話 */
-        val phone: String?,
+        Phone,
         /** 取引先 Fax */
-        val fax: String?,
+        Fax,
         /** 取引先番号 */
-        val accountNumber: String?,
+        AccountNumber,
         /** Web サイト */
-        val website: String?,
+        Website,
         /** 写真の URL */
-        val photoUrl: String?,
+        PhotoUrl,
         /** 産業コード */
-        val sic: String?,
+        Sic,
         /** 業種 */
-        val industry: String?,
+        Industry,
         /** 会社形態 */
-        val ownership: String?,
+        Ownership,
         /** 株式コード */
-        val tickerSymbol: String?,
+        TickerSymbol,
         /** 取引先 説明 */
-        val description: String?,
+        Description,
         /** 取引先 評価 */
-        val rating: String?,
+        Rating,
         /** 取引先 部門 */
-        val site: String?,
+        Site,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** Data.com キー */
-        val jigsaw: String?,
+        Jigsaw,
         /** Jigsaw Company ID */
-        val jigsawCompanyId: String?,
+        JigsawCompanyId,
         /** 状況をクリーンアップ */
-        val cleanStatus: String?,
+        CleanStatus,
         /** 取引先ソース */
-        val accountSource: String?,
+        AccountSource,
         /** D-U-N-S 番号 */
-        val dunsNumber: String?,
+        DunsNumber,
         /** 取引形態 */
-        val tradestyle: String?,
+        Tradestyle,
         /** NAICS コード */
-        val naicsCode: String?,
+        NaicsCode,
         /** NAICS の説明 */
-        val naicsDesc: String?,
+        NaicsDesc,
         /** 開始年 */
-        val yearStarted: String?,
+        YearStarted,
         /** 産業区分の説明 */
-        val sicDesc: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, type, phone, fax, website, tickerSymbol, description, site, dunsNumber).joinToString("\n")
-    override fun thumbnail(): String? = photoUrl
-    override val objectType: SObjects = SObjects.Account
+        SicDesc
+    }
 }

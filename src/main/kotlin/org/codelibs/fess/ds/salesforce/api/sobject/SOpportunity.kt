@@ -15,46 +15,48 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SOpportunity.Field.*
 
 /** 商談 */
 data class SOpportunity(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Description, StageName, Type, NextStep).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** 商談 ID */
-        override val id: String,
+        Id,
         /** 商談名 */
-        val name: String,
+        Name,
         /** 説明 */
-        val description: String?,
+        Description,
         /** フェーズ */
-        val stageName: String,
+        StageName,
         /** 完了予定日 */
-        val closeDate: Date,
+        CloseDate,
         /** 商談 種別 */
-        val type: String?,
+        Type,
         /** 次のステップ */
-        val nextStep: String?,
+        NextStep,
         /** リードソース */
-        val leadSource: String?,
+        LeadSource,
         /** 売上予測分類 */
-        val forecastCategory: String,
+        ForecastCategory,
         /** 売上予測分類 */
-        val forecastCategoryName: String?,
+        ForecastCategoryName,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終活動日 */
-        val lastActivityDate: Date?,
+        LastActivityDate,
         /** 会計期間 */
-        val fiscal: String?,
+        Fiscal,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, description, stageName, type, nextStep).joinToString("\n")
-    override val objectType: SObjects = SObjects.Opportunity
+        LastReferencedDate
+    }
 }

@@ -15,53 +15,53 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import kotlin.reflect.KClass
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
 
-enum class SObjects(val dataClass: KClass<out SObject>) {
+enum class StandardObject(val layout: SearchLayout) {
     /** D&B 企業 */
-    DandBCompany(SDandBCompany::class),
+    DandBCompany(SDandBCompany()),
     /** ToDo */
-    Task(STask::class),
+    Task(STask()),
     /** おすすめ */
-    Recommendation(SRecommendation::class),
+    Recommendation(SRecommendation()),
     /** アイデア */
-    Idea(SIdea::class),
+    Idea(SIdea()),
     /** キャンペーン */
-    Campaign(SCampaign::class),
+    Campaign(SCampaign()),
     /** クイックテキスト */
-    QuickText(SQuickText::class),
+    QuickText(SQuickText()),
     /** グループ */
-    CollaborationGroup(SCollaborationGroup::class),
+    CollaborationGroup(SCollaborationGroup()),
     /** ケース */
-    Case(SCase::class),
+    Case(SCase()),
     /** ソリューション */
-    Solution(SSolution::class),
+    Solution(SSolution()),
     /** マクロ */
-    Macro(SMacro::class),
+    Macro(SMacro()),
     /** ユーザ */
-    User(SUser::class),
+    User(SUser()),
     /** リストメール */
-    ListEmail(SListEmail::class),
+    ListEmail(SListEmail()),
     /** リード */
-    Lead(SLead::class),
+    Lead(SLead()),
     /** 価格表 */
-    Pricebook2(SPricebook2::class),
+    Pricebook2(SPricebook2()),
     /** 取引先 */
-    Account(SAccount::class),
+    Account(SAccount()),
     /** 取引先責任者 */
-    Contact(SContact::class),
+    Contact(SContact()),
     /** 商品 */
-    Product2(SProduct2::class),
+    Product2(SProduct2()),
     /** 商談 */
-    Opportunity(SOpportunity::class),
+    Opportunity(SOpportunity()),
     /** 契約 */
-    Contract(SContract::class),
+    Contract(SContract()),
     /** 注文 */
-    Order(SOrder::class),
+    Order(SOrder()),
     /** 画像 */
-    Image(SImage::class),
+    Image(SImage()),
     /** 納入商品 */
-    Asset(SAsset::class),
+    Asset(SAsset()),
     /** 納入商品リレーション */
-    AssetRelationship(SAssetRelationship::class)
+    AssetRelationship(SAssetRelationship())
 }

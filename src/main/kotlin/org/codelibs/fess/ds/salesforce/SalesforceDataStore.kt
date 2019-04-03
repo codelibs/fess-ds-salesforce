@@ -20,18 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.sforce.async.BulkConnection
 import com.sforce.soap.partner.PartnerConnection
-import org.codelibs.fess.crawler.exception.CrawlingAccessException
 import org.codelibs.fess.ds.AbstractDataStore
 import org.codelibs.fess.ds.callback.IndexUpdateCallback
 import org.codelibs.fess.ds.salesforce.api.*
-import org.codelibs.fess.ds.salesforce.api.sobject.SObjects
-import org.codelibs.fess.ds.salesforce.api.sobject.Searchable
+import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject
 import org.codelibs.fess.es.config.exentity.DataConfig
 import org.codelibs.fess.util.ComponentUtil
 import org.slf4j.LoggerFactory
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.reflect.full.primaryConstructor
 
 class SalesforceDataStore : AbstractDataStore() {
 
@@ -46,8 +42,11 @@ class SalesforceDataStore : AbstractDataStore() {
         const val CLIENT_SECRET_PARAM = "client_secret"
         const val PRIVATE_KEY_PARAM = "private_key"
 
-        // scripts
-        const val SOBJECT = "sobject"
+        const val TITLE_PARAM = "title"
+        const val CONTENTS_PARAM = "contents"
+        const val DIGESTS_PARAM = "digests"
+        const val THUMBNAIL_PARAM = "thumbnail"
+        const val CUSTOM_PARAM = "custom"
     }
 
     private val logger = LoggerFactory.getLogger(SalesforceDataStore::class.java)
@@ -63,53 +62,61 @@ class SalesforceDataStore : AbstractDataStore() {
             return
         }
 
-        val instanceUrl = connection.config.serviceEndpoint.replace("/services/.*".toRegex(), "")
+        val instanceUrl = connection.config.serviceEndpoint.replace(Regex("/services/.*"), "")
         val bulk = getBulkConnection(connection)
         val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-        storeSearchablesData(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
+        storeStandardObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
+        storeCustomObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
     }
 
-    private fun storeSearchablesData(bulk: BulkConnection, mapper: ObjectMapper, callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>, instanceUrl: String) {
-        SObjects.values().forEach { o ->
+    private fun storeStandardObjects(bulk: BulkConnection, mapper: ObjectMapper,
+                                     callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
+                                     instanceUrl: String) {
+        StandardObject.values().forEach { o ->
             val job = createJob(bulk, o.name)
-            val fields = o.dataClass.primaryConstructor?.parameters?.mapNotNull { it.name } ?: ArrayList()
-            val query = createQuery(o.name, fields)
+            val layout = getSearchLayout(paramMap, o)
+            val query = createQuery(o.name, layout.fields())
             val batch = createBatch(bulk, job, query)
             getQueryResultStream(bulk, job, batch).forEach { stream ->
-                mapper.readTree(stream).forEach { node ->
-                    val obj = mapper.convertValue(node, o.dataClass.java)
-                    storeSearchableData(callback, paramMap, scriptMap, defaultDataMap, obj, instanceUrl)
+                mapper.readTree(stream).forEach {
+                    val data = SearchData.fromJson(o.name, it, layout)
+                    storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl)
                 }
             }
         }
     }
 
-    private fun storeSearchableData(callback: IndexUpdateCallback, paramMap: Map<String, String>,
-                                    scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>, searchable: Searchable, instanceUrl: String) {
-        val fessConfig = ComponentUtil.getFessConfig()
-        val dataMap = HashMap(defaultDataMap)
-        val resultMap = LinkedHashMap<String, Any>(paramMap)
-        val objectMap = HashMap<String, Any?>()
-        objectMap[fessConfig.indexFieldTitle] = searchable.title()
-        objectMap[fessConfig.indexFieldContent] = searchable.content()
-        objectMap[fessConfig.indexFieldDigest] = searchable.digest()
-        objectMap[fessConfig.indexFieldCreated] = searchable.created()
-        objectMap[fessConfig.indexFieldLastModified] = searchable.lastModified()
-        objectMap[fessConfig.indexFieldUrl] = "$instanceUrl${searchable.urlPath()}"
-        objectMap[fessConfig.indexFieldThumbnail] = searchable.thumbnail()
-        resultMap[SOBJECT] = objectMap
-        try {
-            for ((key, value) in scriptMap) {
-                val convertValue = convertValue(value, resultMap)
-                if (convertValue != null) {
-                    dataMap[key] = convertValue
+    private fun storeCustomObjects(bulk: BulkConnection, mapper: ObjectMapper,
+                                   callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
+                                   instanceUrl: String) {
+        getCustomObjects(paramMap).forEach { c ->
+            val job = createJob(bulk, c)
+            val layout = getSearchLayout(paramMap, c)
+            val query = createQuery(c, layout.fields())
+            val batch = createBatch(bulk, job, query)
+            getQueryResultStream(bulk, job, batch).forEach { stream ->
+                mapper.readTree(stream).forEach {
+                    val data = SearchData.fromJson(c, it, layout)
+                    storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl)
                 }
             }
-            callback.store(paramMap, dataMap)
-        } catch (e: CrawlingAccessException) {
-            logger.warn("Crawling Access Exception at : $dataMap", e)
         }
+    }
+
+    private fun storeSObjectData(callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
+                                 data: SearchData, instanceUrl: String) {
+        val fessConfig = ComponentUtil.getFessConfig()
+        val dataMap = HashMap(defaultDataMap)
+        dataMap[fessConfig.indexFieldTitle] = "[${data.type}] ${data.title}"
+        dataMap[fessConfig.indexFieldContent] = data.content
+        dataMap[fessConfig.indexFieldContentLength] = data.content.length
+        dataMap[fessConfig.indexFieldDigest] = data.digest
+        dataMap[fessConfig.indexFieldCreated] = data.created
+        dataMap[fessConfig.indexFieldLastModified] = data.lastModified
+        dataMap[fessConfig.indexFieldUrl] = "$instanceUrl/${data.id}"
+        dataMap[fessConfig.indexFieldThumbnail] = data.thumbnail
+        callback.store(paramMap, dataMap)
     }
 
     private fun getConnection(paramMap: Map<String, String>): PartnerConnection {
@@ -141,5 +148,34 @@ class SalesforceDataStore : AbstractDataStore() {
             }
         }
     }
+
+    private fun getSearchLayout(paramMap: Map<String, String>, obj: StandardObject): SearchLayout = object : SearchLayout {
+        override val title: String =
+                paramMap["${obj.name}.$TITLE_PARAM"]
+                        ?: obj.layout.title
+        override val contents: List<String> =
+                paramMap["${obj.name}.$CONTENTS_PARAM"]?.split(",")?.map { it.trim() }
+                        ?: obj.layout.contents
+        override val digests: List<String> =
+                paramMap["${obj.name}.$DIGESTS_PARAM"]?.split(",")?.map { it.trim() }
+                        ?: obj.layout.digests
+        override val thumbnail: String? =
+                paramMap["${obj.name}.$THUMBNAIL_PARAM"]
+                        ?: obj.layout.thumbnail
+    }
+
+    private fun getSearchLayout(paramMap: Map<String, String>, type: String): SearchLayout = object : SearchLayout {
+        override val title: String =
+                paramMap["$type.$TITLE_PARAM"] ?: type
+        override val contents: List<String> =
+                paramMap["$type.$CONTENTS_PARAM"]?.split(",")?.map { it.trim() } ?: emptyList()
+        override val digests: List<String> =
+                paramMap["$type.$DIGESTS_PARAM"]?.split(",")?.map { it.trim() } ?: emptyList()
+        override val thumbnail: String? =
+                paramMap["$type.$THUMBNAIL_PARAM"]
+    }
+
+    private fun getCustomObjects(paramMap: Map<String, String>): List<String> =
+            paramMap[CUSTOM_PARAM]?.split(",")?.map { it.trim() } ?: emptyList()
 
 }

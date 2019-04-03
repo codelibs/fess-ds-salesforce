@@ -15,32 +15,35 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject
 
-import java.util.*
+import org.codelibs.fess.ds.salesforce.api.SearchLayout
+import org.codelibs.fess.ds.salesforce.api.sobject.SQuickText.Field.*
 
 /** クイックテキスト */
 data class SQuickText(
+        override val title: String = Name.name,
+        override val contents: List<String> = listOf(Name, Message, Category, Channel).map { it.name }
+) : SearchLayout {
+    enum class Field {
         /** クイックテキスト ID */
-        override val id: String,
+        Id,
         /** クイックテキスト名 */
-        val name: String,
+        Name,
         /** 作成日 */
-        override val createdDate: Date,
+        CreatedDate,
         /** 最終更新日 */
-        override val lastModifiedDate: Date,
+        LastModifiedDate,
         /** System Modstamp */
-        val systemModstamp: Date,
+        SystemModstamp,
         /** 最終閲覧日 */
-        val lastViewedDate: Date?,
+        LastViewedDate,
         /** 最終参照日 */
-        val lastReferencedDate: Date?,
+        LastReferencedDate,
         /** メッセージ */
-        val message: String,
+        Message,
         /** カテゴリ */
-        val category: String?,
+        Category,
         /** チャネル */
-        val channel: String?
-) : SObject {
-    override fun title(): String = "${super.title()} $name"
-    override fun content(): String = listOfNotNull(id, name, message, category, channel).joinToString("\n")
-    override val objectType: SObjects = SObjects.QuickText
+        Channel
+
+    }
 }
