@@ -16,10 +16,10 @@
 package org.codelibs.fess.ds.salesforce.api
 
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException
-import org.dbflute.utflute.lastadi.ContainerTestCase
+import org.dbflute.utflute.lastaflute.LastaFluteTestCase
 import org.slf4j.LoggerFactory
 
-class AuthenticationTest : ContainerTestCase() {
+class AuthenticationTest : LastaFluteTestCase() {
 
     companion object {
         const val BASE_URL = ""

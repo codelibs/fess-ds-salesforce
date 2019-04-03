@@ -22,10 +22,10 @@ import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.PRIVATE_
 import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.USERNAME
 import org.codelibs.fess.es.config.exentity.DataConfig
 import org.codelibs.fess.util.ComponentUtil
-import org.dbflute.utflute.lastadi.ContainerTestCase
+import org.dbflute.utflute.lastaflute.LastaFluteTestCase
 import org.slf4j.LoggerFactory
 
-class SalesforceDataStoreTest : ContainerTestCase() {
+class SalesforceDataStoreTest : LastaFluteTestCase() {
 
     private val logger = LoggerFactory.getLogger(SalesforceDataStoreTest::class.java)
 
