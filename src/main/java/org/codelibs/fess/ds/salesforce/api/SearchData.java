@@ -37,9 +37,13 @@ public class SearchData {
         this.title =  node.get(obj.getTitle()) != null ? node.get(obj.getTitle()).asText() : node.get(obj.getId()).asText();
         if(obj.getContents() != null) {
             this.content = String.join("\n", obj.getContents());
+        } else {
+            this.content = "";
         }
         if(obj.getDigests() != null) {
             this.digest = String.join("\n", obj.getDigests().stream().filter(o -> node.get(o) != null).map(o -> node.get(o).asText()).collect(Collectors.toList()));
+        } else {
+            this.digest = "";
         }
         this.created = new Date(node.get(obj.getCreated()).asLong());
         this.lastModified = new Date(node.get(obj.getLastModified()).asLong());

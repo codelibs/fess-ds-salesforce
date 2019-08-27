@@ -93,6 +93,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                         Bulks.getQueryResultStream(bulk, job, batch).forEach(stream -> {
                                 try {
                                     mapper.readTree(stream).forEach(a -> {
+                                        logger.info("Processing jsonNode : " + a);
                                         SearchData data = new SearchData(o.name(), a, layout);
                                         storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl);
                                     });
@@ -142,7 +143,6 @@ public class SalesforceDataStore extends AbstractDataStore {
         FessConfig fessConfig = ComponentUtil.getFessConfig();
         Map<String, Object> dataMap = new HashMap(defaultDataMap);
         dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
-
         dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());
         dataMap.put(fessConfig.getIndexFieldContentLength(), data.getContent().length());
         dataMap.put(fessConfig.getIndexFieldDigest(), data.getDigest());

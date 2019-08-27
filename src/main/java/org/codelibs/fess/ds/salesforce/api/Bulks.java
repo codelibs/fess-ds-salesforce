@@ -84,7 +84,8 @@ public class Bulks {
 
         result.whenComplete((t, u) -> service.shutdownNow());
 
-        return Arrays.asList((String[]) result.get()).stream().map(o -> {
+        logger.info("Query results : " + String.join(",", (String[]) result.get()));
+        return Arrays.stream((String[]) result.get()).map(o -> {
                     try {
                         return connection.getQueryResultStream(job.getId(), batch.getId(), o);
                     } catch (AsyncApiException e) {
