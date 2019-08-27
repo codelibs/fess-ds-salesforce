@@ -65,7 +65,6 @@ public class Bulks {
                 switch (info.getState()) {
                     case Completed: {
                         QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
-                        logger.info("Query results : \n" + String.join("\n", queryResults.getResult()));
                         result.complete(queryResults.getResult());
                     }
                     case Failed: {
@@ -84,7 +83,6 @@ public class Bulks {
 
         result.whenComplete((t, u) -> service.shutdownNow());
 
-        logger.info("Query results : " + String.join(",", (String[]) result.get()));
         return Arrays.stream((String[]) result.get()).map(o -> {
                     try {
                         return connection.getQueryResultStream(job.getId(), batch.getId(), o);

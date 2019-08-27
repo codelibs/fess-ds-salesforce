@@ -29,6 +29,16 @@ class SQuickText extends SearchLayout {
             Field.Channel)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** クイックテキスト ID */
         Id,

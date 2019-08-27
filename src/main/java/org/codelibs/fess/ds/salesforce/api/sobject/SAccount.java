@@ -29,6 +29,16 @@ class SAccount extends SearchLayout {
             Field.Fax, Field.Website, Field.TickerSymbol, Field.Description, Field.Site, Field.DunsNumber)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** 取引先 ID */
         Id,

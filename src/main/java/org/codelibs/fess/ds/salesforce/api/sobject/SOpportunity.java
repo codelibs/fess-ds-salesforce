@@ -29,6 +29,16 @@ class SOpportunity extends SearchLayout {
             Field.Type, Field.NextStep)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** 商談 ID */
         Id,

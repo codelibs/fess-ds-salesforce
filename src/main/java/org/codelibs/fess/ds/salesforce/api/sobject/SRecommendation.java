@@ -28,6 +28,16 @@ class SRecommendation extends SearchLayout {
     List<String> contents = Arrays.asList(Field.Name, Field.Description)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** おすすめ ID */
         Id,

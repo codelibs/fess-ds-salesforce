@@ -30,6 +30,16 @@ class SUser extends SearchLayout {
             Field.MobilePhone, Field.Alias, Field.CommunityNickname, Field.AboutMe)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** ユーザ ID */
         Id,

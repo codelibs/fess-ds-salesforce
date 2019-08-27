@@ -50,7 +50,6 @@ public class Authentications {
     public static PartnerConnection getConnection(String username, String clientId,
                                            String privateKeyPem, String baseUrl) {
         TokenResponse response = getTokenResponse(username, clientId, privateKeyPem, baseUrl);
-        logger.info("Token response : " + response.toString());
         ConnectorConfig config = createConnectorConfig(response);
         try {
             return Connector.newConnection(config);
@@ -123,7 +122,6 @@ public class Authentications {
                     .param("client_id", clientId)
                     .param("client_secret", clientSecret)
                     .execute();
-            logger.info("Curl response : " + response.getContentAsString());
             try {
                 return parseTokenResponse(response.getContentAsStream());
             } catch(IOException e) {

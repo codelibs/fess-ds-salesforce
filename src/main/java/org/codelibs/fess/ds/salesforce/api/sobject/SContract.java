@@ -28,6 +28,16 @@ class SContract extends SearchLayout {
     List<String> contents = Arrays.asList(Field.Status, Field.Description, Field.ContractNumber)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** 契約 ID */
         Id,

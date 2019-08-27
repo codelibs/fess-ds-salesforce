@@ -23,11 +23,21 @@ import java.util.stream.Collectors;
 
 /** キャンペーン */
 class SCampaign extends SearchLayout {
-    String title = SAccount.Field.Name.name();
 
+    String title = SAccount.Field.Name.name();
     List<String> contents = Arrays.asList(Field.Name, Field.Type, Field.Status,
             Field.Description)
             .stream().map(o -> o.name()).collect(Collectors.toList());
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
 
     enum Field {
         /** キャンペーン ID */

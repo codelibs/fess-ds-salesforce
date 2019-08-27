@@ -29,8 +29,14 @@ class SDandBCompany extends SearchLayout {
             Field.Fax, Field.URL, Field.LocationStatus, Field.Description)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
-    public SDandBCompany() {
+    @Override
+    public String getTitle() {
+        return title;
+    }
 
+    @Override
+    public List<String> getContents() {
+        return contents;
     }
 
     enum Field {

@@ -30,6 +30,21 @@ class SCollaborationGroup extends SearchLayout {
             .stream().map(o -> o.name()).collect(Collectors.toList());
     String thumbnail = Field.SmallPhotoUrl.name();
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
+    @Override
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
     enum Field {
         /** グループ ID */
         Id,

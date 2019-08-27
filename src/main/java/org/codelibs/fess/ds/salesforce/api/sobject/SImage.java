@@ -29,6 +29,16 @@ class SImage extends SearchLayout {
             Field.ImageUrl)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** 画像 ID */
         Id,

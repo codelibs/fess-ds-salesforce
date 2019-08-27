@@ -29,6 +29,16 @@ class SProduct2 extends SearchLayout {
             Field.Family, Field.ExternalId, Field.DisplayUrl)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
     enum Field {
         /** 商品 ID */
         Id,

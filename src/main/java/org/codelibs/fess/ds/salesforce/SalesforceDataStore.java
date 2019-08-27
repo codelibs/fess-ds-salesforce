@@ -67,7 +67,6 @@ public class SalesforceDataStore extends AbstractDataStore {
                                   Map<String, String> scriptMap, Map<String, Object> defaultDataMap) {
         try {
             PartnerConnection connection = getConnection(paramMap);
-
             String instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
             BulkConnection bulk = Authentications.getBulkConnection(connection);
             ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -93,7 +92,6 @@ public class SalesforceDataStore extends AbstractDataStore {
                         Bulks.getQueryResultStream(bulk, job, batch).forEach(stream -> {
                                 try {
                                     mapper.readTree(stream).forEach(a -> {
-                                        logger.info("Processing jsonNode : " + a);
                                         SearchData data = new SearchData(o.name(), a, layout);
                                         storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl);
                                     });

@@ -24,12 +24,22 @@ import java.util.stream.Collectors;
 /** ケース */
 class SCase extends SearchLayout {
 
-        String title = Field.Subject.name();
-        List<String> contents = Arrays.asList(Field.CaseNumber, Field.SuppliedName, Field.SuppliedEmail,
-        Field.SuppliedPhone, Field.SuppliedCompany, Field.Type, Field.Status, Field.Reason, Field.Origin,
-        Field.Origin, Field.Subject, Field.Description, Field.ContactPhone, Field.ContactMobile,
-                Field.ContactEmail, Field.ContactFax, Field.Comments)
-        .stream().map(o -> o.name()).collect(Collectors.toList());
+    String title = Field.Subject.name();
+    List<String> contents = Arrays.asList(Field.CaseNumber, Field.SuppliedName, Field.SuppliedEmail,
+    Field.SuppliedPhone, Field.SuppliedCompany, Field.Type, Field.Status, Field.Reason, Field.Origin,
+    Field.Origin, Field.Subject, Field.Description, Field.ContactPhone, Field.ContactMobile,
+            Field.ContactEmail, Field.ContactFax, Field.Comments)
+    .stream().map(o -> o.name()).collect(Collectors.toList());
+
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
 
     enum Field {
         /** ケース ID */

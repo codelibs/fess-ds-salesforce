@@ -28,6 +28,16 @@ class SAssetRelationship extends SearchLayout {
     List<String> contents = Arrays.asList(Field.AssetRelationshipNumber).stream().map (o -> o.name())
             .collect(Collectors.toList());
 
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public List<String> getContents() {
+        return contents;
+    }
+
         enum Field {
         /** 納入商品リレーション ID */
         Id,
