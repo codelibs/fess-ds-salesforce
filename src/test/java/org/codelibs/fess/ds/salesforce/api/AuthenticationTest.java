@@ -13,63 +13,80 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api
+package org.codelibs.fess.ds.salesforce.api;
 
-import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase
-import org.slf4j.LoggerFactory
+import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class AuthenticationTest : LastaFluteTestCase() {
+import static org.codelibs.fess.ds.salesforce.api.Authentications.*;
 
-    companion object {
-        const val BASE_URL = ""
-        const val USERNAME = ""
-        const val PASSWORD = ""
-        const val SECURITY_TOKEN = ""
-        const val CLIENT_ID = ""
-        const val CLIENT_SECRET = ""
-        const val PRIVATE_KEY = ""
+public class AuthenticationTest extends LastaFluteTestCase {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationTest.class);
+
+    public static final String BASE_URL = "";
+    public static final String USERNAME = "";
+    public static final String PASSWORD = "";
+    public static final String SECURITY_TOKEN = "";
+    public static final String CLIENT_ID = "";
+    public static final String CLIENT_SECRET = "";
+    public static final String PRIVATE_KEY = "";
+
+    @Override
+    protected String prepareConfigFile() {
+        return "test_app.xml";
     }
 
-    private val logger = LoggerFactory.getLogger(AuthenticationTest::class.java)
+    @Override
+    protected boolean isSuppressTestCaseTransaction() {
+        return true;
+    }
 
-    override fun prepareConfigFile(): String = "test_app.xml"
-    override fun isSuppressTestCaseTransaction(): Boolean = true
 
-    fun testGetTokenResponse() {
+    public void testGetTokenResponse() {
         // doGetTokenResponse()
         // doGetTokenResponseByPassword()
     }
 
-    private fun doGetTokenResponse() {
+    private void doGetTokenResponse() {
         try {
-            val response = getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL)
-            logger.debug("AccessToken: ${response.accessToken}")
-        } catch (e: SalesforceDataStoreException) {
-            fail("Failed to get AccessToken by '${e.message}'")
+            TokenResponse response = getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+            logger.debug("AccessToken: " + response.accessToken);
+        } catch (SalesforceDataStoreException e) {
+            fail("Failed to get AccessToken by '" + e.getMessage() + "'");
         }
     }
 
-    private fun doGetTokenResponseByPassword() {
+    private void doGetTokenResponseByPassword() {
         try {
-            val response = getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL)
-            logger.debug("AccessToken: ${response.accessToken}")
-        } catch (e: SalesforceDataStoreException) {
-            fail("Failed to get AccessToken by '${e.message}'")
+            TokenResponse response = getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            logger.debug("AccessToken: ${response.accessToken}");
+        } catch (SalesforceDataStoreException e) {
+            fail("Failed to get AccessToken by '" + e.getMessage() + "'");
         }
     }
 
-    fun testGetConnection() {
+    public void testGetConnection() {
         // doGetConnection()
         // doGetConnectionByPassword()
     }
 
-    private fun doGetConnection() {
-        getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL)
+    private void doGetConnection() {
+        try {
+            getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+        } catch (SalesforceDataStoreException e) {
+            fail("Failed to get connection by '" + e.getMessage() + "'");
+        }
     }
 
-    private fun doGetConnectionByPassword() {
-        getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL)
+    private void doGetConnectionByPassword() {
+        try {
+            getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+        } catch (SalesforceDataStoreException e) {
+            fail("Failed to get connection by '" + e.getMessage() + "'");
+        }
     }
 
 }

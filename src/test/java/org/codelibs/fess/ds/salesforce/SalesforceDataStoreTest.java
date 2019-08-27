@@ -13,74 +13,70 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce
+package org.codelibs.fess.ds.salesforce;
 
-import org.codelibs.fess.ds.callback.IndexUpdateCallback
-import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.BASE_URL
-import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.CLIENT_ID
-import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.PRIVATE_KEY
-import org.codelibs.fess.ds.salesforce.api.AuthenticationTest.Companion.USERNAME
-import org.codelibs.fess.es.config.exentity.DataConfig
-import org.codelibs.fess.util.ComponentUtil
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase
-import org.slf4j.LoggerFactory
+import org.codelibs.fess.es.config.exentity.DataConfig;
+import org.codelibs.fess.mylasta.direction.FessConfig;
+import org.codelibs.fess.util.ComponentUtil;
+import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class SalesforceDataStoreTest : LastaFluteTestCase() {
+import java.util.HashMap;
+import java.util.Map;
 
-    private val logger = LoggerFactory.getLogger(SalesforceDataStoreTest::class.java)
+import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.CLIENT_ID;
+import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.USERNAME;
+import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.PRIVATE_KEY;
+import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.BASE_URL;
 
-    private lateinit var dataStore: SalesforceDataStore
+public class SalesforceDataStoreTest extends LastaFluteTestCase {
 
-    override fun prepareConfigFile(): String = "test_app.xml"
-    override fun isSuppressTestCaseTransaction(): Boolean = true
+    private Logger logger = LoggerFactory.getLogger(SalesforceDataStoreTest.class);
 
-    @Throws(Exception::class)
-    override fun setUp() {
-        super.setUp()
-        dataStore = SalesforceDataStore()
+    public SalesforceDataStore dataStore;
+
+    @Override
+    protected String prepareConfigFile() {
+        return "test_app.xml";
     }
 
-    @Throws(Exception::class)
-    override fun tearDown() {
-        ComponentUtil.setFessConfig(null)
-        super.tearDown()
+    @Override
+    protected boolean isSuppressTestCaseTransaction() {
+        return true;
     }
 
-    fun testStoreData() {
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        dataStore = new SalesforceDataStore();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        ComponentUtil.setFessConfig(null);
+        super.tearDown();
+    }
+
+    public void testStoreData() {
         // doStoreData()
     }
 
-    private fun doStoreData() {
-        val dataConfig = DataConfig()
-        val paramMap = mapOf(
-                "auth_type" to "oauth",
-                "username" to USERNAME,
-                "client_id" to CLIENT_ID,
-                "private_key" to PRIVATE_KEY,
-                "base_url" to BASE_URL
-        )
-        val fessConfig = ComponentUtil.getFessConfig()
-        val scriptMap = emptyMap<String, String>()
-        val defaultDataMap = emptyMap<String, Any>()
-        dataStore.storeData(dataConfig, testCallback { dataMap: Map<String, Any> ->
-            logger.debug(dataMap[fessConfig.indexFieldTitle].toString())
-        }, paramMap, scriptMap, defaultDataMap)
+    private void doStoreData() {
+        DataConfig dataConfig = new DataConfig();
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put("auth_type", "oauth");
+        paramMap.put("username", USERNAME);
+        paramMap.put("client_id", CLIENT_ID);
+        paramMap.put("private_key", PRIVATE_KEY);
+        paramMap.put("base_url", BASE_URL);
+        FessConfig fessConfig = ComponentUtil.getFessConfig();
+        Map<String, String> scriptMap = new HashMap<>();
+        Map<String, Object> defaultDataMap = new HashMap<>();
+        dataStore.storeData(dataConfig, new TestCallback(
+            dataMap ->
+            logger.debug(dataMap.get(fessConfig.getIndexFieldTitle()).toString()))
+        ,paramMap, scriptMap, defaultDataMap);
     }
 
-}
-
-private fun testCallback(action: (Map<String, Any>) -> Unit): IndexUpdateCallback = object : IndexUpdateCallback {
-    private var documentSize: Long = 0L
-    private var executeTime: Long = 0L
-
-    override fun store(paramMap: Map<String, String>, dataMap: Map<String, Any>) {
-        val startTime = System.currentTimeMillis()
-        action(dataMap)
-        executeTime += System.currentTimeMillis() - startTime
-        documentSize++
-    }
-
-    override fun getDocumentSize(): Long = documentSize
-    override fun getExecuteTime(): Long = executeTime
-    override fun commit() {}
 }

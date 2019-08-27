@@ -15,6 +15,8 @@
  */
 package org.codelibs.fess.ds.salesforce.api;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class SearchLayout {
@@ -25,6 +27,16 @@ public class SearchLayout {
     String id = "Id";
     String created = "CreatedDate";
     String lastModified = "LastModifiedDate";
+
+    public SearchLayout() {
+    }
+
+    public SearchLayout(String title, List<String> contents, List<String> digests, String thumbnail) {
+        this.title = title;
+        this.contents = contents;
+        this.digests = digests;
+        this.thumbnail = thumbnail;
+    }
 
     public String getTitle() {
         return title;
@@ -52,6 +64,29 @@ public class SearchLayout {
 
     public String getLastModified() {
         return lastModified;
+    }
+
+    public List<String> fields() {
+        List<String> fields = new ArrayList<>();
+        if(contents != null) {
+            fields.addAll(contents);
+        }
+        if(digests != null) {
+            fields.addAll(digests);
+        }
+        if(id != null) {
+            fields.add(id);
+        }
+        if(created != null) {
+            fields.add(created);
+        }
+        if(lastModified != null) {
+            fields.add(lastModified);
+        }
+        if(thumbnail != null) {
+            fields.add(thumbnail);
+        }
+        return new ArrayList<>(new HashSet<>(fields));
     }
 
 }

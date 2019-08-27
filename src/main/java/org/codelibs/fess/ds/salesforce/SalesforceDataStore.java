@@ -13,169 +13,223 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce
+package org.codelibs.fess.ds.salesforce;
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.sforce.async.BulkConnection
-import com.sforce.soap.partner.PartnerConnection
-import org.codelibs.fess.ds.AbstractDataStore
-import org.codelibs.fess.ds.callback.IndexUpdateCallback
-import org.codelibs.fess.ds.salesforce.api.*
-import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject
-import org.codelibs.fess.es.config.exentity.DataConfig
-import org.codelibs.fess.util.ComponentUtil
-import org.slf4j.LoggerFactory
-import java.util.*
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sforce.async.BatchInfo;
+import com.sforce.async.BulkConnection;
+import com.sforce.async.JobInfo;
+import com.sforce.soap.partner.PartnerConnection;
+import org.codelibs.fess.ds.AbstractDataStore;
+import org.codelibs.fess.ds.callback.IndexUpdateCallback;
+import org.codelibs.fess.ds.salesforce.api.*;
+import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
+import org.codelibs.fess.es.config.exentity.DataConfig;
+import org.codelibs.fess.mylasta.direction.FessConfig;
+import org.codelibs.fess.util.ComponentUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.stream.Collectors;
 
-class SalesforceDataStore : AbstractDataStore() {
+import static java.util.Collections.emptyList;
 
-    companion object {
-        // parameters
-        const val BASE_URL_PARAM = "base_url"
-        const val AUTH_TYPE_PARAM = "auth_type"
-        const val USERNAME_PARAM = "username"
-        const val PASSWORD_PARAM = "password"
-        const val SECURITY_TOKEN_PARAM = "security_token"
-        const val CLIENT_ID_PARAM = "client_id"
-        const val CLIENT_SECRET_PARAM = "client_secret"
-        const val PRIVATE_KEY_PARAM = "private_key"
+public class SalesforceDataStore extends AbstractDataStore {
 
-        const val TITLE_PARAM = "title"
-        const val CONTENTS_PARAM = "contents"
-        const val DIGESTS_PARAM = "digests"
-        const val THUMBNAIL_PARAM = "thumbnail"
-        const val CUSTOM_PARAM = "custom"
+    private static final Logger logger = LoggerFactory.getLogger(SalesforceDataStore.class);
+
+    protected static String BASE_URL = "https://login.salesforce.com";
+
+    // parameters
+    protected static final String BASE_URL_PARAM = "base_url";
+    protected static final String AUTH_TYPE_PARAM = "auth_type";
+    protected static final String USERNAME_PARAM = "username";
+    protected static final String PASSWORD_PARAM = "password";
+    protected static final String SECURITY_TOKEN_PARAM = "security_token";
+    protected static final String CLIENT_ID_PARAM = "client_id";
+    protected static final String  CLIENT_SECRET_PARAM = "client_secret";
+    protected static final String  PRIVATE_KEY_PARAM = "private_key";
+
+    protected static final String  TITLE_PARAM = "title";
+    protected static final String  CONTENTS_PARAM = "contents";
+    protected static final String  DIGESTS_PARAM = "digests";
+    protected static final String  THUMBNAIL_PARAM = "thumbnail";
+    protected static final String  CUSTOM_PARAM = "custom";
+
+    @Override
+    public String getName() {
+        return "Salesforce";
     }
 
-    private val logger = LoggerFactory.getLogger(SalesforceDataStore::class.java)
+    @Override
+    public void storeData(DataConfig dataConfig, IndexUpdateCallback callback, Map<String, String> paramMap,
+                                  Map<String, String> scriptMap, Map<String, Object> defaultDataMap) {
+        try {
+            PartnerConnection connection = getConnection(paramMap);
 
-    override fun getName(): String = "Salesforce"
-
-    public override fun storeData(dataConfig: DataConfig, callback: IndexUpdateCallback, paramMap: Map<String, String>,
-                                  scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>) {
-        val connection = try {
-            getConnection(paramMap)
-        } catch (e: SalesforceDataStoreException) {
-            logger.error(e.message, e)
-            return
+            String instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
+            BulkConnection bulk = Authentications.getBulkConnection(connection);
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            storeStandardObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl);
+            storeCustomObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl);
+        } catch (Exception e) {
+            // TODO
+            logger.error(e.getMessage(), e);
+            return ;
         }
-
-        val instanceUrl = connection.config.serviceEndpoint.replace(Regex("/services/.*"), "")
-        val bulk = getBulkConnection(connection)
-        val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-        storeStandardObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
-        storeCustomObjects(bulk, mapper, callback, paramMap, scriptMap, defaultDataMap, instanceUrl)
     }
 
-    private fun storeStandardObjects(bulk: BulkConnection, mapper: ObjectMapper,
-                                     callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
-                                     instanceUrl: String) {
-        StandardObject.values().forEach { o ->
-            val job = createJob(bulk, o.name)
-            val layout = getSearchLayout(paramMap, o)
-            val query = createQuery(o.name, layout.fields())
-            val batch = createBatch(bulk, job, query)
-            getQueryResultStream(bulk, job, batch).forEach { stream ->
-                mapper.readTree(stream).forEach {
-                    val data = SearchData.fromJson(o.name, it, layout)
-                    storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl)
-                }
+    private void storeStandardObjects(BulkConnection bulk, ObjectMapper mapper,
+                                     IndexUpdateCallback callback, Map<String, String> paramMap,
+                                      Map<String, String> scriptMap,
+                                      Map<String, Object> defaultDataMap, String instanceUrl) {
+        Arrays.stream(StandardObject.values()).forEach( o -> {
+            try {
+                    JobInfo job = Bulks.createJob(bulk, o.name());
+                    SearchLayout layout = getSearchLayout(paramMap, o);
+                    String query = Bulks.createQuery(o.name(), layout.fields());
+                    BatchInfo batch = Bulks.createBatch(bulk, job, query);
+                        Bulks.getQueryResultStream(bulk, job, batch).forEach(stream -> {
+                                try {
+                                    mapper.readTree(stream).forEach(a -> {
+                                        SearchData data = new SearchData(o.name(), a, layout);
+                                        storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl);
+                                    });
+                                } catch (Exception e) {
+                                    logger.error(e.getMessage(), e);
+                                    // TODO
+                                }
+                        });
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                        // TODO
+                    }
+                });
+    }
+
+    private void storeCustomObjects(BulkConnection bulk, ObjectMapper mapper,
+                                   IndexUpdateCallback callback, Map<String, String> paramMap,
+                                    Map<String, String> scriptMap, Map<String, Object> defaultDataMap,
+                                   String instanceUrl) {
+        getCustomObjects(paramMap).stream().forEach( c -> {
+            try {
+            JobInfo job = Bulks.createJob(bulk, c);
+            SearchLayout layout = getSearchLayout(paramMap, c);
+            String query = Bulks.createQuery(c, layout.fields());
+            BatchInfo batch = Bulks.createBatch(bulk, job, query);
+                Bulks.getQueryResultStream(bulk, job, batch).forEach(stream -> {
+                    try {
+                        mapper.readTree(stream).forEach(a -> {
+                            SearchData data = new SearchData(c, a, layout);
+                            storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl);
+                        });
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                        // TODO
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                // TODO
             }
-        }
+        });
     }
 
-    private fun storeCustomObjects(bulk: BulkConnection, mapper: ObjectMapper,
-                                   callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
-                                   instanceUrl: String) {
-        getCustomObjects(paramMap).forEach { c ->
-            val job = createJob(bulk, c)
-            val layout = getSearchLayout(paramMap, c)
-            val query = createQuery(c, layout.fields())
-            val batch = createBatch(bulk, job, query)
-            getQueryResultStream(bulk, job, batch).forEach { stream ->
-                mapper.readTree(stream).forEach {
-                    val data = SearchData.fromJson(c, it, layout)
-                    storeSObjectData(callback, paramMap, scriptMap, defaultDataMap, data, instanceUrl)
-                }
-            }
-        }
+    private void storeSObjectData(IndexUpdateCallback callback, Map<String, String> paramMap,
+                             Map<String, String> scriptMap, Map<String, Object> defaultDataMap,
+                                 SearchData data, String instanceUrl) {
+        FessConfig fessConfig = ComponentUtil.getFessConfig();
+        Map<String, Object> dataMap = new HashMap(defaultDataMap);
+        dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
+
+        dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());
+        dataMap.put(fessConfig.getIndexFieldContentLength(), data.getContent().length());
+        dataMap.put(fessConfig.getIndexFieldDigest(), data.getDigest());
+        dataMap.put(fessConfig.getIndexFieldCreated(), data.getCreated());
+        dataMap.put(fessConfig.getIndexFieldLastModified(), data.getLastModified());
+        dataMap.put(fessConfig.getIndexFieldUrl(), instanceUrl + "/" + data.getId());
+        dataMap.put(fessConfig.getIndexFieldThumbnail(), data.getThumbnail());
+        callback.store(paramMap, dataMap);
     }
 
-    private fun storeSObjectData(callback: IndexUpdateCallback, paramMap: Map<String, String>, scriptMap: Map<String, String>, defaultDataMap: Map<String, Any>,
-                                 data: SearchData, instanceUrl: String) {
-        val fessConfig = ComponentUtil.getFessConfig()
-        val dataMap = HashMap(defaultDataMap)
-        dataMap[fessConfig.indexFieldTitle] = "[${data.type}] ${data.title}"
-        dataMap[fessConfig.indexFieldContent] = data.content
-        dataMap[fessConfig.indexFieldContentLength] = data.content.length
-        dataMap[fessConfig.indexFieldDigest] = data.digest
-        dataMap[fessConfig.indexFieldCreated] = data.created
-        dataMap[fessConfig.indexFieldLastModified] = data.lastModified
-        dataMap[fessConfig.indexFieldUrl] = "$instanceUrl/${data.id}"
-        dataMap[fessConfig.indexFieldThumbnail] = data.thumbnail
-        callback.store(paramMap, dataMap)
-    }
-
-    private fun getConnection(paramMap: Map<String, String>): PartnerConnection {
-        val baseUrl = paramMap[BASE_URL_PARAM] ?: BASE_URL
-        val authType = paramMap[AUTH_TYPE_PARAM]
-        when (authType) {
-            "oauth" -> {
-                val username = paramMap[USERNAME_PARAM]
-                val clientId = paramMap[CLIENT_ID_PARAM]
-                val privateKey = paramMap[PRIVATE_KEY_PARAM]
+    private PartnerConnection getConnection(Map<String, String> paramMap) {
+        String baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
+        String authType = paramMap.get(AUTH_TYPE_PARAM);
+        switch(authType) {
+            case "oauth": {
+                String username = paramMap.get(USERNAME_PARAM);
+                String clientId = paramMap.get(CLIENT_ID_PARAM);
+                String privateKey = paramMap.get(PRIVATE_KEY_PARAM);
                 if (username == null || clientId == null || privateKey == null) {
-                    throw SalesforceDataStoreException("parameters '$USERNAME_PARAM', '$CLIENT_ID_PARAM', '$PRIVATE_KEY_PARAM' are required for OAuth.")
+                    throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' are required for OAuth.");
                 }
-                return getConnection(username, clientId, privateKey, baseUrl)
+                // TODO
+                logger.info("[username=" + username + ",cliendId=" + clientId + ",privateKey=" + privateKey + "]");
+                try {
+                    return Authentications.getConnection(username, clientId, privateKey, baseUrl);
+                } catch (Exception e) {
+                    throw new SalesforceDataStoreException("Failed to get connection.", e);
+                }
             }
-            "password" -> {
-                val username = paramMap[USERNAME_PARAM]
-                val password = paramMap[PASSWORD_PARAM]
-                val securityToken = paramMap[SECURITY_TOKEN_PARAM]
-                val clientId = paramMap[CLIENT_ID_PARAM]
-                val clientSecret = paramMap[CLIENT_SECRET_PARAM]
+            case "password": {
+                String username = paramMap.get(USERNAME_PARAM);
+                String password = paramMap.get(PASSWORD_PARAM);
+                String securityToken = paramMap.get(SECURITY_TOKEN_PARAM);
+                String clientId = paramMap.get(CLIENT_ID_PARAM);
+                String clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
                 if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
-                    throw SalesforceDataStoreException("parameters '$USERNAME_PARAM', '$PASSWORD_PARAM', '$SECURITY_TOKEN_PARAM', '$CLIENT_ID_PARAM', '$CLIENT_SECRET_PARAM' are required for Password Auth.")
+                    throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
+                            "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' are required for Password Auth.");
                 }
-                return getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl)
+                try {
+                    return Authentications.getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
+                }catch (Exception e) {
+                    throw new SalesforceDataStoreException("Failed to get connection by password.", e);
+                }
             }
-            else -> {
-                throw SalesforceDataStoreException("parameter '$AUTH_TYPE_PARAM' is required.")
+            default: {
+                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' is required.");
             }
         }
     }
 
-    private fun getSearchLayout(paramMap: Map<String, String>, obj: StandardObject): SearchLayout = object : SearchLayout {
-        override val title: String =
-                paramMap["${obj.name}.$TITLE_PARAM"]
-                        ?: obj.layout.title
-        override val contents: List<String> =
-                paramMap["${obj.name}.$CONTENTS_PARAM"]?.split(",")?.map { it.trim() }
-                        ?: obj.layout.contents
-        override val digests: List<String> =
-                paramMap["${obj.name}.$DIGESTS_PARAM"]?.split(",")?.map { it.trim() }
-                        ?: obj.layout.digests
-        override val thumbnail: String? =
-                paramMap["${obj.name}.$THUMBNAIL_PARAM"]
-                        ?: obj.layout.thumbnail
+    private SearchLayout getSearchLayout(Map<String, String> paramMap, StandardObject obj) {
+        return new SearchLayout(
+                paramMap.get(obj.name() + "." + TITLE_PARAM)  != null ?
+                        paramMap.get(obj.name() + "." + TITLE_PARAM)
+                        : obj.getLayout().getTitle(),
+                paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM)
+                                .split(","))
+                        .map(String::trim).collect(Collectors.toList())
+                        : obj.getLayout().getContents(),
+                paramMap.get(obj.name() + "." + DIGESTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(obj.name() + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                        : obj.getLayout().getDigests(),
+                paramMap.get(obj.name() + "." + THUMBNAIL_PARAM) != null ?
+                        paramMap.get(obj.name() + "." + THUMBNAIL_PARAM)
+            : obj.getLayout().getThumbnail());
     }
 
-    private fun getSearchLayout(paramMap: Map<String, String>, type: String): SearchLayout = object : SearchLayout {
-        override val title: String =
-                paramMap["$type.$TITLE_PARAM"] ?: type
-        override val contents: List<String> =
-                paramMap["$type.$CONTENTS_PARAM"]?.split(",")?.map { it.trim() } ?: emptyList()
-        override val digests: List<String> =
-                paramMap["$type.$DIGESTS_PARAM"]?.split(",")?.map { it.trim() } ?: emptyList()
-        override val thumbnail: String? =
-                paramMap["$type.$THUMBNAIL_PARAM"]
+    private SearchLayout getSearchLayout(Map<String, String> paramMap, String type) {
+        return new SearchLayout(
+                paramMap.get(type + "." + TITLE_PARAM) != null ?
+                        paramMap.get(type + "." + TITLE_PARAM)
+                        : type,
+                paramMap.get(type + "." + CONTENTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                        : emptyList(),
+                paramMap.get(type + "." + DIGESTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(type + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                        : emptyList(),
+                paramMap.get(type + "." + THUMBNAIL_PARAM));
     }
 
-    private fun getCustomObjects(paramMap: Map<String, String>): List<String> =
-            paramMap[CUSTOM_PARAM]?.split(",")?.map { it.trim() } ?: emptyList()
+    private List<String> getCustomObjects(Map<String, String> paramMap) {
+        return paramMap.get(CUSTOM_PARAM) != null ?
+                Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList()) :
+                emptyList();
+    }
 
 }

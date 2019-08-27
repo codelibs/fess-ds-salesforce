@@ -13,12 +13,23 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce
+package org.codelibs.fess.ds.salesforce;
 
-import org.codelibs.fess.exception.DataStoreException
+import org.codelibs.fess.exception.DataStoreException;
 
-class SalesforceDataStoreException : DataStoreException {
-    constructor(message: String, throwable: Throwable) : super(message, throwable)
-    constructor(message: String) : super(message)
-    constructor(throwable: Throwable) : super(throwable)
+public class SalesforceDataStoreException extends DataStoreException {
+
+    private static final long serialVersionUID = 1L;
+
+    public SalesforceDataStoreException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public SalesforceDataStoreException(final String message) {
+        super(message);
+    }
+
+    public SalesforceDataStoreException(final Throwable throwable) {
+        super(throwable);
+    }
 }

@@ -17,6 +17,7 @@ package org.codelibs.fess.ds.salesforce.api;
 
 import com.sforce.async.*;
 import org.apache.log4j.Logger;
+import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,29 +30,31 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.sforce.async.BatchStateEnum.Completed;
-
 public class Bulks {
-    private Logger logger = Logger.getLogger(Bulks.class);
+    private static final Logger logger = Logger.getLogger(Bulks.class);
 
-    public JobInfo createJob(BulkConnection connection, String objectType) throws AsyncApiException {
-        JobInfo job = new JobInfo();
-        job.setObject(objectType);
-        job.setOperation(OperationEnum.query);
-        job.setConcurrencyMode(ConcurrencyMode.Parallel);
-        job.setContentType(ContentType.JSON);
-        return connection.createJob(job);
+    public static JobInfo createJob(BulkConnection connection, String objectType) {
+        try {
+            JobInfo job = new JobInfo();
+            job.setObject(objectType);
+            job.setOperation(OperationEnum.query);
+            job.setConcurrencyMode(ConcurrencyMode.Parallel);
+            job.setContentType(ContentType.JSON);
+            return connection.createJob(job);
+        } catch (AsyncApiException e) {
+            throw new SalesforceDataStoreException("Failed to create job.", e);
+        }
     }
 
-    public BatchInfo createBatch(BulkConnection connection, JobInfo job, String query) throws AsyncApiException {
+    public static BatchInfo createBatch(BulkConnection connection, JobInfo job, String query) throws AsyncApiException {
         return connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public String createQuery(String objectType, List<String> fields) {
+    public static String createQuery(String objectType, List<String> fields) {
         return "SELECT " + String.join(",", fields) + " FROM " + objectType;
     }
 
-    private List<InputStream> getQueryResultStream(BulkConnection connection,
+    public static List<InputStream> getQueryResultStream(BulkConnection connection,
                                                    JobInfo job, BatchInfo batch) throws Exception {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         CompletableFuture result = new CompletableFuture<String[]>();
@@ -62,6 +65,7 @@ public class Bulks {
                 switch (info.getState()) {
                     case Completed: {
                         QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
+                        logger.info("Query results : \n" + String.join("\n", queryResults.getResult()));
                         result.complete(queryResults.getResult());
                     }
                     case Failed: {
@@ -84,8 +88,7 @@ public class Bulks {
                     try {
                         return connection.getQueryResultStream(job.getId(), batch.getId(), o);
                     } catch (AsyncApiException e) {
-                        e.printStackTrace(); // TODO
-                        return null;
+                        throw new SalesforceDataStoreException("Failed to get query result stream.", e);
                     }
                 }
             ).collect(Collectors.toList());

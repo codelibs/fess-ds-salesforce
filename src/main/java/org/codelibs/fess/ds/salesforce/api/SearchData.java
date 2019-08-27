@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class SearchData {
+public class SearchData {
     protected String type;
     protected String id;
     protected String title;
@@ -31,17 +31,53 @@ class SearchData {
     protected Date lastModified;
     protected String thumbnail;
 
-
     public SearchData(final String type, final JsonNode node, final SearchLayout obj) {
         this.type = type;
         this.id = node.get(obj.getId()).asText();
         this.title =  node.get(obj.getTitle()) != null ? node.get(obj.getTitle()).asText() : node.get(obj.getId()).asText();
-        this.content = String.join("\n", obj.getContents());
-        this.digest = String.join("\n", obj.getDigests().stream().filter(o -> node.get(o) != null).map(o -> node.get(o).asText()).collect(Collectors.toList()));
+        if(obj.getContents() != null) {
+            this.content = String.join("\n", obj.getContents());
+        }
+        if(obj.getDigests() != null) {
+            this.digest = String.join("\n", obj.getDigests().stream().filter(o -> node.get(o) != null).map(o -> node.get(o).asText()).collect(Collectors.toList()));
+        }
         this.created = new Date(node.get(obj.getCreated()).asLong());
         this.lastModified = new Date(node.get(obj.getLastModified()).asLong());
         if(obj.getThumbnail() != null && node.get(obj.getThumbnail()) != null) {
             this.thumbnail = node.get(obj.getThumbnail()).asText();
         }
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getDigest() {
+        return digest;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
 }
