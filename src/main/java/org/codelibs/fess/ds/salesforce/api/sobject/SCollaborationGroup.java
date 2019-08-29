@@ -15,20 +15,19 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** グループ */
-class SCollaborationGroup extends SearchLayout {
+public class SCollaborationGroup extends SearchLayout {
 
-    String title = Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Name, Field.Description, Field.InformationTitle,
-            Field.InformationBody, Field.GroupEmail)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
-    String thumbnail = Field.SmallPhotoUrl.name();
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Stream.of(Field.Name, Field.Description, Field.InformationTitle,
+            Field.InformationBody, Field.GroupEmail).map(Enum::name).collect(Collectors.toList());
+    protected static final String thumbnail = Field.SmallPhotoUrl.name();
 
     @Override
     public String getTitle() {
@@ -45,7 +44,7 @@ class SCollaborationGroup extends SearchLayout {
         return thumbnail;
     }
 
-    enum Field {
+    private enum Field {
         /** グループ ID */
         Id,
         /** 名前 */

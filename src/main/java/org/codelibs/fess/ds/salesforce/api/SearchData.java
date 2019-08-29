@@ -15,11 +15,10 @@
  */
 package org.codelibs.fess.ds.salesforce.api;
 
-import java.lang.String;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class SearchData {
     protected String type;
@@ -34,14 +33,18 @@ public class SearchData {
     public SearchData(final String type, final JsonNode node, final SearchLayout obj) {
         this.type = type;
         this.id = node.get(obj.getId()).asText();
-        this.title =  node.get(obj.getTitle()) != null ? node.get(obj.getTitle()).asText() : node.get(obj.getId()).asText();
+        if(node.get(obj.getTitle()) != null) {
+            title = node.get(obj.getTitle()).asText();
+        } else {
+            title = null;
+        }
         if(obj.getContents() != null) {
-            this.content = String.join("\n", obj.getContents());
+            this.content = obj.getContents().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
         } else {
             this.content = "";
         }
         if(obj.getDigests() != null) {
-            this.digest = String.join("\n", obj.getDigests().stream().filter(o -> node.get(o) != null).map(o -> node.get(o).asText()).collect(Collectors.toList()));
+            this.digest = obj.getDigests().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
         } else {
             this.digest = "";
         }
@@ -49,6 +52,8 @@ public class SearchData {
         this.lastModified = new Date(node.get(obj.getLastModified()).asLong());
         if(obj.getThumbnail() != null && node.get(obj.getThumbnail()) != null) {
             this.thumbnail = node.get(obj.getThumbnail()).asText();
+        } else {
+            this.thumbnail = "";
         }
     }
 
@@ -83,5 +88,4 @@ public class SearchData {
     public String getThumbnail() {
         return thumbnail;
     }
-
 }

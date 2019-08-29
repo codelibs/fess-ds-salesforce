@@ -15,6 +15,11 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
+import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.CLIENT_ID;
+import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.USERNAME;
+import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.PRIVATE_KEY;
+import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.BASE_URL;
+
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.util.ComponentUtil;
@@ -24,11 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.CLIENT_ID;
-import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.USERNAME;
-import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.PRIVATE_KEY;
-import static org.codelibs.fess.ds.salesforce.api.AuthenticationTest.BASE_URL;
 
 public class SalesforceDataStoreTest extends LastaFluteTestCase {
 

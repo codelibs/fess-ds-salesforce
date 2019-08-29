@@ -13,11 +13,7 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api;
-
-import com.sforce.async.*;
-import org.apache.log4j.Logger;
-import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+package org.codelibs.fess.ds.salesforce.api.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -25,13 +21,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class Bulks {
-    private static final Logger logger = Logger.getLogger(Bulks.class);
+import com.sforce.async.AsyncApiException;
+import com.sforce.async.BatchInfo;
+import com.sforce.async.BulkConnection;
+import com.sforce.async.ConcurrencyMode;
+import com.sforce.async.ContentType;
+import com.sforce.async.JobInfo;
+import com.sforce.async.OperationEnum;
+import com.sforce.async.QueryResultList;
+import org.apache.log4j.Logger;
+import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+
+public class BulkUtils {
+    private static final Logger logger = Logger.getLogger(BulkUtils.class);
 
     public static JobInfo createJob(BulkConnection connection, String objectType) {
         try {
@@ -55,7 +63,7 @@ public class Bulks {
     }
 
     public static List<InputStream> getQueryResultStream(BulkConnection connection,
-                                                   JobInfo job, BatchInfo batch) throws Exception {
+                                                   JobInfo job, BatchInfo batch) throws ExecutionException, InterruptedException {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         CompletableFuture result = new CompletableFuture<String[]>();
 

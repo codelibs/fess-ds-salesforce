@@ -15,18 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
+
 
 /** 価格表 */
-class SPricebook2 extends SearchLayout {
+public class SPricebook2 extends SearchLayout {
 
-    String title = Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Name, Field.Description)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Stream.of(Field.Name, Field.Description).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -38,7 +38,7 @@ class SPricebook2 extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** Price Book ID */
         Id,
         /** 価格表名 */

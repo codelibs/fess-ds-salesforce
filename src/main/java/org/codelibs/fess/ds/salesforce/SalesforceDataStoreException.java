@@ -32,4 +32,5 @@ public class SalesforceDataStoreException extends DataStoreException {
     public SalesforceDataStoreException(final Throwable throwable) {
         super(throwable);
     }
+
 }

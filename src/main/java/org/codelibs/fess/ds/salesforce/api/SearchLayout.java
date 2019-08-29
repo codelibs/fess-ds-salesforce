@@ -20,18 +20,18 @@ import java.util.HashSet;
 import java.util.List;
 
 public class SearchLayout {
-    String title;
-    List<String> contents;
-    List<String> digests;
-    String thumbnail;
-    String id = "Id";
-    String created = "CreatedDate";
-    String lastModified = "LastModifiedDate";
+    protected String title;
+    protected List<String> contents;
+    protected List<String> digests;
+    protected String thumbnail;
+    protected static final String id = "Id";
+    protected static final String created = "CreatedDate";
+    protected static final String lastModified = "LastModifiedDate";
 
     public SearchLayout() {
     }
 
-    public SearchLayout(String title, List<String> contents, List<String> digests, String thumbnail) {
+    public SearchLayout(final String title, final List<String> contents, final List<String> digests, final String thumbnail) {
         this.title = title;
         this.contents = contents;
         this.digests = digests;
@@ -67,25 +67,19 @@ public class SearchLayout {
     }
 
     public List<String> fields() {
-        List<String> fields = new ArrayList<>();
+        final List<String> fields = new ArrayList<>();
         if(contents != null) {
             fields.addAll(contents);
         }
         if(digests != null) {
             fields.addAll(digests);
         }
-        if(id != null) {
-            fields.add(id);
-        }
-        if(created != null) {
-            fields.add(created);
-        }
-        if(lastModified != null) {
-            fields.add(lastModified);
-        }
         if(thumbnail != null) {
             fields.add(thumbnail);
         }
+        fields.add(id);
+        fields.add(created);
+        fields.add(lastModified);
         return new ArrayList<>(new HashSet<>(fields));
     }
 

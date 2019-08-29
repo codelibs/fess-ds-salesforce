@@ -15,19 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** リストメール */
-class SListEmail extends SearchLayout {
+public class SListEmail extends SearchLayout {
 
-    String title = Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Name, Field.Subject, Field.TextBody,
-            Field.FromName, Field.FromAddress, Field.Status)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Stream.of(Field.Name, Field.Subject, Field.TextBody,
+            Field.FromName, Field.FromAddress, Field.Status).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -39,7 +38,7 @@ class SListEmail extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** リストメール ID */
         Id,
         /** 名前 */

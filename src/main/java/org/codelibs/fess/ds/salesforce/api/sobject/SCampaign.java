@@ -15,17 +15,17 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** キャンペーン */
-class SCampaign extends SearchLayout {
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-    String title = SAccount.Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Name, Field.Type, Field.Status,
+/** キャンペーン */
+public class SCampaign extends SearchLayout {
+
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Arrays.asList(Field.Name, Field.Type, Field.Status,
             Field.Description)
             .stream().map(o -> o.name()).collect(Collectors.toList());
 
@@ -39,7 +39,7 @@ class SCampaign extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** キャンペーン ID */
         Id,
         /** 名前 */

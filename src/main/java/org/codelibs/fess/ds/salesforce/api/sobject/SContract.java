@@ -15,18 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 契約 */
-class SContract extends SearchLayout {
+public class SContract extends SearchLayout {
 
-    String title = Field.ContractNumber.name();
-    List<String> contents = Arrays.asList(Field.Status, Field.Description, Field.ContractNumber)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.ContractNumber.name();
+    protected static final List<String> contents = Stream.of(Field.Status, Field.Description, Field.ContractNumber)
+            .map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -38,7 +38,7 @@ class SContract extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** 契約 ID */
         Id,
         /** 所有者に対する終了通知 */

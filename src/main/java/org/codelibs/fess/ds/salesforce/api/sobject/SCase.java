@@ -15,21 +15,20 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** ケース */
-class SCase extends SearchLayout {
+public class SCase extends SearchLayout {
 
-    String title = Field.Subject.name();
-    List<String> contents = Arrays.asList(Field.CaseNumber, Field.SuppliedName, Field.SuppliedEmail,
+    protected static final String title = Field.Subject.name();
+    protected static final List<String> contents = Stream.of(Field.CaseNumber, Field.SuppliedName, Field.SuppliedEmail,
     Field.SuppliedPhone, Field.SuppliedCompany, Field.Type, Field.Status, Field.Reason, Field.Origin,
-    Field.Origin, Field.Subject, Field.Description, Field.ContactPhone, Field.ContactMobile,
-            Field.ContactEmail, Field.ContactFax, Field.Comments)
-    .stream().map(o -> o.name()).collect(Collectors.toList());
+            Field.Subject, Field.Description, Field.ContactPhone, Field.ContactMobile,
+            Field.ContactEmail, Field.ContactFax, Field.Comments).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -41,7 +40,7 @@ class SCase extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** ケース ID */
         Id,
         /** ケース番号 */

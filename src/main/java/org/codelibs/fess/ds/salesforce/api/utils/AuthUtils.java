@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api;
+package org.codelibs.fess.ds.salesforce.api.utils;
 
 import com.sforce.async.AsyncApiException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -28,6 +28,7 @@ import org.codelibs.curl.Curl;
 import org.codelibs.curl.CurlException;
 import org.codelibs.curl.CurlResponse;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +38,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-public class Authentications {
-    private static final Logger logger = Logger.getLogger(Authentications.class);
+public class AuthUtils {
+    private static final Logger logger = Logger.getLogger(AuthUtils.class);
 
     protected static String BASE_URL = "https://login.salesforce.com";
     protected static String API_VERSION = "45.0";
@@ -86,16 +87,16 @@ public class Authentications {
         return new BulkConnection(config);
     }
 
-    protected static ConnectorConfig createConnectorConfig(TokenResponse response) {
+    protected static ConnectorConfig createConnectorConfig(final TokenResponse response) {
         ConnectorConfig config = new ConnectorConfig();
-        config.setSessionId(response.accessToken);
-        config.setAuthEndpoint(response.instanceUrl + "/services/Soap/u/" + API_VERSION);
-        config.setServiceEndpoint(response.instanceUrl + "/services/Soap/u/" + API_VERSION + "/" + response.id);
+        config.setSessionId(response.getAccessToken());
+        config.setAuthEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION);
+        config.setServiceEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION + "/" + response.getId());
         return config;
     }
 
-    public static TokenResponse getTokenResponse(String username, String clientId,
-                                             String privateKeyPem, String baseUrl) {
+    public static TokenResponse getTokenResponse(final String username, final String clientId,
+                                             final String privateKeyPem, final String baseUrl) {
         try {
             String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
             CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
@@ -112,8 +113,8 @@ public class Authentications {
         }
     }
 
-    public static TokenResponse getTokenResponseByPassword(String username, String password, String securityToken,
-                                                       String clientId, String clientSecret, String baseUrl) {
+    public static TokenResponse getTokenResponseByPassword(final String username, final String password, final String securityToken,
+                                                       final String clientId, final String clientSecret, final String baseUrl) {
         try {
             CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "password")
@@ -132,13 +133,13 @@ public class Authentications {
         }
     }
 
-    public static PrivateKey getPrivateKey(String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", "");
         KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(key));
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
-    public static String createJWT(String username, String clientId, String privateKeyPem, String baseUrl) {
+    public static String createJWT(final String username, final String clientId, final String privateKeyPem, final String baseUrl) {
         long expire = (System.currentTimeMillis() / 1000) + 300;
         String header = "{\"alg\":\"RS256\"}";
         String payload = "{\"iss\": \"" + clientId + "\", \"sub\": \"" + username + "\", \"aud\": \"" + baseUrl + "\", \"exp\": \"" + expire + "\"}";
@@ -164,11 +165,11 @@ public class Authentications {
     }
 
 
-    public static TokenResponse parseTokenResponse(InputStream content) {
+    public static TokenResponse parseTokenResponse(final InputStream content) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             TokenResponse response = mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(content, TokenResponse.class);
-            if (response.accessToken == null) {
+            if (response.getAccessToken() == null) {
                 throw new SalesforceDataStoreException(response.getError() + " : " + response.getErrorDescription());
             }
             return response;

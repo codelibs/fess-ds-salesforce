@@ -15,19 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** クイックテキスト */
-class SQuickText extends SearchLayout {
+public class SQuickText extends SearchLayout {
 
-    String title = Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Name, Field.Message, Field.Category,
-            Field.Channel)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Stream.of(Field.Name, Field.Message, Field.Category,
+            Field.Channel).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -39,7 +38,7 @@ class SQuickText extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** クイックテキスト ID */
         Id,
         /** クイックテキスト名 */

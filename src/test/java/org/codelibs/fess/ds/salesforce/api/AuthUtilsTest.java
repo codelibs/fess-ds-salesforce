@@ -16,15 +16,14 @@
 package org.codelibs.fess.ds.salesforce.api;
 
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+import org.codelibs.fess.ds.salesforce.api.utils.AuthUtils;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.codelibs.fess.ds.salesforce.api.Authentications.*;
+public class AuthUtilsTest extends LastaFluteTestCase {
 
-public class AuthenticationTest extends LastaFluteTestCase {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthUtilsTest.class);
 
     public static final String BASE_URL = "";
     public static final String USERNAME = "";
@@ -52,7 +51,7 @@ public class AuthenticationTest extends LastaFluteTestCase {
 
     private void doGetTokenResponse() {
         try {
-            TokenResponse response = getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+            TokenResponse response = AuthUtils.getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
             logger.debug("AccessToken: " + response.accessToken);
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -61,7 +60,7 @@ public class AuthenticationTest extends LastaFluteTestCase {
 
     private void doGetTokenResponseByPassword() {
         try {
-            TokenResponse response = getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            TokenResponse response = AuthUtils.getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
             logger.debug("AccessToken: ${response.accessToken}");
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -69,13 +68,14 @@ public class AuthenticationTest extends LastaFluteTestCase {
     }
 
     public void testGetConnection() {
-        // doGetConnection()
-        // doGetConnectionByPassword()
+        // TODO
+        // doGetConnection();
+        // doGetConnectionByPassword();
     }
 
     private void doGetConnection() {
         try {
-            getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+            AuthUtils.getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
@@ -83,7 +83,7 @@ public class AuthenticationTest extends LastaFluteTestCase {
 
     private void doGetConnectionByPassword() {
         try {
-            getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            AuthUtils.getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }

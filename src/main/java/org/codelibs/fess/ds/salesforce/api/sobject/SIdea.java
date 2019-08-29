@@ -15,19 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** アイデア */
-class SIdea extends SearchLayout {
+public class SIdea extends SearchLayout {
 
-    String title = Field.Title.name();
-    List<String> contents = Arrays.asList(Field.Title, Field.Body, Field.Categories,
-            Field.Status, Field.CreatorName)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.Title.name();
+    protected static final List<String> contents = Stream.of(Field.Title, Field.Body, Field.Categories,
+            Field.Status, Field.CreatorName).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -39,7 +38,7 @@ class SIdea extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** アイデア ID */
         Id,
         /** タイトル */

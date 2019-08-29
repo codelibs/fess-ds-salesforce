@@ -15,19 +15,19 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
+
 
 /** 注文 */
-class SOrder extends SearchLayout {
+public class SOrder extends SearchLayout {
 
-    String title = Field.Name.name();
-    List<String> contents = Arrays.asList(Field.Status, Field.Description, Field.Type,
-            Field.Name, Field.OrderNumber)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    protected static final String title = Field.Name.name();
+    protected static final List<String> contents = Stream.of(Field.Status, Field.Description, Field.Type,
+            Field.Name, Field.OrderNumber).map(Enum::name).collect(Collectors.toList());
 
     @Override
     public String getTitle() {
@@ -39,7 +39,7 @@ class SOrder extends SearchLayout {
         return contents;
     }
 
-    enum Field {
+    private enum Field {
         /** 注文 ID */
         Id,
         /** 注文開始日 */

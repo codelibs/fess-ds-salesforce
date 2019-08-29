@@ -15,17 +15,17 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 納入商品リレーション */
 class SAssetRelationship extends SearchLayout {
 
-    String title = Field.AssetRelationshipNumber.name();
-    List<String> contents = Arrays.asList(Field.AssetRelationshipNumber).stream().map (o -> o.name())
+    protected static final String title = Field.AssetRelationshipNumber.name();
+    protected static final List<String> contents = Stream.of(Field.AssetRelationshipNumber).map (Enum::name)
             .collect(Collectors.toList());
 
     @Override
@@ -38,7 +38,7 @@ class SAssetRelationship extends SearchLayout {
         return contents;
     }
 
-        enum Field {
+    private enum Field {
         /** 納入商品リレーション ID */
         Id,
         /** 納入商品リレーション番号 */
