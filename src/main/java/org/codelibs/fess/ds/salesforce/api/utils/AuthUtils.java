@@ -24,6 +24,7 @@ import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectorConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.codelibs.core.lang.StringUtil;
 import org.codelibs.curl.Curl;
 import org.codelibs.curl.CurlException;
 import org.codelibs.curl.CurlResponse;
@@ -100,7 +101,7 @@ public class AuthUtils {
         try {
             String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
             CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    .param("grant_type", "urn:ietf:paramMap:oauth:grant-type:jwt-bearer")
                     .param("assertion", jwt)
                     .execute();
             try {
@@ -134,7 +135,7 @@ public class AuthUtils {
     }
 
     public static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", "");
+        String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", StringUtil.EMPTY);
         KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(key));
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
@@ -160,7 +161,7 @@ public class AuthUtils {
             token.append(signedPayload);
             return token.toString();
         } catch (Exception e) {
-            throw new SalesforceDataStoreException("Failed to create the JSON Web Token.", e);
+            throw new SalesforceDataStoreException("Failed to create JSON Web Token.", e);
         }
     }
 

@@ -17,6 +17,11 @@ package org.codelibs.fess.ds.salesforce;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.codelibs.fess.ds.AbstractDataStore;
 import org.codelibs.fess.ds.callback.IndexUpdateCallback;
@@ -33,32 +38,68 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     protected static String BASE_URL = "https://login.salesforce.com";
 
+    // parameters
+    protected static final String NUMBER_OF_THREADS = "number_of_threads";
+
     @Override
     public String getName() {
         return "Salesforce";
     }
 
     @Override
-    public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, String> params,
+    public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, String> paramMap,
                           final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap) {
-        final SalesforceClient client = createClient(params);
-        storeStandardObjects(callback, params, scriptMap, defaultDataMap, client);
-        storeCustomObjects(callback, params, scriptMap, defaultDataMap, client);
+        final SalesforceClient client = createClient(paramMap);
+
+        final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getOrDefault(NUMBER_OF_THREADS, "1")));
+        try {
+            storeStandardObjects(callback, paramMap, scriptMap, defaultDataMap, executorService, client);
+            storeCustomObjects(callback, paramMap, scriptMap, defaultDataMap, executorService, client);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Shutting down thread executor.");
+            }
+            executorService.shutdown();
+            executorService.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (final InterruptedException e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Interrupted.", e);
+            }
+        } finally {
+            executorService.shutdownNow();
+        }
+    }
+
+    protected ExecutorService newFixedThreadPool(final int nThreads) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executor Thread Pool: " + nThreads);
+        }
+        return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(nThreads),
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     private void storeStandardObjects(final IndexUpdateCallback callback,
-                                      final Map<String, String> params, final Map<String, String> scriptMap,
-                                      final Map<String, Object> defaultDataMap, final SalesforceClient client) {
-        client.getStandardObjects(a -> processSearchData(callback, params, scriptMap, defaultDataMap, a, client));
+                                      final Map<String, String> paramMap, final Map<String, String> scriptMap,
+                                      final Map<String, Object> defaultDataMap, final ExecutorService executorService,
+                                      final SalesforceClient client) {
+        client.getStandardObjects(a ->
+                executorService.execute(() ->
+                        processSearchData(callback, paramMap, scriptMap, defaultDataMap, a, client)
+                )
+        );
     }
 
-    private void storeCustomObjects(final IndexUpdateCallback callback, final Map<String, String> params,
+    private void storeCustomObjects(final IndexUpdateCallback callback, final Map<String, String> paramMap,
                                     final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
-                                    final SalesforceClient client) {
-        client.getCustomObjects(a -> processSearchData(callback, params, scriptMap, defaultDataMap, a, client));
+                                    final ExecutorService executorService, final SalesforceClient client) {
+        client.getCustomObjects(a ->
+                executorService.execute(() ->
+                        processSearchData(callback, paramMap, scriptMap, defaultDataMap, a, client)
+                )
+        );
     }
 
-    private void processSearchData(final IndexUpdateCallback callback, final Map<String, String> params,
+    private void processSearchData(final IndexUpdateCallback callback, final Map<String, String> paramMap,
                                    final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
         final FessConfig fessConfig = ComponentUtil.getFessConfig();
@@ -77,7 +118,7 @@ public class SalesforceDataStore extends AbstractDataStore {
             logger.debug("dataMap: {}", dataMap);
         }
 
-        callback.store(params, dataMap);
+        callback.store(paramMap, dataMap);
     }
 
     protected SalesforceClient createClient(final Map<String, String> paramMap) {

@@ -32,6 +32,7 @@ import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
 import com.sforce.soap.partner.PartnerConnection;
+import org.codelibs.core.lang.StringUtil;
 import org.codelibs.fess.ds.salesforce.api.utils.AuthUtils;
 import org.codelibs.fess.ds.salesforce.api.utils.BulkUtils;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
@@ -65,16 +66,16 @@ public class SalesforceClient {
     protected static final String OAUTH = "oauth";
     protected static final String PASSOWRD = "password";
 
-    protected final Map<String, String> params;
+    protected final Map<String, String> paramMap;
     protected final BulkConnection bulk;
     protected final String instanceUrl;
     protected final ObjectMapper mapper;
 
-    public SalesforceClient(final Map<String, String> params) {
+    public SalesforceClient(final Map<String, String> paramMap) {
         try {
-            this.params = params;
-            final PartnerConnection connection = getConnection(params);
-            instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
+            this.paramMap = paramMap;
+            final PartnerConnection connection = getConnection(paramMap);
+            instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", StringUtil.EMPTY);
             bulk = AuthUtils.getBulkConnection(connection);
             mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         } catch (final AsyncApiException e) {
@@ -86,14 +87,14 @@ public class SalesforceClient {
         return instanceUrl;
     }
 
-    private PartnerConnection getConnection(final Map<String, String> params) {
-        final String baseUrl = params.get(BASE_URL_PARAM) != null ? params.get(BASE_URL_PARAM) : BASE_URL;
-        final String authType = params.get(AUTH_TYPE_PARAM);
+    private PartnerConnection getConnection(final Map<String, String> paramMap) {
+        final String baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
+        final String authType = paramMap.get(AUTH_TYPE_PARAM);
         switch(authType) {
             case OAUTH: {
-                final String username = params.get(USERNAME_PARAM);
-                final String clientId = params.get(CLIENT_ID_PARAM);
-                final String privateKey = params.get(PRIVATE_KEY_PARAM);
+                final String username = paramMap.get(USERNAME_PARAM);
+                final String clientId = paramMap.get(CLIENT_ID_PARAM);
+                final String privateKey = paramMap.get(PRIVATE_KEY_PARAM);
                 if (username == null || clientId == null || privateKey == null) {
                     throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' are required for OAuth.");
                 }
@@ -104,11 +105,11 @@ public class SalesforceClient {
                 }
             }
             case PASSOWRD: {
-                final String username = params.get(USERNAME_PARAM);
-                final String password = params.get(PASSWORD_PARAM);
-                final String securityToken = params.get(SECURITY_TOKEN_PARAM);
-                final String clientId = params.get(CLIENT_ID_PARAM);
-                final String clientSecret = params.get(CLIENT_SECRET_PARAM);
+                final String username = paramMap.get(USERNAME_PARAM);
+                final String password = paramMap.get(PASSWORD_PARAM);
+                final String securityToken = paramMap.get(SECURITY_TOKEN_PARAM);
+                final String clientId = paramMap.get(CLIENT_ID_PARAM);
+                final String clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
                 if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
                     throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
                             "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' are required for Password Auth.");
@@ -155,8 +156,8 @@ public class SalesforceClient {
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer) {
-        if(params.get(CUSTOM_PARAM) == null) return ;
-        for (String c : Arrays.stream(params.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList())) {
+        if(paramMap.get(CUSTOM_PARAM) == null) return ;
+        for (String c : Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList())) {
             try {
                 final JobInfo job = BulkUtils.createJob(bulk, c);
                 final SearchLayout layout = getSearchLayout(c);
@@ -184,39 +185,39 @@ public class SalesforceClient {
 
     private SearchLayout getSearchLayout(final StandardObject obj) {
         final String title =
-                params.get(obj.name() + "." + TITLE_PARAM) != null ?
-                        params.get(obj.name() + "." + TITLE_PARAM)
+                paramMap.get(obj.name() + "." + TITLE_PARAM) != null ?
+                        paramMap.get(obj.name() + "." + TITLE_PARAM)
                         : obj.getLayout().getTitle();
         final List<String> contents =
-                params.get(obj.name() + "." + CONTENTS_PARAM) != null ?
-                        Arrays.stream(params.get(obj.name() + "." + CONTENTS_PARAM)
+                paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM)
                                 .split(","))
                                 .map(String::trim).collect(Collectors.toList())
                         : obj.getLayout().getContents();
         final List<String> digests =
-                params.get(obj.name() + "." + DIGESTS_PARAM) != null ?
-                        Arrays.stream(params.get(obj.name() + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                paramMap.get(obj.name() + "." + DIGESTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(obj.name() + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                         : obj.getLayout().getDigests();
         final String thumbnail =
-                params.get(obj.name() + "." + THUMBNAIL_PARAM) != null ?
-                        params.get(obj.name() + "." + THUMBNAIL_PARAM)
+                paramMap.get(obj.name() + "." + THUMBNAIL_PARAM) != null ?
+                        paramMap.get(obj.name() + "." + THUMBNAIL_PARAM)
                         : obj.getLayout().getThumbnail();
         return new SearchLayout(title, contents, digests, thumbnail);
     }
 
     private SearchLayout getSearchLayout(final String type) {
         final String title =
-                params.get(type + "." + TITLE_PARAM) != null ?
-                        params.get(type + "." + TITLE_PARAM)
+                paramMap.get(type + "." + TITLE_PARAM) != null ?
+                        paramMap.get(type + "." + TITLE_PARAM)
                         : type;
         final List<String> contents =
-                params.get(type + "." + CONTENTS_PARAM) != null ?
-                        Arrays.stream(params.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                paramMap.get(type + "." + CONTENTS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                         : emptyList();
-        final List<String> digests = params.get(type + "." + DIGESTS_PARAM) != null ?
-                Arrays.stream(params.get(type + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final List<String> digests = paramMap.get(type + "." + DIGESTS_PARAM) != null ?
+                Arrays.stream(paramMap.get(type + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                 : emptyList();
-        final String thumbnail = params.get(type + "." + THUMBNAIL_PARAM);
+        final String thumbnail = paramMap.get(type + "." + THUMBNAIL_PARAM);
         return new SearchLayout(title, contents, digests, thumbnail);
     }
 }
