@@ -32,9 +32,10 @@ import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
 import com.sforce.soap.partner.PartnerConnection;
+import com.sforce.ws.ConnectionException;
 import org.codelibs.core.lang.StringUtil;
-import org.codelibs.fess.ds.salesforce.api.utils.AuthUtils;
-import org.codelibs.fess.ds.salesforce.api.utils.BulkUtils;
+import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
+import org.codelibs.fess.ds.salesforce.utils.BulkUtils;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
@@ -76,7 +77,7 @@ public class SalesforceClient {
             this.paramMap = paramMap;
             final PartnerConnection connection = getConnection(paramMap);
             instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", StringUtil.EMPTY);
-            bulk = AuthUtils.getBulkConnection(connection);
+            bulk = BulkUtils.getBulkConnection(connection);
             mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         } catch (final AsyncApiException e) {
             throw new SalesforceDataStoreException("Failed to create a client.", e);
@@ -96,12 +97,12 @@ public class SalesforceClient {
                 final String clientId = paramMap.get(CLIENT_ID_PARAM);
                 final String privateKey = paramMap.get(PRIVATE_KEY_PARAM);
                 if (username == null || clientId == null || privateKey == null) {
-                    throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' are required for OAuth.");
+                    throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for OAuth.");
                 }
                 try {
                     return AuthUtils.getConnection(username, clientId, privateKey, baseUrl);
-                } catch (Exception e) {
-                    throw new SalesforceDataStoreException("Failed to get connection by OAuth.", e);
+                } catch (final ConnectionException e) {
+                    throw new SalesforceDataStoreException("Failed to get connection by oauth", e);
                 }
             }
             case PASSOWRD: {
@@ -112,12 +113,12 @@ public class SalesforceClient {
                 final String clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
                 if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
                     throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
-                            "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' are required for Password Auth.");
+                            "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Password Auth.");
                 }
                 try {
                     return AuthUtils.getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
-                }catch (Exception e) {
-                    throw new SalesforceDataStoreException("Failed to get connection by Password Auth.", e);
+                } catch (final ConnectionException e) {
+                    throw new SalesforceDataStoreException("Failed to get connection by oauth", e);
                 }
             }
             default: {
@@ -128,58 +129,40 @@ public class SalesforceClient {
 
     public void getStandardObjects(final Consumer<SearchData> consumer) {
         Arrays.stream(StandardObject.values()).forEach(o -> {
-            try {
-                final JobInfo job = BulkUtils.createJob(bulk, o.name());
-                final SearchLayout layout = getSearchLayout(o);
-                final String query = BulkUtils.createQuery(o.name(), layout.fields());
-                final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
-                BulkUtils.getQueryResultStream(bulk, job, batch).forEach( stream -> {
-                    try {
-                        mapper.readTree(stream).forEach(a -> {
-                            logger.info("Processsing JSON : " + a);
-                            final SearchData data = new SearchData(o.name(), a, layout);
-                            logger.info("got data : " + data.getContent());
-                            consumer.accept(data);
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } catch (AsyncApiException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-        });
+            final JobInfo job = BulkUtils.createJob(bulk, o.name());
+            final SearchLayout layout = getSearchLayout(o);
+            final String query = BulkUtils.createQuery(o.name(), layout.fields());
+            final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
+            BulkUtils.getQueryResultStream(bulk, job, batch).forEach( stream -> {
+                try {
+                    mapper.readTree(stream).forEach(a -> {
+                        final SearchData data = new SearchData(o.name(), a, layout);
+                        consumer.accept(data);
+                    });
+                } catch (final IOException e) {
+                    logger.warn("Failed to deserialize JSON content stream as tree.", e);
+                }
+            });
+    });
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer) {
         if(paramMap.get(CUSTOM_PARAM) == null) return ;
         for (String c : Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList())) {
-            try {
-                final JobInfo job = BulkUtils.createJob(bulk, c);
-                final SearchLayout layout = getSearchLayout(c);
-                final String query = BulkUtils.createQuery(c, layout.fields());
-                final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
-                BulkUtils.getQueryResultStream(bulk, job, batch).forEach(stream -> {
-                    try {
-                        mapper.readTree(stream).forEach(a -> {
-                            final SearchData data = new SearchData(c, a, layout);
-                            consumer.accept(data);
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } catch (AsyncApiException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            final JobInfo job = BulkUtils.createJob(bulk, c);
+            final SearchLayout layout = getSearchLayout(c);
+            final String query = BulkUtils.createQuery(c, layout.fields());
+            final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
+            BulkUtils.getQueryResultStream(bulk, job, batch).forEach(stream -> {
+                try {
+                    mapper.readTree(stream).forEach(a -> {
+                        final SearchData data = new SearchData(c, a, layout);
+                        consumer.accept(data);
+                    });
+                } catch (final IOException e) {
+                    logger.warn("Failed to deserialize JSON content stream as tree.", e);
+                }
+            });
         }
     }
 

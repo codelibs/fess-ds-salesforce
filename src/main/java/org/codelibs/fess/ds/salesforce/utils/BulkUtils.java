@@ -13,11 +13,12 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api.utils;
+package org.codelibs.fess.ds.salesforce.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -35,44 +36,59 @@ import com.sforce.async.ContentType;
 import com.sforce.async.JobInfo;
 import com.sforce.async.OperationEnum;
 import com.sforce.async.QueryResultList;
+import com.sforce.soap.partner.PartnerConnection;
+import com.sforce.ws.ConnectorConfig;
 import org.apache.log4j.Logger;
+import org.codelibs.fess.ds.salesforce.SalesforceDataStore;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 
 public class BulkUtils {
     private static final Logger logger = Logger.getLogger(BulkUtils.class);
 
-    public static JobInfo createJob(BulkConnection connection, String objectType) {
+    public static BulkConnection getBulkConnection(final PartnerConnection connection) throws AsyncApiException {
+        final ConnectorConfig config = new ConnectorConfig();
+        config.setSessionId(connection.getConfig().getSessionId());
+        config.setRestEndpoint(connection.getConfig().getServiceEndpoint()
+                .replaceFirst("/services.*", "/services/async/" + SalesforceDataStore.API_VERSION));
+        return new BulkConnection(config);
+    }
+
+    public static JobInfo createJob(final BulkConnection connection, final String objectType) {
         try {
-            JobInfo job = new JobInfo();
+            final JobInfo job = new JobInfo();
             job.setObject(objectType);
             job.setOperation(OperationEnum.query);
             job.setConcurrencyMode(ConcurrencyMode.Parallel);
             job.setContentType(ContentType.JSON);
             return connection.createJob(job);
-        } catch (AsyncApiException e) {
+        } catch (final AsyncApiException e) {
             throw new SalesforceDataStoreException("Failed to create job.", e);
         }
     }
 
-    public static BatchInfo createBatch(BulkConnection connection, JobInfo job, String query) throws AsyncApiException {
-        return connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
+    public static BatchInfo createBatch(final BulkConnection connection, final JobInfo job, final String query) {
+        try {
+            return connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
+        } catch (final AsyncApiException e) {
+            throw new SalesforceDataStoreException("Failed to create batch.", e);
+        }
     }
 
-    public static String createQuery(String objectType, List<String> fields) {
+    public static String createQuery(final String objectType, final List<String> fields) {
         return "SELECT " + String.join(",", fields) + " FROM " + objectType;
     }
 
-    public static List<InputStream> getQueryResultStream(BulkConnection connection,
-                                                   JobInfo job, BatchInfo batch) throws ExecutionException, InterruptedException {
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        CompletableFuture result = new CompletableFuture<String[]>();
+    public static List<InputStream> getQueryResultStream(final BulkConnection connection,
+                                                         final JobInfo job, final BatchInfo batch) {
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        final CompletableFuture result = new CompletableFuture<String[]>();
 
         service.scheduleAtFixedRate(() -> {
             try {
-                BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);
+                final BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);
                 switch (info.getState()) {
                     case Completed: {
-                        QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
+                        final QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
                         result.complete(queryResults.getResult());
                     }
                     case Failed: {
@@ -83,7 +99,7 @@ public class BulkUtils {
                         logger.debug("Batch:" + batch.getId() + " " + info.getState());
                     }
                 }
-            } catch (AsyncApiException e) {
+            } catch (final AsyncApiException e) {
                 logger.warn(e);
                 result.completeExceptionally(e);
             }
@@ -91,13 +107,18 @@ public class BulkUtils {
 
         result.whenComplete((t, u) -> service.shutdownNow());
 
-        return Arrays.stream((String[]) result.get()).map(o -> {
-                    try {
-                        return connection.getQueryResultStream(job.getId(), batch.getId(), o);
-                    } catch (AsyncApiException e) {
-                        throw new SalesforceDataStoreException("Failed to get query result stream.", e);
+        try {
+            return Arrays.stream((String[]) result.get())
+                    .map(o -> {
+                        try {
+                            return connection.getQueryResultStream(job.getId(), batch.getId(), o);
+                        } catch (final AsyncApiException e) {
+                            throw new SalesforceDataStoreException("Failed to get query result stream by bulk connection.", e);
+                        }
                     }
-                }
             ).collect(Collectors.toList());
+        } catch (final Exception e) {
+            throw new SalesforceDataStoreException("Failed to get query results.", e);
+        }
     }
 }

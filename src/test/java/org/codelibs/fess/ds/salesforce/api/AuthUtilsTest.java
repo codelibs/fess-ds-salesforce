@@ -15,8 +15,9 @@
  */
 package org.codelibs.fess.ds.salesforce.api;
 
+import com.sforce.ws.ConnectionException;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
-import org.codelibs.fess.ds.salesforce.api.utils.AuthUtils;
+import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
     private void doGetConnection() {
         try {
             AuthUtils.getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
-        } catch (SalesforceDataStoreException e) {
+        } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
     }
@@ -84,7 +85,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
     private void doGetConnectionByPassword() {
         try {
             AuthUtils.getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
-        } catch (SalesforceDataStoreException e) {
+        } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
     }
