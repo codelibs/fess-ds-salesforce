@@ -13,11 +13,11 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.api;
+package org.codelibs.fess.ds.salesforce.utils;
 
 import com.sforce.ws.ConnectionException;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
-import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
+import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
     private void doGetTokenResponse() {
         try {
             TokenResponse response = AuthUtils.getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
-            logger.debug("AccessToken: " + response.accessToken);
+            logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
         }
@@ -62,7 +62,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
     private void doGetTokenResponseByPassword() {
         try {
             TokenResponse response = AuthUtils.getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
-            logger.debug("AccessToken: ${response.accessToken}");
+            logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
         }

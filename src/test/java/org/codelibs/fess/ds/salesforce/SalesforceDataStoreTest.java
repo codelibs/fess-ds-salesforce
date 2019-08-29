@@ -15,10 +15,10 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
-import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.CLIENT_ID;
-import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.USERNAME;
-import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.PRIVATE_KEY;
-import static org.codelibs.fess.ds.salesforce.api.AuthUtilsTest.BASE_URL;
+import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.CLIENT_ID;
+import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.USERNAME;
+import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.PRIVATE_KEY;
+import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.BASE_URL;
 
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.mylasta.direction.FessConfig;
