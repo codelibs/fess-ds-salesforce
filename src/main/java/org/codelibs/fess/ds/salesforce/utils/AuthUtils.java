@@ -18,17 +18,14 @@ package org.codelibs.fess.ds.salesforce.utils;
 import static org.codelibs.fess.ds.salesforce.SalesforceDataStore.API_VERSION;
 import static org.codelibs.fess.ds.salesforce.SalesforceDataStore.BASE_URL;
 
-import com.sforce.async.AsyncApiException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sforce.async.BulkConnection;
 import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.codelibs.core.lang.StringUtil;
 import org.codelibs.curl.Curl;
 import org.codelibs.curl.CurlException;
 import org.codelibs.curl.CurlResponse;
@@ -120,7 +117,7 @@ public class AuthUtils {
     }
 
     protected static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", ");
+        final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", "");
         final KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(key));
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }

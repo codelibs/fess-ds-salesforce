@@ -143,11 +143,11 @@ public class SalesforceDataStore extends AbstractDataStore {
             }
 
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
-            failureUrlService.store(dataConfig, errorName, item.webUrl, target);
+            failureUrlService.store(dataConfig, errorName, client.getInstanceUrl() + "/" + data.getId(), target);
         } catch (final Throwable t) {
             logger.warn("Crawling Access Exception at : " + dataMap, t);
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
-            failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), item.webUrl, t);
+            failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), client.getInstanceUrl() + "/" + data.getId(), t);
         }
     }
 
