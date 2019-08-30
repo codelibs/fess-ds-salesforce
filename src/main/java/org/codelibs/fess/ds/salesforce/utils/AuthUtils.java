@@ -120,7 +120,7 @@ public class AuthUtils {
     }
 
     protected static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", StringUtil.EMPTY);
+        final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", ");
         final KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(key));
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }

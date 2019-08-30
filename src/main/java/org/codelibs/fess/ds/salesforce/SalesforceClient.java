@@ -33,7 +33,6 @@ import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
-import org.codelibs.core.lang.StringUtil;
 import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
 import org.codelibs.fess.ds.salesforce.utils.BulkUtils;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
@@ -76,7 +75,7 @@ public class SalesforceClient {
         try {
             this.paramMap = paramMap;
             final PartnerConnection connection = getConnection(paramMap);
-            instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", StringUtil.EMPTY);
+            instanceUrl = connection.getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
             bulk = BulkUtils.getBulkConnection(connection);
             mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         } catch (final AsyncApiException e) {

@@ -18,11 +18,13 @@ package org.codelibs.fess.ds.salesforce;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.codelibs.fess.app.service.FailureUrlService;
+import org.codelibs.fess.crawler.exception.CrawlingAccessException;
+import org.codelibs.fess.crawler.exception.MultipleCrawlingAccessException;
 import org.codelibs.fess.ds.AbstractDataStore;
 import org.codelibs.fess.ds.callback.IndexUpdateCallback;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
@@ -54,8 +56,8 @@ public class SalesforceDataStore extends AbstractDataStore {
 
         final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getOrDefault(NUMBER_OF_THREADS, "1")));
         try {
-            storeStandardObjects(callback, paramMap, scriptMap, defaultDataMap, executorService, client);
-            storeCustomObjects(callback, paramMap, scriptMap, defaultDataMap, executorService, client);
+            storeStandardObjects(dataConfig, callback, paramMap, scriptMap, defaultDataMap, executorService, client);
+            storeCustomObjects(dataConfig, callback, paramMap, scriptMap, defaultDataMap, executorService, client);
             if (logger.isDebugEnabled()) {
                 logger.debug("Shutting down thread executor.");
             }
@@ -78,47 +80,75 @@ public class SalesforceDataStore extends AbstractDataStore {
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
-    private void storeStandardObjects(final IndexUpdateCallback callback,
+    private void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
                                       final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                       final Map<String, Object> defaultDataMap, final ExecutorService executorService,
                                       final SalesforceClient client) {
-        client.getStandardObjects(a ->
+        client.getStandardObjects(data ->
                 executorService.execute(() ->
-                        processSearchData(callback, paramMap, scriptMap, defaultDataMap, a, client)
+                        processSearchData(dataConfig, callback, paramMap, scriptMap, defaultDataMap, data, client)
                 )
         );
     }
 
-    private void storeCustomObjects(final IndexUpdateCallback callback, final Map<String, String> paramMap,
-                                    final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
-                                    final ExecutorService executorService, final SalesforceClient client) {
-        client.getCustomObjects(a ->
+    private void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
+                                    final Map<String, String> paramMap, final Map<String, String> scriptMap,
+                                    final Map<String, Object> defaultDataMap, final ExecutorService executorService,
+                                    final SalesforceClient client) {
+        client.getCustomObjects(data ->
                 executorService.execute(() ->
-                        processSearchData(callback, paramMap, scriptMap, defaultDataMap, a, client)
+                        processSearchData(dataConfig, callback, paramMap, scriptMap, defaultDataMap, data, client)
                 )
         );
     }
 
-    private void processSearchData(final IndexUpdateCallback callback, final Map<String, String> paramMap,
-                                   final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
+    private void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback,
+                                   final Map<String, String> paramMap, final Map<String, String> scriptMap,
+                                   final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
         final FessConfig fessConfig = ComponentUtil.getFessConfig();
         final Map<String, Object> dataMap = new HashMap(defaultDataMap);
+        try {
+            dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
+            dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());
+            dataMap.put(fessConfig.getIndexFieldContentLength(), data.getContent().length());
+            dataMap.put(fessConfig.getIndexFieldDigest(), data.getDigest());
+            dataMap.put(fessConfig.getIndexFieldCreated(), data.getCreated());
+            dataMap.put(fessConfig.getIndexFieldLastModified(), data.getLastModified());
+            dataMap.put(fessConfig.getIndexFieldUrl(), client.getInstanceUrl() + "/" + data.getId());
+            dataMap.put(fessConfig.getIndexFieldThumbnail(), data.getThumbnail());
 
-        dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
-        dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());
-        dataMap.put(fessConfig.getIndexFieldContentLength(), data.getContent().length());
-        dataMap.put(fessConfig.getIndexFieldDigest(), data.getDigest());
-        dataMap.put(fessConfig.getIndexFieldCreated(), data.getCreated());
-        dataMap.put(fessConfig.getIndexFieldLastModified(), data.getLastModified());
-        dataMap.put(fessConfig.getIndexFieldUrl(), client.getInstanceUrl() + "/" + data.getId());
-        dataMap.put(fessConfig.getIndexFieldThumbnail(), data.getThumbnail());
+            if (logger.isDebugEnabled()) {
+                logger.debug("dataMap: {}", dataMap);
+            }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("dataMap: {}", dataMap);
+            callback.store(paramMap, dataMap);
+        } catch (final CrawlingAccessException e) {
+            logger.warn("Crawling Access Exception at : " + dataMap, e);
+
+            Throwable target = e;
+            if (target instanceof MultipleCrawlingAccessException) {
+                final Throwable[] causes = ((MultipleCrawlingAccessException) target).getCauses();
+                if (causes.length > 0) {
+                    target = causes[causes.length - 1];
+                }
+            }
+
+            String errorName;
+            final Throwable cause = target.getCause();
+            if (cause != null) {
+                errorName = cause.getClass().getCanonicalName();
+            } else {
+                errorName = target.getClass().getCanonicalName();
+            }
+
+            final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
+            failureUrlService.store(dataConfig, errorName, item.webUrl, target);
+        } catch (final Throwable t) {
+            logger.warn("Crawling Access Exception at : " + dataMap, t);
+            final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
+            failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), item.webUrl, t);
         }
-
-        callback.store(paramMap, dataMap);
     }
 
     protected SalesforceClient createClient(final Map<String, String> paramMap) {
