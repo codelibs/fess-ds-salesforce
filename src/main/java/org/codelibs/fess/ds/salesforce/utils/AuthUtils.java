@@ -16,7 +16,6 @@
 package org.codelibs.fess.ds.salesforce.utils;
 
 import static org.codelibs.fess.ds.salesforce.SalesforceDataStore.API_VERSION;
-import static org.codelibs.fess.ds.salesforce.SalesforceDataStore.BASE_URL;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,26 +47,14 @@ import java.security.spec.PKCS8EncodedKeySpec;
 public class AuthUtils {
     private static final Logger logger = Logger.getLogger(AuthUtils.class);
 
-
     public static PartnerConnection getConnection(final String username, final String clientId,
-                                                  final String privateKeyPem) throws ConnectionException {
-        return getConnection(username, clientId, privateKeyPem, BASE_URL);
-    }
-
-    public static PartnerConnection getConnection(final String username, final String clientId,
-                                                  final String privateKeyPem, final String baseUrl) throws ConnectionException {
-        final TokenResponse response = getTokenResponse(username, clientId, privateKeyPem, baseUrl);
+                                                  final String privateKeyPem, final String baseUrl, final long refreshInterval) throws ConnectionException {
+        final TokenResponse response = getTokenResponse(username, clientId, privateKeyPem, baseUrl, refreshInterval);
         if (response.getAccessToken() == null) {
             throw new SalesforceDataStoreException(response.getError() + " : " + response.getErrorDescription());
         }
         final ConnectorConfig config = createConnectorConfig(response);
         return Connector.newConnection(config);
-    }
-
-    public static PartnerConnection getConnectionByPassword(final String username, final String password,
-                                                            final String securityToken, final String clientId,
-                                                            final String clientSecret) throws ConnectionException {
-        return getConnectionByPassword(username, password, securityToken, clientId, clientSecret, BASE_URL);
     }
 
     public static PartnerConnection getConnectionByPassword(final String username, final String password,
@@ -78,7 +65,7 @@ public class AuthUtils {
         return Connector.newConnection(config);
     }
 
-    protected static ConnectorConfig createConnectorConfig(final TokenResponse response) {
+    public static ConnectorConfig createConnectorConfig(final TokenResponse response) {
         final ConnectorConfig config = new ConnectorConfig();
         config.setSessionId(response.getAccessToken());
         config.setAuthEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION);
@@ -87,9 +74,9 @@ public class AuthUtils {
     }
 
     protected static TokenResponse getTokenResponse(final String username, final String clientId,
-                                                        final String privateKeyPem, final String baseUrl) {
+                                                        final String privateKeyPem, final String baseUrl, final long refreshInterval) {
         try {
-            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
+            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                     .param("assertion", jwt)
@@ -100,14 +87,13 @@ public class AuthUtils {
         }
     }
 
-    protected static TokenResponse refreshToken(final String username, final String clientId, final String clientSecret,
-                                                final String privateKeyPem, final String baseUrl) {
+    public static TokenResponse refreshToken(final String clientSecret, final String currentToken,
+                                                final String baseUrl) {
         try {
-            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "refresh_token")
                     .param("client_secret", clientSecret)
-                    .param("refresh_token", jwt)
+                    .param("refresh_token", currentToken)
                     .execute();
             return parseTokenResponse(response.getContentAsStream());
         } catch (final Exception e) {
@@ -137,9 +123,10 @@ public class AuthUtils {
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
-    protected static String createJWT(final String username, final String clientId, final String privateKeyPem, final String baseUrl)
+    protected static String createJWT(final String username, final String clientId, final String privateKeyPem,
+                                      final String baseUrl, final long refreshInterval)
             throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
-        final long expire = (System.currentTimeMillis() / 1000) + 300;
+        final long expire = (System.currentTimeMillis() / 1000) + refreshInterval;
         final String header = "{\"alg\":\"RS256\"}";
         final String payload = "{\"iss\": \"" + clientId + "\", \"sub\": \"" + username + "\", \"aud\": \"" + baseUrl + "\", \"exp\": \"" + expire + "\"}";
 

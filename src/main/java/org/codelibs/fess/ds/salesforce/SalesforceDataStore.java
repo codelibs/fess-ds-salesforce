@@ -16,6 +16,7 @@
 package org.codelibs.fess.ds.salesforce;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,7 +40,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     private static final Logger logger = LoggerFactory.getLogger(SalesforceDataStore.class);
 
     public static final String BASE_URL = "https://login.salesforce.com";
-    public static final String API_VERSION = "47.0";
+    public static final String API_VERSION = "46.0";
 
     // parameters
     protected static final String NUMBER_OF_THREADS = "number_of_threads";
@@ -108,6 +109,8 @@ public class SalesforceDataStore extends AbstractDataStore {
                                    final SearchData data, final SalesforceClient client) {
         final FessConfig fessConfig = ComponentUtil.getFessConfig();
         final Map<String, Object> dataMap = new HashMap(defaultDataMap);
+        final Map<String, Object> resultMap = new LinkedHashMap<>();
+        resultMap.putAll(paramMap);
         try {
             dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
             dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());

@@ -36,7 +36,7 @@ public class SearchData {
         if(node.get(obj.getTitle()) != null) {
             title = node.get(obj.getTitle()).asText();
         } else {
-            title = null;
+            title = "";
         }
         if(obj.getContents() != null) {
             this.content = obj.getContents().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));

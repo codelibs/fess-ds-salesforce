@@ -52,7 +52,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
 
     private void doGetTokenResponse() {
         try {
-            TokenResponse response = AuthUtils.getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+            TokenResponse response = AuthUtils.getTokenResponse(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, 3600);
             logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -76,7 +76,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
 
     private void doGetConnection() {
         try {
-            AuthUtils.getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL);
+            AuthUtils.getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, 3600);
         } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }

@@ -16,8 +16,8 @@
 package org.codelibs.fess.ds.salesforce.api;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SearchLayout {
     protected String title;
@@ -80,7 +80,7 @@ public class SearchLayout {
         fields.add(id);
         fields.add(created);
         fields.add(lastModified);
-        return new ArrayList<>(new HashSet<>(fields));
+        return fields().stream().distinct().collect(Collectors.toList());
     }
 
 }
