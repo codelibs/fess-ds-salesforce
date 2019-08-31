@@ -87,7 +87,7 @@ public class AuthUtils {
     }
 
     protected static TokenResponse getTokenResponse(final String username, final String clientId,
-                                             final String privateKeyPem, final String baseUrl) {
+                                                        final String privateKeyPem, final String baseUrl) {
         try {
             final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
@@ -97,6 +97,21 @@ public class AuthUtils {
             return parseTokenResponse(response.getContentAsStream());
         } catch (final Exception e) {
             throw new SalesforceDataStoreException("Failed to get token response.", e);
+        }
+    }
+
+    protected static TokenResponse refreshToken(final String username, final String clientId, final String clientSecret,
+                                                final String privateKeyPem, final String baseUrl) {
+        try {
+            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl);
+            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                    .param("grant_type", "refresh_token")
+                    .param("client_secret", clientSecret)
+                    .param("refresh_token", jwt)
+                    .execute();
+            return parseTokenResponse(response.getContentAsStream());
+        } catch (final Exception e) {
+            throw new SalesforceDataStoreException("Failed to refresh token response.", e);
         }
     }
 
