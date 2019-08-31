@@ -71,7 +71,7 @@ public class SalesforceClient {
     protected static final String CUSTOM_PARAM = "custom";
 
     protected static final String OAUTH = "oauth";
-    protected static final String PASSOWRD = "password";
+    protected static final String PASSWORD = "password";
 
     protected final Map<String, String> paramMap;
     protected TimeoutTask refreshTokenTask;
@@ -225,7 +225,7 @@ public class SalesforceClient {
                         throw new SalesforceDataStoreException("Failed to get connection by OAuth", e);
                     }
                 }
-                case PASSOWRD: {
+                case PASSWORD: {
                     if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
                         throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
                                 "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Basic Auth.");
@@ -244,7 +244,9 @@ public class SalesforceClient {
 
         @Override
         public void expired() {
-            refreshToken();
+            if (authType.equals(OAUTH)) {
+                refreshToken();
+            }
         }
 
         private void refreshToken() {
