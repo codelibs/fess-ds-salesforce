@@ -111,7 +111,7 @@ public class AuthUtils {
                     .execute();
             return parseTokenResponse(response.getContentAsStream());
         } catch (final Exception e) {
-            throw new SalesforceDataStoreException("Failed to refresh token response.", e);
+            throw new SalesforceDataStoreException("Failed to refresh the token.", e);
         }
     }
 

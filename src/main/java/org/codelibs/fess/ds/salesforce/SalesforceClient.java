@@ -101,7 +101,7 @@ public class SalesforceClient {
                 try {
                     return AuthUtils.getConnection(username, clientId, privateKey, baseUrl);
                 } catch (final ConnectionException e) {
-                    throw new SalesforceDataStoreException("Failed to get connection by oauth", e);
+                    throw new SalesforceDataStoreException("Failed to get connection by OAuth", e);
                 }
             }
             case PASSOWRD: {
@@ -112,16 +112,16 @@ public class SalesforceClient {
                 final String clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
                 if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
                     throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
-                            "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Password Auth.");
+                            "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Basic Auth.");
                 }
                 try {
                     return AuthUtils.getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
                 } catch (final ConnectionException e) {
-                    throw new SalesforceDataStoreException("Failed to get connection by oauth", e);
+                    throw new SalesforceDataStoreException("Failed to get connection by Basic Auth.", e);
                 }
             }
             default: {
-                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' is required.");
+                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' required.");
             }
         }
     }
@@ -139,7 +139,7 @@ public class SalesforceClient {
                         consumer.accept(data);
                     });
                 } catch (final IOException e) {
-                    logger.warn("Failed to deserialize JSON content stream as tree.", e);
+                    logger.warn("Failed to deserialize the JSON content.", e);
                 }
             });
     });
@@ -159,7 +159,7 @@ public class SalesforceClient {
                         consumer.accept(data);
                     });
                 } catch (final IOException e) {
-                    logger.warn("Failed to deserialize JSON content stream as tree.", e);
+                    logger.warn("Failed to deserialize the JSON content.", e);
                 }
             });
         }
