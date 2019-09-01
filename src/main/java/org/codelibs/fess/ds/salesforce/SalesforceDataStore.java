@@ -16,7 +16,6 @@
 package org.codelibs.fess.ds.salesforce;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -109,8 +108,8 @@ public class SalesforceDataStore extends AbstractDataStore {
                                    final SearchData data, final SalesforceClient client) {
         final FessConfig fessConfig = ComponentUtil.getFessConfig();
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
-        final Map<String, Object> resultMap = new LinkedHashMap<>();
-        resultMap.putAll(paramMap);
+        // final Map<String, Object> resultMap = new LinkedHashMap<>();
+        // resultMap.putAll(paramMap);
         try {
             dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
             dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());

@@ -43,13 +43,13 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.UUID;
 
 public class AuthUtils {
     private static final Logger logger = Logger.getLogger(AuthUtils.class);
 
-    public static PartnerConnection getConnection(final String username, final String clientId,
-                                                  final String privateKeyPem, final String baseUrl, final long refreshInterval) throws ConnectionException {
-        final TokenResponse response = getTokenResponse(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+    public static PartnerConnection getConnection(final String jwt, final String baseUrl) throws ConnectionException {
+        final TokenResponse response = getTokenResponse(jwt, baseUrl);
         if (response.getAccessToken() == null) {
             throw new SalesforceDataStoreException(response.getError() + " : " + response.getErrorDescription());
         }
@@ -73,10 +73,8 @@ public class AuthUtils {
         return config;
     }
 
-    protected static TokenResponse getTokenResponse(final String username, final String clientId,
-                                                        final String privateKeyPem, final String baseUrl, final long refreshInterval) {
+    protected static TokenResponse getTokenResponse(final String jwt, final String baseUrl) {
         try {
-            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                     .param("assertion", jwt)
@@ -87,14 +85,16 @@ public class AuthUtils {
         }
     }
 
-    public static TokenResponse refreshToken(final String clientSecret, final String currentToken,
-                                                final String baseUrl) {
+    public static TokenResponse refreshToken(final String clientId,
+                                             final String jwt, final String baseUrl,
+                                             final String currentToken) {
         try {
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "refresh_token")
-                    .param("client_secret", clientSecret)
-                    .param("refresh_token", currentToken)
-                    .execute();
+                    .param("client_id", clientId)
+                    .param("client_assertion", jwt)
+                    .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                    .param("refresh_token", currentToken).execute();
             return parseTokenResponse(response.getContentAsStream());
         } catch (final Exception e) {
             throw new SalesforceDataStoreException("Failed to refresh the token.", e);
@@ -123,12 +123,17 @@ public class AuthUtils {
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
-    protected static String createJWT(final String username, final String clientId, final String privateKeyPem,
+    public static String createJWT(final String username, final String clientId, final String privateKeyPem,
                                       final String baseUrl, final long refreshInterval)
             throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
         final long expire = (System.currentTimeMillis() / 1000) + refreshInterval;
         final String header = "{\"alg\":\"RS256\"}";
-        final String payload = "{\"iss\": \"" + clientId + "\", \"sub\": \"" + username + "\", \"aud\": \"" + baseUrl + "\", \"exp\": \"" + expire + "\"}";
+        final String payload =
+                        "{\"iss\": \"" + clientId + "\"," +
+                        " \"sub\": \"" + username + "\"," +
+                        " \"aud\": \"" + baseUrl + "\"," +
+                        " \"exp\": \"" + expire +  "\"," +
+                        " \"jti\": \"" + UUID.randomUUID().toString() + "\"}" ;
 
         final StringBuilder token = new StringBuilder();
         token.append(Base64.encodeBase64URLSafeString(header.getBytes(StandardCharsets.UTF_8)));

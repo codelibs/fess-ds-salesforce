@@ -184,6 +184,7 @@ public class SalesforceClient {
         final String clientSecret;
         final String baseUrl;
         final Long refreshInterval;
+        protected String jwt;
         protected PartnerConnection partnerConnection;
         protected BulkConnection bulkConnection;
 
@@ -197,6 +198,13 @@ public class SalesforceClient {
             baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
             authType = paramMap.get(AUTH_TYPE_PARAM);
             refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL));
+            if(authType.equals(OAUTH)) {
+                try {
+                    jwt = AuthUtils.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
+                } catch (final Exception e) {
+                    throw new SalesforceDataStoreException("Failed to generate a JSON Web Token from the parameters.", e);
+                }
+            }
             partnerConnection = getConnection();
             try {
                 bulkConnection = BulkUtils.getBulkConnection(partnerConnection);
@@ -220,7 +228,7 @@ public class SalesforceClient {
                         throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for OAuth.");
                     }
                     try {
-                        return AuthUtils.getConnection(username, clientId, privateKey, baseUrl, refreshInterval);
+                        return AuthUtils.getConnection(jwt, baseUrl);
                     } catch (final ConnectionException e) {
                         throw new SalesforceDataStoreException("Failed to get connection by OAuth", e);
                     }
@@ -251,9 +259,13 @@ public class SalesforceClient {
 
         private void refreshToken() {
             final ConnectorConfig currentConfig = partnerConnection.getConfig();
-            final TokenResponse response = AuthUtils.refreshToken(clientSecret, currentConfig.getSessionId(), baseUrl);
+            final TokenResponse response = AuthUtils.refreshToken(clientId, jwt,  baseUrl, currentConfig.getSessionId());
             if (response.getAccessToken() == null) {
-                throw new SalesforceDataStoreException("Failed to refresh token." + response.getError() + " : " + response.getErrorDescription());
+                throw new SalesforceDataStoreException("Failed to refresh the access token. [" + response.getError() + " : " + response.getErrorDescription() + "]");
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The access token was successfully refreshed.");
+                }
             }
             final ConnectorConfig newConfig = AuthUtils.createConnectorConfig(response);
             try {
