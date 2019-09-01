@@ -80,7 +80,7 @@ public class SearchLayout {
         fields.add(id);
         fields.add(created);
         fields.add(lastModified);
-        return fields().stream().distinct().collect(Collectors.toList());
+        return fields.stream().distinct().collect(Collectors.toList());
     }
 
 }
