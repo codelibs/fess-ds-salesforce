@@ -30,14 +30,11 @@ import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
-import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
-import com.sforce.ws.ConnectorConfig;
 import org.codelibs.core.timer.TimeoutManager;
 import org.codelibs.core.timer.TimeoutTarget;
 import org.codelibs.core.timer.TimeoutTask;
-import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
 import org.codelibs.fess.ds.salesforce.utils.BulkUtils;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
@@ -184,7 +181,6 @@ public class SalesforceClient {
         final String clientSecret;
         final String baseUrl;
         final Long refreshInterval;
-        protected String jwt;
         protected PartnerConnection partnerConnection;
         protected BulkConnection bulkConnection;
 
@@ -198,18 +194,11 @@ public class SalesforceClient {
             baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
             authType = paramMap.get(AUTH_TYPE_PARAM);
             refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL));
-            if(authType.equals(OAUTH)) {
-                try {
-                    jwt = AuthUtils.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
-                } catch (final Exception e) {
-                    throw new SalesforceDataStoreException("Failed to generate a JSON Web Token from the parameters.", e);
-                }
-            }
             partnerConnection = getConnection();
             try {
                 bulkConnection = BulkUtils.getBulkConnection(partnerConnection);
             } catch (final AsyncApiException e) {
-                throw new SalesforceDataStoreException("Failed to create connection.", e);
+                throw new SalesforceDataStoreException("Failed to create bulk connection.", e);
             }
         }
 
@@ -228,7 +217,7 @@ public class SalesforceClient {
                         throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for OAuth.");
                     }
                     try {
-                        return AuthUtils.getConnection(jwt, baseUrl);
+                        return AuthUtils.getConnectionByOAuth(username, clientId, privateKey, baseUrl, refreshInterval);
                     } catch (final ConnectionException e) {
                         throw new SalesforceDataStoreException("Failed to get connection by OAuth", e);
                     }
@@ -258,21 +247,17 @@ public class SalesforceClient {
         }
 
         private void refreshToken() {
-            final ConnectorConfig currentConfig = partnerConnection.getConfig();
-            final TokenResponse response = AuthUtils.refreshToken(clientId, jwt,  baseUrl, currentConfig.getSessionId());
-            if (response.getAccessToken() == null) {
-                throw new SalesforceDataStoreException("Failed to refresh the access token. [" + response.getError() + " : " + response.getErrorDescription() + "]");
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("The access token was successfully refreshed.");
-                }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Refreshing access token.");
             }
-            final ConnectorConfig newConfig = AuthUtils.createConnectorConfig(response);
+            partnerConnection = getConnection();
+            if (logger.isDebugEnabled()) {
+                logger.debug("The access token was successfully refreshed.");
+            }
             try {
-                partnerConnection = Connector.newConnection(newConfig);
                 bulkConnection = BulkUtils.getBulkConnection(partnerConnection);
             } catch (final Exception e) {
-                throw new SalesforceDataStoreException("Failed to get new connection.", e);
+                throw new SalesforceDataStoreException("Failed to create bulk connection.", e);
             }
         }
     }

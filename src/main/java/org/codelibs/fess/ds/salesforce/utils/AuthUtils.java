@@ -43,15 +43,15 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.UUID;
 
 public class AuthUtils {
     private static final Logger logger = Logger.getLogger(AuthUtils.class);
 
-    public static PartnerConnection getConnection(final String jwt, final String baseUrl) throws ConnectionException {
-        final TokenResponse response = getTokenResponse(jwt, baseUrl);
+    public static PartnerConnection getConnectionByOAuth(final String username, final String clientId, final String privateKeyPem,
+                                                  final String baseUrl, final long refreshInterval) throws ConnectionException {
+        final TokenResponse response = getTokenResponse(username, clientId, privateKeyPem, baseUrl, refreshInterval);
         if (response.getAccessToken() == null) {
-            throw new SalesforceDataStoreException(response.getError() + " : " + response.getErrorDescription());
+            throw new SalesforceDataStoreException("Failed to get access token : " + "[" + response.getError() + " : " + response.getErrorDescription() + "]");
         }
         final ConnectorConfig config = createConnectorConfig(response);
         return Connector.newConnection(config);
@@ -73,8 +73,10 @@ public class AuthUtils {
         return config;
     }
 
-    protected static TokenResponse getTokenResponse(final String jwt, final String baseUrl) {
+    protected static TokenResponse getTokenResponse(final String username, final String clientId, final String privateKeyPem,
+                                                    final String baseUrl, final long refreshInterval) {
         try {
+            final String jwt = createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
                     .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                     .param("assertion", jwt)
@@ -82,22 +84,6 @@ public class AuthUtils {
             return parseTokenResponse(response.getContentAsStream());
         } catch (final Exception e) {
             throw new SalesforceDataStoreException("Failed to get token response.", e);
-        }
-    }
-
-    public static TokenResponse refreshToken(final String clientId,
-                                             final String jwt, final String baseUrl,
-                                             final String currentToken) {
-        try {
-            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "refresh_token")
-                    .param("client_id", clientId)
-                    .param("client_assertion", jwt)
-                    .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
-                    .param("refresh_token", currentToken).execute();
-            return parseTokenResponse(response.getContentAsStream());
-        } catch (final Exception e) {
-            throw new SalesforceDataStoreException("Failed to refresh the token.", e);
         }
     }
 
@@ -132,9 +118,7 @@ public class AuthUtils {
                         "{\"iss\": \"" + clientId + "\"," +
                         " \"sub\": \"" + username + "\"," +
                         " \"aud\": \"" + baseUrl + "\"," +
-                        " \"exp\": \"" + expire +  "\"," +
-                        " \"jti\": \"" + UUID.randomUUID().toString() + "\"}" ;
-
+                        " \"exp\": \"" + expire + "\"}" ;
         final StringBuilder token = new StringBuilder();
         token.append(Base64.encodeBase64URLSafeString(header.getBytes(StandardCharsets.UTF_8)));
         token.append(".");

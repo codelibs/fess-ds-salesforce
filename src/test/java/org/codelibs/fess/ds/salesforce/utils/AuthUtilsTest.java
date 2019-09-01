@@ -76,7 +76,7 @@ public class AuthUtilsTest extends LastaFluteTestCase {
 
     private void doGetConnection() {
         try {
-            AuthUtils.getConnection(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, 3600);
+            AuthUtils.getConnectionByOAuth(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, 3600);
         } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
