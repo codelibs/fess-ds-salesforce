@@ -108,7 +108,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                                    final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
         final FessConfig fessConfig = ComponentUtil.getFessConfig();
-        final Map<String, Object> dataMap = new HashMap(defaultDataMap);
+        final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
         final Map<String, Object> resultMap = new LinkedHashMap<>();
         resultMap.putAll(paramMap);
         try {
