@@ -15,11 +15,6 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
-import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.CLIENT_ID;
-import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.USERNAME;
-import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.PRIVATE_KEY;
-import static org.codelibs.fess.ds.salesforce.utils.AuthUtilsTest.BASE_URL;
-
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.util.ComponentUtil;
@@ -34,6 +29,14 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
 
     private Logger logger = LoggerFactory.getLogger(SalesforceDataStoreTest.class);
 
+    public static final String BASE_URL = "";
+    public static final String USERNAME = "";
+    public static final String PASSWORD = "";
+    public static final String SECURITY_TOKEN = "";
+    public static final String CLIENT_ID = "";
+    public static final String CLIENT_SECRET = "";
+    public static final String PRIVATE_KEY = "";
+    public static final long REFRESH_INTERVAL = 3600;
     public SalesforceDataStore dataStore;
 
     @Override
@@ -65,7 +68,7 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
     private void doStoreData() {
         DataConfig dataConfig = new DataConfig();
         Map<String, String> paramMap = new HashMap<>();
-        paramMap.put("auth_type", "oauth");
+        paramMap.put("auth_type", "token");
         paramMap.put("username", USERNAME);
         paramMap.put("client_id", CLIENT_ID);
         paramMap.put("private_key", PRIVATE_KEY);
@@ -76,7 +79,7 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
         dataStore.storeData(dataConfig, new TestCallback(
             dataMap ->
             logger.debug(dataMap.get(fessConfig.getIndexFieldTitle()).toString()))
-        ,paramMap, scriptMap, defaultDataMap);
+        , paramMap, scriptMap, defaultDataMap);
     }
 
 }

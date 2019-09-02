@@ -13,13 +13,13 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.codelibs.fess.ds.salesforce.utils;
+package org.codelibs.fess.ds.salesforce.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -36,22 +36,11 @@ import com.sforce.async.ContentType;
 import com.sforce.async.JobInfo;
 import com.sforce.async.OperationEnum;
 import com.sforce.async.QueryResultList;
-import com.sforce.soap.partner.PartnerConnection;
-import com.sforce.ws.ConnectorConfig;
 import org.apache.log4j.Logger;
-import org.codelibs.fess.ds.salesforce.SalesforceDataStore;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 
-public class BulkUtils {
-    private static final Logger logger = Logger.getLogger(BulkUtils.class);
-
-    public static BulkConnection getBulkConnection(final PartnerConnection connection) throws AsyncApiException {
-        final ConnectorConfig config = new ConnectorConfig();
-        config.setSessionId(connection.getConfig().getSessionId());
-        config.setRestEndpoint(connection.getConfig().getServiceEndpoint()
-                .replaceFirst("/services.*", "/services/async/" + SalesforceDataStore.API_VERSION));
-        return new BulkConnection(config);
-    }
+public class BulkUtil {
+    private static final Logger logger = Logger.getLogger(BulkUtil.class);
 
     public static JobInfo createJob(final BulkConnection connection, final String objectType) {
         try {
@@ -60,6 +49,11 @@ public class BulkUtils {
             job.setOperation(OperationEnum.query);
             job.setConcurrencyMode(ConcurrencyMode.Parallel);
             job.setContentType(ContentType.JSON);
+
+            if (logger.isDebugEnabled()) {
+                logger.info("Created a job : " + job);
+            }
+
             return connection.createJob(job);
         } catch (final AsyncApiException e) {
             throw new SalesforceDataStoreException("Failed to create job.", e);
@@ -79,7 +73,7 @@ public class BulkUtils {
     }
 
     public static List<InputStream> getQueryResultStream(final BulkConnection connection,
-                                                         final JobInfo job, final BatchInfo batch) {
+                                                         final JobInfo job, final BatchInfo batch, final boolean ignoreError) {
         final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture result = new CompletableFuture<String[]>();
 
@@ -90,10 +84,12 @@ public class BulkUtils {
                     case Completed: {
                         final QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
                         result.complete(queryResults.getResult());
+                        break;
                     }
                     case Failed: {
                         logger.warn("Batch:" + batch.getId() + " Failed caused by '" + info.getStateMessage() + "'");
                         result.complete(new String[0]);
+                        break;
                     }
                     default: {
                         logger.debug("Batch:" + batch.getId() + " " + info.getState());
@@ -117,8 +113,15 @@ public class BulkUtils {
                         }
                     }
             ).collect(Collectors.toList());
-        } catch (final Exception e) {
-            throw new SalesforceDataStoreException("Failed to get query results.", e);
+        } catch (final InterruptedException |
+                ExecutionException e) {
+            if (ignoreError) {
+                logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch.toString(), e);
+                return Collections.emptyList();
+            } else {
+                throw new SalesforceDataStoreException("Failed to get query results.", e);
+            }
         }
     }
+
 }

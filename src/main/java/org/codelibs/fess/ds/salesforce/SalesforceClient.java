@@ -17,7 +17,9 @@ package org.codelibs.fess.ds.salesforce;
 
 import static java.util.Collections.emptyList;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,24 +32,35 @@ import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
+import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
+import com.sforce.ws.ConnectorConfig;
 import org.codelibs.core.timer.TimeoutManager;
 import org.codelibs.core.timer.TimeoutTarget;
 import org.codelibs.core.timer.TimeoutTask;
-import org.codelibs.fess.ds.salesforce.utils.AuthUtils;
-import org.codelibs.fess.ds.salesforce.utils.BulkUtils;
+import org.codelibs.curl.Curl;
+import org.codelibs.curl.CurlException;
+import org.codelibs.curl.CurlResponse;
+import org.codelibs.fess.ds.salesforce.api.TokenResponse;
+import org.codelibs.fess.ds.salesforce.util.AuthUtil;
+import org.codelibs.fess.ds.salesforce.util.BulkUtil;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SalesforceClient {
+public class SalesforceClient implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(SalesforceClient.class);
+    protected static final Logger logger = LoggerFactory.getLogger(SalesforceClient.class);
 
-    protected static String BASE_URL = "https://login.salesforce.com";
+    protected static final ObjectMapper mapper =
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    protected static final String BASE_URL = "https://login.salesforce.com";
+    protected static final String API_VERSION = "46.0";
+
     protected static String DEFAULT_REFRESH_TOKEN_INTERVAL = "3540";
 
     // parameters
@@ -67,14 +80,13 @@ public class SalesforceClient {
     protected static final String THUMBNAIL_PARAM = "thumbnail";
     protected static final String CUSTOM_PARAM = "custom";
 
-    protected static final String OAUTH = "oauth";
+    protected static final String TOKEN = "token";
     protected static final String PASSWORD = "password";
 
     protected final Map<String, String> paramMap;
     protected TimeoutTask refreshTokenTask;
-    final ConnectionProvider connectionProvider;
+    protected final ConnectionProvider connectionProvider;
     protected final String instanceUrl;
-    protected final ObjectMapper mapper;
 
     public SalesforceClient(final Map<String, String> paramMap) {
         this.paramMap = paramMap;
@@ -82,7 +94,13 @@ public class SalesforceClient {
         instanceUrl = connectionProvider.getPartnerConnection().getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
         refreshTokenTask = TimeoutManager.getInstance().addTimeoutTarget(connectionProvider,
                 Integer.parseInt(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
-        mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    @Override
+    public void close() {
+        if (refreshTokenTask != null) {
+            refreshTokenTask.cancel();
+        }
     }
 
     public String getInstanceUrl() {
@@ -90,14 +108,14 @@ public class SalesforceClient {
     }
 
 
-    public void getStandardObjects(final Consumer<SearchData> consumer) {
+    public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         Arrays.stream(StandardObject.values()).forEach(o -> {
             final BulkConnection bulk = connectionProvider.getBulkConnection();
-            final JobInfo job = BulkUtils.createJob(bulk, o.name());
+            final JobInfo job = BulkUtil.createJob(bulk, o.name());
             final SearchLayout layout = getSearchLayout(o);
-            final String query = BulkUtils.createQuery(o.name(), layout.fields());
-            final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
-            BulkUtils.getQueryResultStream(bulk, job, batch).forEach( stream -> {
+            final String query = BulkUtil.createQuery(o.name(), layout.fields());
+            final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
+            BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
                 try {
                     mapper.readTree(stream).forEach(a -> {
                         final SearchData data = new SearchData(o.name(), a, layout);
@@ -110,15 +128,15 @@ public class SalesforceClient {
     });
     }
 
-    public void getCustomObjects(final Consumer<SearchData> consumer) {
+    public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         if(paramMap.get(CUSTOM_PARAM) == null) return ;
         for (String c : Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList())) {
             final BulkConnection bulk = connectionProvider.getBulkConnection();
-            final JobInfo job = BulkUtils.createJob(bulk, c);
+            final JobInfo job = BulkUtil.createJob(bulk, c);
             final SearchLayout layout = getSearchLayout(c);
-            final String query = BulkUtils.createQuery(c, layout.fields());
-            final BatchInfo batch = BulkUtils.createBatch(bulk, job, query);
-            BulkUtils.getQueryResultStream(bulk, job, batch).forEach(stream -> {
+            final String query = BulkUtil.createQuery(c, layout.fields());
+            final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
+            BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
                 try {
                     mapper.readTree(stream).forEach(a -> {
                         final SearchData data = new SearchData(c, a, layout);
@@ -131,11 +149,8 @@ public class SalesforceClient {
         }
     }
 
-    private SearchLayout getSearchLayout(final StandardObject obj) {
-        final String title =
-                paramMap.get(obj.name() + "." + TITLE_PARAM) != null ?
-                        paramMap.get(obj.name() + "." + TITLE_PARAM)
-                        : obj.getLayout().getTitle();
+    protected SearchLayout getSearchLayout(final StandardObject obj) {
+        final String title = paramMap.getOrDefault(obj.name() + "." + TITLE_PARAM, obj.getLayout().getTitle());
         final List<String> contents =
                 paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null ?
                         Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM)
@@ -146,18 +161,12 @@ public class SalesforceClient {
                 paramMap.get(obj.name() + "." + DIGESTS_PARAM) != null ?
                         Arrays.stream(paramMap.get(obj.name() + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                         : obj.getLayout().getDigests();
-        final String thumbnail =
-                paramMap.get(obj.name() + "." + THUMBNAIL_PARAM) != null ?
-                        paramMap.get(obj.name() + "." + THUMBNAIL_PARAM)
-                        : obj.getLayout().getThumbnail();
+        final String thumbnail = paramMap.getOrDefault(obj.name() + "." + THUMBNAIL_PARAM, obj.getLayout().getThumbnail());
         return new SearchLayout(title, contents, digests, thumbnail);
     }
 
-    private SearchLayout getSearchLayout(final String type) {
-        final String title =
-                paramMap.get(type + "." + TITLE_PARAM) != null ?
-                        paramMap.get(type + "." + TITLE_PARAM)
-                        : type;
+    protected SearchLayout getSearchLayout(final String type) {
+        final String title = paramMap.getOrDefault(type + "." + TITLE_PARAM, type);
         final List<String> contents =
                 paramMap.get(type + "." + CONTENTS_PARAM) != null ?
                         Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
@@ -169,22 +178,23 @@ public class SalesforceClient {
         return new SearchLayout(title, contents, digests, thumbnail);
     }
 
-    // TODO : refactoring
     protected static class ConnectionProvider implements TimeoutTarget {
 
-        final String authType;
-        final String username;
-        final String password;
-        final String privateKey;
-        final String securityToken;
-        final String clientId;
-        final String clientSecret;
-        final String baseUrl;
-        final Long refreshInterval;
+        protected static final Logger logger = LoggerFactory.getLogger(ConnectionProvider.class);
+
+        protected final String authType;
+        protected final String username;
+        protected final String password;
+        protected final String privateKey;
+        protected final String securityToken;
+        protected final String clientId;
+        protected final String clientSecret;
+        protected final String baseUrl;
+        protected final Long refreshInterval;
         protected PartnerConnection partnerConnection;
         protected BulkConnection bulkConnection;
 
-        public ConnectionProvider(final Map<String, String> paramMap) {
+        protected ConnectionProvider(final Map<String, String> paramMap) {
             username = paramMap.get(USERNAME_PARAM);
             password = paramMap.get(PASSWORD_PARAM);
             privateKey = paramMap.get(PRIVATE_KEY_PARAM);
@@ -196,41 +206,48 @@ public class SalesforceClient {
             refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL));
             partnerConnection = getConnection();
             try {
-                bulkConnection = BulkUtils.getBulkConnection(partnerConnection);
+                bulkConnection = getBulkConnection(partnerConnection);
             } catch (final AsyncApiException e) {
                 throw new SalesforceDataStoreException("Failed to create bulk connection.", e);
             }
         }
 
-        public BulkConnection getBulkConnection() {
+        @Override
+        public void expired() {
+            if (authType.equals(TOKEN)) {
+                refreshConnection();
+            }
+        }
+
+        protected BulkConnection getBulkConnection() {
             return bulkConnection;
         }
 
-        public PartnerConnection getPartnerConnection() {
+        protected PartnerConnection getPartnerConnection() {
             return partnerConnection;
         }
 
-        private PartnerConnection getConnection() {
+        protected PartnerConnection getConnection() {
             switch(authType) {
-                case OAUTH: {
+                case TOKEN: {
                     if (username == null || clientId == null || privateKey == null) {
-                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for OAuth.");
+                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for Token Auth.");
                     }
                     try {
-                        return AuthUtils.getConnectionByOAuth(username, clientId, privateKey, baseUrl, refreshInterval);
+                        return getConnectionByToken(username, clientId, privateKey, baseUrl, refreshInterval);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by OAuth", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by Token Auth", e);
                     }
                 }
                 case PASSWORD: {
                     if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
                         throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
-                                "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Basic Auth.");
+                                "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Password Auth.");
                     }
                     try {
-                        return AuthUtils.getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
+                        return getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by Basic Auth.", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by Password Auth.", e);
                     }
                 }
                 default: {
@@ -239,26 +256,103 @@ public class SalesforceClient {
             }
         }
 
-        @Override
-        public void expired() {
-            if (authType.equals(OAUTH)) {
-                refreshToken();
-            }
-        }
-
-        private void refreshToken() {
+        protected void refreshConnection() {
             if (logger.isDebugEnabled()) {
-                logger.debug("Refreshing access token.");
+                logger.debug("Refreshing access token and connection.");
             }
             partnerConnection = getConnection();
             if (logger.isDebugEnabled()) {
-                logger.debug("The access token was successfully refreshed.");
+                logger.debug("Access token and connection was successfully refreshed.");
             }
             try {
-                bulkConnection = BulkUtils.getBulkConnection(partnerConnection);
+                bulkConnection = getBulkConnection(partnerConnection);
             } catch (final Exception e) {
                 throw new SalesforceDataStoreException("Failed to create bulk connection.", e);
             }
         }
+
+        protected PartnerConnection getConnectionByToken(final String username, final String clientId, final String privateKeyPem,
+                                                             final String baseUrl, final long refreshInterval) throws ConnectionException {
+            final TokenResponse response = getTokenResponseByToken(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+            if (response.getAccessToken() == null) {
+                throw new SalesforceDataStoreException("Failed to get access token : " + "[" + response.getError() + " : " + response.getErrorDescription() + "]");
+            }
+            final ConnectorConfig config = createConnectorConfig(response);
+            return Connector.newConnection(config);
+        }
+
+        protected PartnerConnection getConnectionByPassword(final String username, final String password,
+                                                                final String securityToken, final String clientId,
+                                                                final String clientSecret, final String baseUrl) throws ConnectionException {
+            final TokenResponse response = getTokenResponseByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
+            final ConnectorConfig config = createConnectorConfig(response);
+            return Connector.newConnection(config);
+        }
+
+        protected BulkConnection getBulkConnection(final PartnerConnection connection) throws AsyncApiException {
+            final ConnectorConfig config = new ConnectorConfig();
+            config.setSessionId(connection.getConfig().getSessionId());
+            config.setRestEndpoint(connection.getConfig().getServiceEndpoint()
+                    .replaceFirst("/services.*", "/services/async/" + API_VERSION));
+
+            if (logger.isDebugEnabled()) {
+                logger.info("Session Id : " + config.getSessionId());
+                logger.info("Rest Endpoint : " + config.getRestEndpoint());
+            }
+
+            return new BulkConnection(config);
+        }
+
+        protected ConnectorConfig createConnectorConfig(final TokenResponse response) {
+            final ConnectorConfig config = new ConnectorConfig();
+            config.setSessionId(response.getAccessToken());
+            config.setAuthEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION);
+            config.setServiceEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION + "/" + response.getId());
+            if (logger.isDebugEnabled()) {
+                logger.info("Auth Endpoint : " + config.getAuthEndpoint());
+                logger.info("Service Endpoint : " + config.getServiceEndpoint());
+            }
+            return config;
+        }
+
+        protected TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
+                                                        final String baseUrl, final long refreshInterval) {
+            try {
+                final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                        .param("assertion", jwt)
+                        .execute();
+                return parseTokenResponse(response.getContentAsStream());
+            } catch (final Exception e) {
+                throw new SalesforceDataStoreException("Failed to get token response .", e);
+            }
+        }
+
+        protected TokenResponse getTokenResponseByPassword(final String username, final String password, final String securityToken,
+                                                               final String clientId, final String clientSecret, final String baseUrl) {
+            try {
+                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "password")
+                        .param("username", username)
+                        .param("password", password + securityToken)
+                        .param("client_id", clientId)
+                        .param("client_secret", clientSecret)
+                        .execute();
+                return parseTokenResponse(response.getContentAsStream());
+            }catch (final CurlException | IOException e) {
+                throw new SalesforceDataStoreException("Failed to get token response.", e);
+            }
+        }
+
     }
+
+    protected static TokenResponse parseTokenResponse(final InputStream content) {
+        try {
+            return mapper.readValue(content, TokenResponse.class);
+        } catch (final IOException e) {
+            throw new SalesforceDataStoreException("Failed to parse token response.", e);
+        }
+    }
+
 }

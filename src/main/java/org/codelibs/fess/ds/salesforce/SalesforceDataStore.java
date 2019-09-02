@@ -16,20 +16,23 @@
 package org.codelibs.fess.ds.salesforce;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.codelibs.core.lang.StringUtil;
+import org.codelibs.fess.Constants;
 import org.codelibs.fess.app.service.FailureUrlService;
 import org.codelibs.fess.crawler.exception.CrawlingAccessException;
 import org.codelibs.fess.crawler.exception.MultipleCrawlingAccessException;
+import org.codelibs.fess.crawler.filter.UrlFilter;
 import org.codelibs.fess.ds.AbstractDataStore;
 import org.codelibs.fess.ds.callback.IndexUpdateCallback;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
 import org.codelibs.fess.es.config.exentity.DataConfig;
-import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.util.ComponentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +41,25 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesforceDataStore.class);
 
-    public static final String BASE_URL = "https://login.salesforce.com";
-    public static final String API_VERSION = "46.0";
-
     // parameters
+    protected static final String IGNORE_ERROR = "ignore_error";
+    protected static final String INCLUDE_PATTERN = "include_pattern";
+    protected static final String EXCLUDE_PATTERN = "exclude_pattern";
+    protected static final String URL_FILTER = "url_filter";
     protected static final String NUMBER_OF_THREADS = "number_of_threads";
+
+    // scripts
+    protected static final String OBJECT = "object";
+    protected static final String OBJECT_ID = "id";
+    protected static final String OBJECT_TYPE = "type";
+    protected static final String OBJECT_TITLE = "title";
+    protected static final String OBJECT_CONTENT = "content";
+    protected static final String OBJECT_DIGEST = "digest";
+    protected static final String OBJECT_CONTENT_LENGTH = "content_length";
+    protected static final String OBJECT_URL = "url";
+    protected static final String OBJECT_CREATED = "created";
+    protected static final String OBJECT_LAST_MODIFIED = "last_modified";
+    protected static final String OBJECT_THUMBNAIL = "thumbnail";
 
     @Override
     public String getName() {
@@ -52,12 +69,20 @@ public class SalesforceDataStore extends AbstractDataStore {
     @Override
     public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, String> paramMap,
                           final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap) {
+
+        final Map<String, Object> configMap = new HashMap<>();
+        configMap.put(IGNORE_ERROR, isIgnoreError(paramMap));
+        configMap.put(URL_FILTER, getUrlFilter(paramMap));
+        if (logger.isDebugEnabled()) {
+            logger.debug("configMap: {}", configMap);
+        }
+
         final SalesforceClient client = createClient(paramMap);
 
         final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getOrDefault(NUMBER_OF_THREADS, "1")));
         try {
-            storeStandardObjects(dataConfig, callback, paramMap, scriptMap, defaultDataMap, executorService, client);
-            storeCustomObjects(dataConfig, callback, paramMap, scriptMap, defaultDataMap, executorService, client);
+            storeStandardObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
+            storeCustomObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
             if (logger.isDebugEnabled()) {
                 logger.debug("Shutting down thread executor.");
             }
@@ -72,6 +97,31 @@ public class SalesforceDataStore extends AbstractDataStore {
         }
     }
 
+    protected SalesforceClient createClient(final Map<String, String> paramMap) {
+        return new SalesforceClient(paramMap);
+    }
+
+    protected boolean isIgnoreError(final Map<String, String> paramMap) {
+        return paramMap.getOrDefault(IGNORE_ERROR, Constants.TRUE).equalsIgnoreCase(Constants.TRUE);
+    }
+
+    protected UrlFilter getUrlFilter(final Map<String, String> paramMap) {
+        final UrlFilter urlFilter = ComponentUtil.getComponent(UrlFilter.class);
+        final String include = paramMap.get(INCLUDE_PATTERN);
+        if (StringUtil.isNotBlank(include)) {
+            urlFilter.addInclude(include);
+        }
+        final String exclude = paramMap.get(EXCLUDE_PATTERN);
+        if (StringUtil.isNotBlank(exclude)) {
+            urlFilter.addExclude(exclude);
+        }
+        urlFilter.init(paramMap.get(Constants.CRAWLING_INFO_ID));
+        if (logger.isDebugEnabled()) {
+            logger.debug("urlFilter: {}", urlFilter);
+        }
+        return urlFilter;
+    }
+
     protected ExecutorService newFixedThreadPool(final int nThreads) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executor Thread Pool: " + nThreads);
@@ -80,45 +130,71 @@ public class SalesforceDataStore extends AbstractDataStore {
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
-    private void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
+    private void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
                                       final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                       final Map<String, Object> defaultDataMap, final ExecutorService executorService,
                                       final SalesforceClient client) {
+        final boolean ignoreError = ((Boolean) configMap.get(IGNORE_ERROR)).booleanValue();
         client.getStandardObjects(data ->
                 executorService.execute(() ->
-                        processSearchData(dataConfig, callback, paramMap, scriptMap, defaultDataMap, data, client)
-                )
-        );
+                        processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
+                ), ignoreError);
     }
 
-    private void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
+    private void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
                                     final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                     final Map<String, Object> defaultDataMap, final ExecutorService executorService,
                                     final SalesforceClient client) {
+        final boolean ignoreError = ((Boolean) configMap.get(IGNORE_ERROR)).booleanValue();
         client.getCustomObjects(data ->
                 executorService.execute(() ->
-                        processSearchData(dataConfig, callback, paramMap, scriptMap, defaultDataMap, data, client)
-                )
-        );
+                        processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
+                ),
+                ignoreError);
     }
 
     private void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback,
-                                   final Map<String, String> paramMap, final Map<String, String> scriptMap,
-                                   final Map<String, Object> defaultDataMap,
+                                   final Map<String, Object> configMap, final Map<String, String> paramMap,
+                                   final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
-        final FessConfig fessConfig = ComponentUtil.getFessConfig();
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
-        // final Map<String, Object> resultMap = new LinkedHashMap<>();
-        // resultMap.putAll(paramMap);
+        String url = client.getInstanceUrl() + "/" + data.getId();
         try {
-            dataMap.put(fessConfig.getIndexFieldTitle(), "[" + data.getType() + "] " + data.getTitle());
-            dataMap.put(fessConfig.getIndexFieldContent(), data.getContent());
-            dataMap.put(fessConfig.getIndexFieldContentLength(), data.getContent().length());
-            dataMap.put(fessConfig.getIndexFieldDigest(), data.getDigest());
-            dataMap.put(fessConfig.getIndexFieldCreated(), data.getCreated());
-            dataMap.put(fessConfig.getIndexFieldLastModified(), data.getLastModified());
-            dataMap.put(fessConfig.getIndexFieldUrl(), client.getInstanceUrl() + "/" + data.getId());
-            dataMap.put(fessConfig.getIndexFieldThumbnail(), data.getThumbnail());
+            final UrlFilter urlFilter = (UrlFilter) configMap.get(URL_FILTER);
+            if (urlFilter != null && !urlFilter.match(url)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Not matched: {}", url);
+                }
+                return;
+            }
+
+            logger.info("Crawling URL: {}", url);
+
+            final Map<String, Object> resultMap = new LinkedHashMap<>(paramMap);
+            final Map<String, Object> objectMap = new HashMap<>();
+
+            objectMap.put(OBJECT_ID, data.getId());
+            objectMap.put(OBJECT_TYPE, data.getType());
+            objectMap.put(OBJECT_TITLE, data.getTitle());
+            objectMap.put(OBJECT_CONTENT, data.getContent());
+            objectMap.put(OBJECT_DIGEST, data.getDigest());
+            objectMap.put(OBJECT_CONTENT_LENGTH, data.getContent().length());
+            objectMap.put(OBJECT_CREATED, data.getCreated());
+            objectMap.put(OBJECT_LAST_MODIFIED, data.getLastModified());
+            objectMap.put(OBJECT_URL, url);
+            objectMap.put(OBJECT_THUMBNAIL, data.getThumbnail());
+            resultMap.put(OBJECT, objectMap);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("resultMap: {}", resultMap);
+            }
+
+            for (final Map.Entry<String, String> entry : scriptMap.entrySet()) {
+                final Object convertValue = convertValue(entry.getValue(), resultMap);
+                if (convertValue != null) {
+                    dataMap.put(entry.getKey(), convertValue);
+                }
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("dataMap: {}", dataMap);
@@ -145,15 +221,16 @@ public class SalesforceDataStore extends AbstractDataStore {
             }
 
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
-            failureUrlService.store(dataConfig, errorName, client.getInstanceUrl() + "/" + data.getId(), target);
+            failureUrlService.store(dataConfig, errorName, url, target);
         } catch (final Throwable t) {
+            if (url == null) {
+                url = StringUtil.EMPTY;
+            }
+
             logger.warn("Crawling Access Exception at : " + dataMap, t);
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
-            failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), client.getInstanceUrl() + "/" + data.getId(), t);
+            failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), url, t);
         }
     }
 
-    protected SalesforceClient createClient(final Map<String, String> paramMap) {
-        return new SalesforceClient(paramMap);
-    }
 }
