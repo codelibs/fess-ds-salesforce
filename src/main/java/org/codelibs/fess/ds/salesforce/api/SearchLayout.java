@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class SearchLayout {
     protected String title;
     protected List<String> contents;
-    protected List<String> digests;
+    protected List<String> descriptions;
     protected String thumbnail;
     protected static final String id = "Id";
     protected static final String created = "CreatedDate";
@@ -31,10 +31,10 @@ public class SearchLayout {
     public SearchLayout() {
     }
 
-    public SearchLayout(final String title, final List<String> contents, final List<String> digests, final String thumbnail) {
+    public SearchLayout(final String title, final List<String> contents, final List<String> descriptions, final String thumbnail) {
         this.title = title;
         this.contents = contents;
-        this.digests = digests;
+        this.descriptions = descriptions;
         this.thumbnail = thumbnail;
     }
 
@@ -46,8 +46,8 @@ public class SearchLayout {
         return contents;
     }
 
-    public List<String> getDigests() {
-        return digests != null ? digests : getContents();
+    public List<String> getDescriptions() {
+        return descriptions != null ? descriptions : getContents();
     }
 
     public String getThumbnail() {
@@ -71,8 +71,8 @@ public class SearchLayout {
         if(contents != null) {
             fields.addAll(contents);
         }
-        if(digests != null) {
-            fields.addAll(digests);
+        if(descriptions != null) {
+            fields.addAll(descriptions);
         }
         if(thumbnail != null) {
             fields.add(thumbnail);

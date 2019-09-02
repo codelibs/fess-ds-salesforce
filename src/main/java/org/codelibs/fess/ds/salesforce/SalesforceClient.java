@@ -72,13 +72,12 @@ public class SalesforceClient implements Closeable {
     protected static final String CLIENT_ID_PARAM = "client_id";
     protected static final String CLIENT_SECRET_PARAM = "client_secret";
     protected static final String PRIVATE_KEY_PARAM = "private_key";
-    protected static final String REFRESH_TOKEN_INTERVAL = "refresh_token_interval";
-
     protected static final String TITLE_PARAM = "title";
     protected static final String CONTENTS_PARAM = "contents";
-    protected static final String DIGESTS_PARAM = "digests";
+    protected static final String DESCRIPTIONS_PARAM = "descriptions";
     protected static final String THUMBNAIL_PARAM = "thumbnail";
     protected static final String CUSTOM_PARAM = "custom";
+    protected static final String REFRESH_TOKEN_INTERVAL_PARAM = "refresh_token_interval";
 
     protected static final String TOKEN = "token";
     protected static final String PASSWORD = "password";
@@ -93,7 +92,7 @@ public class SalesforceClient implements Closeable {
         connectionProvider = new ConnectionProvider(paramMap);
         instanceUrl = connectionProvider.getPartnerConnection().getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
         refreshTokenTask = TimeoutManager.getInstance().addTimeoutTarget(connectionProvider,
-                Integer.parseInt(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
+                Integer.parseInt(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
     }
 
     @Override
@@ -157,12 +156,12 @@ public class SalesforceClient implements Closeable {
                                 .split(","))
                                 .map(String::trim).collect(Collectors.toList())
                         : obj.getLayout().getContents();
-        final List<String> digests =
-                paramMap.get(obj.name() + "." + DIGESTS_PARAM) != null ?
-                        Arrays.stream(paramMap.get(obj.name() + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
-                        : obj.getLayout().getDigests();
+        final List<String> descriptions =
+                paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM) != null ?
+                        Arrays.stream(paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                        : obj.getLayout().getDescriptions();
         final String thumbnail = paramMap.getOrDefault(obj.name() + "." + THUMBNAIL_PARAM, obj.getLayout().getThumbnail());
-        return new SearchLayout(title, contents, digests, thumbnail);
+        return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
     protected SearchLayout getSearchLayout(final String type) {
@@ -171,11 +170,11 @@ public class SalesforceClient implements Closeable {
                 paramMap.get(type + "." + CONTENTS_PARAM) != null ?
                         Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                         : emptyList();
-        final List<String> digests = paramMap.get(type + "." + DIGESTS_PARAM) != null ?
-                Arrays.stream(paramMap.get(type + "." + DIGESTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final List<String> descriptions = paramMap.get(type + "." + DESCRIPTIONS_PARAM) != null ?
+                Arrays.stream(paramMap.get(type + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                 : emptyList();
         final String thumbnail = paramMap.get(type + "." + THUMBNAIL_PARAM);
-        return new SearchLayout(title, contents, digests, thumbnail);
+        return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
     protected static class ConnectionProvider implements TimeoutTarget {
@@ -203,7 +202,7 @@ public class SalesforceClient implements Closeable {
             clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
             baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
             authType = paramMap.get(AUTH_TYPE_PARAM);
-            refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL, DEFAULT_REFRESH_TOKEN_INTERVAL));
+            refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL));
             partnerConnection = getConnection();
             try {
                 bulkConnection = getBulkConnection(partnerConnection);

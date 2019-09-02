@@ -54,7 +54,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     protected static final String OBJECT_TYPE = "type";
     protected static final String OBJECT_TITLE = "title";
     protected static final String OBJECT_CONTENT = "content";
-    protected static final String OBJECT_DIGEST = "digest";
+    protected static final String OBJECT_DESCRIPTION = "description";
     protected static final String OBJECT_CONTENT_LENGTH = "content_length";
     protected static final String OBJECT_URL = "url";
     protected static final String OBJECT_CREATED = "created";
@@ -177,7 +177,7 @@ public class SalesforceDataStore extends AbstractDataStore {
             objectMap.put(OBJECT_TYPE, data.getType());
             objectMap.put(OBJECT_TITLE, data.getTitle());
             objectMap.put(OBJECT_CONTENT, data.getContent());
-            objectMap.put(OBJECT_DIGEST, data.getDigest());
+            objectMap.put(OBJECT_DESCRIPTION, data.getDescription());
             objectMap.put(OBJECT_CONTENT_LENGTH, data.getContent().length());
             objectMap.put(OBJECT_CREATED, data.getCreated());
             objectMap.put(OBJECT_LAST_MODIFIED, data.getLastModified());

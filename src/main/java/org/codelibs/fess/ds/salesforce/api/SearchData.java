@@ -25,7 +25,7 @@ public class SearchData {
     protected String id;
     protected String title;
     protected String content;
-    protected String digest;
+    protected String description;
     protected Date created;
     protected Date lastModified;
     protected String thumbnail;
@@ -43,10 +43,10 @@ public class SearchData {
         } else {
             this.content = "";
         }
-        if(obj.getDigests() != null) {
-            this.digest = obj.getDigests().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
+        if(obj.getDescriptions() != null) {
+            this.description = obj.getDescriptions().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
         } else {
-            this.digest = "";
+            this.description = "";
         }
         this.created = new Date(node.get(obj.getCreated()).asLong());
         this.lastModified = new Date(node.get(obj.getLastModified()).asLong());
@@ -73,8 +73,8 @@ public class SearchData {
         return content;
     }
 
-    public String getDigest() {
-        return digest;
+    public String getDescription() {
+        return description;
     }
 
     public Date getCreated() {
