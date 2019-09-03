@@ -43,10 +43,10 @@ FessObj.contents=name,body
 | username | Username |
 | auth_type | `token` or `password` (if you choose `password`, the you have to set `client_secret` and `security_token`) |
 | client_id | Consumer key |
-| private_key | Private key (required for `token`) |
-| client_secret | Consumer secret (required for `password`) |
-| security_token | Security token (required for `password`) |
-| custom | Custom object name (split by `,`) |
+| private_key | Private key (required for `token` only) |
+| client_secret | Consumer secret (required for `password` only) |
+| security_token | Security token (required for `password` only) |
+| custom | Custom Object name (split by `,`) |
 | ${object_name}.title | Field name that correspond title of document |
 | ${object_name}.content | Field names that correspond to contents of document |
 
@@ -65,7 +65,7 @@ url=object.url
 | --- | --- |
 | object.type |  The type of the Salesforce object (eg: `Case`, `User`, `Solution` ...) |
 | object.title | The name of the Salesforce object. |
-| object.description | A short description of Salesforce object. |
+| object.description | The short description of Salesforce object. |
 | object.content | The text contents of the Salesforce object |
 | object.id | The id of the Salesforce object |
 | object.content_length | The content length of the Salesforce object |
