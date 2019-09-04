@@ -15,8 +15,10 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -134,7 +136,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                                       final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                       final Map<String, Object> defaultDataMap, final ExecutorService executorService,
                                       final SalesforceClient client) {
-        final boolean ignoreError = ((Boolean) configMap.get(IGNORE_ERROR)).booleanValue();
+        final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getStandardObjects(data ->
                 executorService.execute(() ->
                         processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
@@ -145,7 +147,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                                     final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                     final Map<String, Object> defaultDataMap, final ExecutorService executorService,
                                     final SalesforceClient client) {
-        final boolean ignoreError = ((Boolean) configMap.get(IGNORE_ERROR)).booleanValue();
+        final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getCustomObjects(data ->
                 executorService.execute(() ->
                         processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
@@ -153,11 +155,27 @@ public class SalesforceDataStore extends AbstractDataStore {
                 ignoreError);
     }
 
+    @SuppressWarnings("unchecked")
     private void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback,
                                    final Map<String, Object> configMap, final Map<String, String> paramMap,
                                    final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
-        final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
+        Map<String, Object> dataMap = new HashMap<>();
+
+        for (final Map.Entry<String, Object> entry : defaultDataMap.entrySet()) {
+            final String key = entry.getKey();
+            final Object value = entry.getValue();
+            if(value instanceof List) {
+                /*
+                    We need to deep copy(clone) each List of the Map for thread-safety,
+                    because these may be accessed concurrently in the callback.store().
+                 */
+                dataMap.put(key, new ArrayList((List<Object>) value));
+            } else {
+                dataMap.put(entry.getKey(), value);
+            }
+        }
+
         String url = client.getInstanceUrl() + "/" + data.getId();
         try {
             final UrlFilter urlFilter = (UrlFilter) configMap.get(URL_FILTER);
