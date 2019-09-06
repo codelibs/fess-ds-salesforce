@@ -37,7 +37,12 @@ public class AuthUtilTest extends LastaFluteTestCase {
         return true;
     }
 
-    public void test_getPrivateKey() {
+    public void test() {
+        // doGetPrivateKey();
+        // doCreateJWT();
+    }
+
+    protected void doGetPrivateKey() {
         try {
             PrivateKey privateKey = AuthUtil.getPrivateKey(PRIVATE_KEY);
             assertNotNull(privateKey);
@@ -45,7 +50,8 @@ public class AuthUtilTest extends LastaFluteTestCase {
             fail(e.getMessage());
         }
     }
-    public void test_createJWT() {
+
+    protected void doCreateJWT() {
         try {
             String jwt = AuthUtil.createJWT(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
             assertNotNull(jwt);
