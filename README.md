@@ -9,16 +9,18 @@ Salesforce Data Store is an extension for Fess Data Store Crawling.
 
 See [Maven Repository](http://central.maven.org/maven2/org/codelibs/fess/fess-ds-salesforce/).
 
-## Installation (For 13.2.x and older)
+## Installation 
+### For 13.2.x and older
 
 1. Download fess-ds-salesforce-X.X.X.jar
 2. Copy fess-ds-salesforce-X.X.X.jar to $FESS\_HOME/app/WEB-INF/lib or /usr/share/fess/app/WEB-INF/lib
 
-## Installation (For 13.3 and later)
+### For 13.3 and later
+
+You can also install the plugin on the administration (See [the Administration guide](https://fess.codelibs.org/13.3/admin/plugin-guide.html)).
 
 1. Download fess-ds-salesforce-X.X.X.jar
 2. Copy fess-ds-salesforce-X.X.X.jar to $FESS\_HOME/app/WEB-INF/plugin or /usr/share/fess/app/WEB-INF/plugin
-
 
 ## Getting Started
 
@@ -39,16 +41,16 @@ FessObj.contents=name,body
 
 | Key | Value |
 | --- | --- |
-| base_url | URL of the Salesforce server (eg: `https://test.salesforce.com`) |
-| username | Username |
-| auth_type | `token` or `password` (if you choose `password`, the you have to set `client_secret` and `security_token`) |
-| client_id | Consumer key |
-| private_key | Private key (required for `token` only) |
-| client_secret | Consumer secret (required for `password` only) |
-| security_token | Security token (required for `password` only) |
-| custom | Custom Object name (split by `,`) |
-| ${object_name}.title | Field name that correspond title of document |
-| ${object_name}.content | Field names that correspond to contents of document |
+| *base_url* | URL of the Salesforce server (eg: `https://test.salesforce.com`) |
+| *username* | Username |
+| *auth_type* | `token` or `password` (if you choose `password`, the you have to set `client_secret` and `security_token`) |
+| *client_id* | Consumer key |
+| *private_key* | Private key (required for `token` only) |
+| *client_secret* | Consumer secret (required for `password` only) |
+| *security_token* | Security token (required for `password` only) |
+| *custom* | Names of the Custom Objects that you created on the Salesforce (split by `,`). |
+| *${object_name}.title* | Field names of the Custom Objects that correspond to titles of documents |
+| *${object_name}.content* | Field names of the Custom Objects that correspond to contents of documents |
 
 ### Scripts
 
@@ -63,13 +65,13 @@ url=object.url
 
 | Key | Value |
 | --- | --- |
-| object.type |  The type of the Salesforce object (eg: `Case`, `User`, `Solution` ...) |
-| object.title | The name of the Salesforce object. |
-| object.description | The short description of Salesforce object. |
-| object.content | The text contents of the Salesforce object |
-| object.id | The id of the Salesforce object |
-| object.content_length | The content length of the Salesforce object |
-| object.created | The time when the Salesforce object was created. |
-| object.last_modified | The last time the Salesforce object was modified by anyone. |
-| object.url | The Salesforce object URL  |
-| object.thumbnail | The thumbnail URL of the Salesforce object |
+| *object.type* |  The type of the Salesforce object (eg: `Case`, `User`, `Solution` ...) |
+| *object.title* | The name of the Salesforce object. |
+| *object.description* | A short description of the Salesforce object. |
+| *object.content* | The text contents of the Salesforce object |
+| *object.id* | The id of the Salesforce object |
+| *object.content_length* | The content length of the Salesforce object |
+| *object.created* | The time when the Salesforce object was created. |
+| *object.last_modified* | The last time the Salesforce object was modified. |
+| *object.url* | The Salesforce object URL  |
+| *object.thumbnail* | The thumbnail URL of the Salesforce object |
