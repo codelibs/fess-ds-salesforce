@@ -72,7 +72,7 @@ public enum StandardObject {
         return this.layout;
     }
 
-    StandardObject(SearchLayout layout) {
+    StandardObject(final SearchLayout layout) {
         this.layout = layout;
     }
 }

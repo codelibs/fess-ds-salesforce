@@ -109,11 +109,13 @@ public class SalesforceClient implements Closeable {
 
     public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         Arrays.stream(StandardObject.values()).forEach(so -> {
+
             final BulkConnection bulk = connectionProvider.getBulkConnection();
             final JobInfo job = BulkUtil.createJob(bulk, so.name());
             final SearchLayout layout = getSearchLayout(so);
             final String query = BulkUtil.createQuery(so.name(), layout.fields());
             final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
+
             BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
                 try {
                     mapper.readTree(stream).forEach(a -> {

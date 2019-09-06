@@ -49,12 +49,11 @@ public class BulkUtil {
             job.setOperation(OperationEnum.query);
             job.setConcurrencyMode(ConcurrencyMode.Parallel);
             job.setContentType(ContentType.JSON);
-
+            final JobInfo result = connection.createJob(job);
             if (logger.isDebugEnabled()) {
                 logger.info("Created a job : " + job);
             }
-
-            return connection.createJob(job);
+            return result;
         } catch (final AsyncApiException e) {
             throw new SalesforceDataStoreException("Failed to create job.", e);
         }
@@ -62,7 +61,11 @@ public class BulkUtil {
 
     public static BatchInfo createBatch(final BulkConnection connection, final JobInfo job, final String query) {
         try {
-            return connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
+            final BatchInfo batch = connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
+            if (logger.isDebugEnabled()) {
+                logger.info("Created a batch : " + batch);
+            }
+            return batch;
         } catch (final AsyncApiException e) {
             throw new SalesforceDataStoreException("Failed to create batch.", e);
         }
@@ -72,23 +75,23 @@ public class BulkUtil {
         return "SELECT " + String.join(",", fields) + " FROM " + objectType;
     }
 
-    public static List<InputStream> getQueryResultStream(final BulkConnection connection,
-                                                         final JobInfo job, final BatchInfo batch, final boolean ignoreError) {
-        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        final CompletableFuture result = new CompletableFuture<String[]>();
+    public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job,
+                                                         final BatchInfo batch, final boolean ignoreError) {
+        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        final CompletableFuture future = new CompletableFuture<String[]>();
 
-        service.scheduleAtFixedRate(() -> {
+        executor.scheduleAtFixedRate(() -> {
             try {
                 final BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);
                 switch (info.getState()) {
                     case Completed: {
                         final QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
-                        result.complete(queryResults.getResult());
+                        future.complete(queryResults.getResult());
                         break;
                     }
                     case Failed: {
                         logger.warn("Batch:" + batch.getId() + " Failed caused by '" + info.getStateMessage() + "'");
-                        result.complete(new String[0]);
+                        future.complete(new String[0]);
                         break;
                     }
                     default: {
@@ -97,14 +100,14 @@ public class BulkUtil {
                 }
             } catch (final AsyncApiException e) {
                 logger.warn(e);
-                result.completeExceptionally(e);
+                future.completeExceptionally(e);
             }
         }, 1, 10, TimeUnit.SECONDS);
 
-        result.whenComplete((t, u) -> service.shutdownNow());
+        future.whenComplete((result, exceptions) -> executor.shutdownNow());
 
         try {
-            return Arrays.stream((String[]) result.get())
+            return Arrays.stream((String[]) future.get())
                     .map(o -> {
                         try {
                             return connection.getQueryResultStream(job.getId(), batch.getId(), o);
@@ -113,15 +116,15 @@ public class BulkUtil {
                         }
                     }
             ).collect(Collectors.toList());
-        } catch (final InterruptedException |
-                ExecutionException e) {
+        } catch (final InterruptedException | ExecutionException e) {
             if (ignoreError) {
-                logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch.toString(), e);
+                logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch, e);
                 return Collections.emptyList();
             } else {
                 throw new SalesforceDataStoreException("Failed to get query results.", e);
             }
         }
+
     }
 
 }

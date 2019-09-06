@@ -17,7 +17,11 @@ package org.codelibs.fess.ds.salesforce;
 
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 import org.codelibs.fess.ds.salesforce.api.TokenResponse;
+import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
+import org.codelibs.fess.ds.salesforce.SalesforceClient;
+import org.codelibs.fess.ds.salesforce.SalesforceClient.ConnectionProvider;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.codelibs.fess.ds.salesforce.SalesforceClient.ConnectionProvider;
 
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.API_VERSION;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.AUTH_TYPE_PARAM;
@@ -44,7 +46,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     public static final String BASE_URL= "https://login.salesforce.com";
     public static final String AUTH_TYPE = "token";
     public static final String USERNAME = "sforce@example.com";
-    public static final String CLIENT_ID = "3MVG9G9pzCUSkzZvAOi1RgHl3R.34nTLefhmRBQ7Zsb9uPLdOXpas_ubQn6uzeEeEgURuD.FrGOLW3lAlKn97";
+    public static final String CLIENT_ID = "3MVG9G9pzCUSkzZvAOi1RgHl3R.34nTLefhmRBQ7Zsb9uPLdOXpas_ubQn6uzeEeEgURuD.FrGOLW3lAlKn94";
     public static final String PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDwL6Vfv02KBd6OfAlaH3DDVtVeeMplLAzJPOFL/up173BVq7aGUtiyz61i+itj9QkS+in9l84nyjUZQzq5nFE9/s72flpJKMZc5kiC0m+JzQLMybR2/qK5da3S4IzXDeqmP/uczTM9iplBQFxqJ+48Vz+vdI/4Tx8j8e9iTIUB9KG13RtM9dfBCB/LUq2R274gL9GTnirZpiZoL/NTcG5aWNKlVxDnqnTEYHzqws6oU27E4rY64FAMwLPcofDBut9E5cPWfPPwtdbTrjR7kyLVYBlCWNiHPvz7RKMUvbHE9PlA1aPJ7d7vKcCO9ENqXoyvgo0PXnWbzqcCZ2fDilntAgMBAAECggEBAKMkidzOUTm2IOSBRczsXCiiu41O2JL957Vs389B2DnBKHlYiEMW1NAoFiqLqJtdngtA1vLEgSgvxf9h1eqrTdehUyzEyEi3JH2HgasyisZ79THqs+S7swXr8+Sv15pffonsHdj03KApm01iDSOh+cUMslpX/053V7yPob0QIqwfEC1gEM77toxtrfZyacTWH9tblFgTfR0i/5X9+O97KluqqQ5SZGWoJ4yvCWMl+vjFjEY4W4yUohKh7EGaNFU2A8ZD1I6r8LJH71W0OA6M89SmdMKXAHlivsUcWLrkTwpYlRZ9QA7pu16jpTOGq2kqMziTWCpoOzNK0pGLEYTdF9UCgYEA+95QOPgR4QF5JoiV23z9ziIpdb2Rl6fiUBxjuyjrm+EFFQH4VPJOnrk28NHDI3H4D6QicP7eOPqOvatWL0MjgYVkEX7FcmU9WvCq4f5qQcbN2vilNZMB34nTL2GdCzfdRfrkzQZMag9gPwpVKgLOcoMS4BK204Njeerp3G+i9S8CgYEA9CBGQbE3u9XmOT/5ma/h3H/zpal7GBfqB7yC9xkfMw+Ol02PCZJn9S98t0elzJvriL4Y1FVrkxfDFG14at9b8sNVToQiOQrU37Zjh6gy+zDv0yqKAukttSEBTKTpQjNP6ZzedjTEzjY4/kPTwSt91dNl46UGyhKKh9sLi1zWU6MCgYEAhkSgbY5JMbLwW8tqYATE5LOveHXjfH5iFiTcQbTxzTpq1CUltlsp8FF6aWzZYzbpb6UnOyeTXbqsh44kNrPK5MwwaWc0aORxjd5IqotPJ9uMeBQfNm01DW7S5ypZZtaUHi8+89FMwSmLPHAMsIWoesFHOa6gSid7y02g+AOHUr8CgYEAt4nsSEdsl5PhWvl2Ns29CYJJNCuPmDWihd58uDny8vinQ6nT+GZSMkxZf5ImXQZ8tnn1QO5Xymb7C8ih1/fFsWaaJEXDVQ+HrAn8GmmiqqfIJwK8cCPPcXY2++CgXl0ln4WI22Yg8MhjYQatlXWVTcV5vQS9bf8yl6FftI8/s/ECgYEAlrxTxCjXET5ZxNR2tDeMPfcdMQo2vmndx14bb202JAp2ZGQRRoPVhnSeDUzt2UzVClqm9GxUhPxRO0/rkzM5Gp+BsToLCzI0WuT393BJ9Ma7x/uZR40FuA3rg/hfKTW0zxs0tug3U8ZICY980dkzYGRCZvbu8yJ543JyfYE9w/s=-----END PRIVATE KEY-----";
     public static final long REFRESH_INTERVAL = 0;
 
@@ -71,7 +73,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         params.put(USERNAME_PARAM, USERNAME);
         params.put(CLIENT_ID_PARAM, CLIENT_ID);
         params.put(PRIVATE_KEY_PARAM, PRIVATE_KEY);
-        // client = new SalesforceClient(params);
+        // client = new SalesforceClient(params); TODO
     }
 
     public void test_parseTokenResponse() {
@@ -83,12 +85,25 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         assertEquals("test_token", response.getAccessToken());
     }
 
+    public void testGetSearchLayout() {
+        // TODO
+        // doGetSearchLayout();
+    }
+
+    public void doGetSearchLayout() {
+        final StandardObject asset = StandardObject.Asset;
+        final SearchLayout layout = client.getSearchLayout(asset);
+        assertEquals(asset.getLayout().getTitle(), layout.getTitle());
+        assertEquals(asset.getLayout().getContents(), layout.getContents());
+    }
+
     public void testConnectionProvider() {
         try {
             connectionProvider = new ConnectionProvider(params);
         } catch (Exception e) {
             // fail(e.getMessage());
         }
+        // TODO
         // doGetConnection(connectionProvider);
         // doRefreshConnection(connectionProvider);
         // doRefreshConnection(connectionProvider);
@@ -100,7 +115,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     }
 
-    private void doGetConnection(final ConnectionProvider connectionProvider) {
+    protected void doGetConnection(final ConnectionProvider connectionProvider) {
         try {
             connectionProvider.getConnection();
         } catch (Exception e) {
@@ -108,7 +123,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doRefreshConnection(final ConnectionProvider connectionProvider) {
+    protected void doRefreshConnection(final ConnectionProvider connectionProvider) {
         try {
             connectionProvider.refreshConnection();
         } catch (Exception e) {
@@ -116,7 +131,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doGetTokenResponseByToken(final ConnectionProvider connectionProvider) {
+    protected void doGetTokenResponseByToken(final ConnectionProvider connectionProvider) {
         try {
             TokenResponse response = connectionProvider.getTokenResponseByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
             logger.debug("AccessToken: " + response.getAccessToken());
@@ -125,7 +140,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doGetTokenResponseByPassword(final ConnectionProvider connectionProvider) {
+    protected void doGetTokenResponseByPassword(final ConnectionProvider connectionProvider) {
         try {
             TokenResponse response = connectionProvider.getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
             logger.debug("AccessToken: " + response.getAccessToken());
@@ -134,7 +149,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doGetConnectionByToken(final ConnectionProvider connectionProvider) {
+    protected void doGetConnectionByToken(final ConnectionProvider connectionProvider) {
         try {
             connectionProvider.getConnectionByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
         } catch (ConnectionException e) {
@@ -142,7 +157,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doGetConnectionByPassword(final ConnectionProvider connectionProvider) {
+    protected void doGetConnectionByPassword(final ConnectionProvider connectionProvider) {
         try {
             connectionProvider.getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
         } catch (ConnectionException e) {
@@ -150,7 +165,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    private void doCreateConfig(final ConnectionProvider connectionProvider) {
+    protected void doCreateConfig(final ConnectionProvider connectionProvider) {
         try {
 
             String json = "{ \"id\":\"https://login.salesforce.com/id/test/testId\",\n" +
