@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** D&B 企業 */
+/** D&amp;B 企業 */
 public class SDandBCompany extends SearchLayout {
 
     protected static final String title = Field.Name.name();
@@ -39,7 +39,7 @@ public class SDandBCompany extends SearchLayout {
     }
 
     private enum Field {
-        /** D&B 企業 ID */
+        /** D&amp;B 企業 ID */
         Id,
         /** 第 1 会社名 */
         Name,
@@ -215,7 +215,7 @@ public class SDandBCompany extends SearchLayout {
         CompanyCurrencyIsoCode,
         /** 会社の説明 */
         Description,
-        /** S&P 500 */
+        /** S&amp;P 500 */
         IncludedInSnP500,
         /** 立地面積の精度 */
         PremisesMeasureReliability,

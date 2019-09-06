@@ -19,7 +19,7 @@ import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 public enum StandardObject {
 
-    /** D&B 企業 */
+    /** D&amp;B 企業 */
     DandBCompany(new SDandBCompany()),
     /** ToDo */
     Task(new STask()),
