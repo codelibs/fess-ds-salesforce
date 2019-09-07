@@ -81,7 +81,8 @@ public class BulkUtil {
     }
 
     public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job,
-                                                         final BatchInfo batch, final boolean ignoreError) {
+                                                         final BatchInfo batch, final boolean ignoreError)
+    throws InterruptedException {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture future = new CompletableFuture<String[]>();
 
@@ -121,7 +122,7 @@ public class BulkUtil {
                         }
                     }
             ).collect(Collectors.toList());
-        } catch (final InterruptedException | ExecutionException e) {
+        } catch (final ExecutionException e) {
             if (ignoreError) {
                 logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch, e);
                 return Collections.emptyList();

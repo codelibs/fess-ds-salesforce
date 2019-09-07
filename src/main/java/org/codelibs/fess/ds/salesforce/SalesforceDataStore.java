@@ -133,7 +133,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
                                       final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                       final Map<String, Object> defaultDataMap, final ExecutorService executorService,
-                                      final SalesforceClient client) {
+                                      final SalesforceClient client) throws InterruptedException {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getStandardObjects(data ->
                 executorService.execute(() ->
@@ -144,7 +144,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
                                     final Map<String, String> paramMap, final Map<String, String> scriptMap,
                                     final Map<String, Object> defaultDataMap, final ExecutorService executorService,
-                                    final SalesforceClient client) {
+                                    final SalesforceClient client) throws InterruptedException {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getCustomObjects(data ->
                 executorService.execute(() ->

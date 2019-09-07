@@ -36,6 +36,7 @@ import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
+import org.codelibs.core.lang.StringUtil;
 import org.codelibs.core.timer.TimeoutManager;
 import org.codelibs.core.timer.TimeoutTarget;
 import org.codelibs.core.timer.TimeoutTask;
@@ -107,8 +108,8 @@ public class SalesforceClient implements Closeable {
         return instanceUrl;
     }
 
-    public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
-        Arrays.stream(StandardObject.values()).forEach(so -> {
+    public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
+        for(final StandardObject so : StandardObject.values()) {
 
             final BulkConnection bulk = connectionProvider.getBulkConnection();
             final JobInfo job = BulkUtil.createJob(bulk, so.name());
@@ -130,15 +131,16 @@ public class SalesforceClient implements Closeable {
             try {
                 bulk.closeJob(job.getId());
             } catch (final AsyncApiException e) {
-                logger.warn("Failed to close bulk connection", e);
+                logger.warn("Failed to close the job : {}. {}" ,job.getId(), e);
             }
-        });
+        }
     }
 
-    public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
+    public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
         if(paramMap.get(CUSTOM_PARAM) == null) return ;
-        final List<String> customObjects = Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList());
-        for (String co : customObjects) {
+        final String[] customObjects = Arrays.stream(StringUtil.split(paramMap.get(CUSTOM_PARAM), ","))
+                        .map(String::trim).toArray(String[]::new);
+        for (final String co : customObjects) {
 
             final BulkConnection bulk = connectionProvider.getBulkConnection();
             final JobInfo job = BulkUtil.createJob(bulk, co);
@@ -160,7 +162,7 @@ public class SalesforceClient implements Closeable {
             try {
                 bulk.closeJob(job.getId());
             } catch (final AsyncApiException e) {
-                logger.warn("Failed to close bulk connection", e);
+                logger.warn("Failed to close the job : {}. {}" ,job.getId(), e);
             }
         }
     }
@@ -193,6 +195,7 @@ public class SalesforceClient implements Closeable {
         final String thumbnail = paramMap.get(type + "." + THUMBNAIL_PARAM);
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
+
 
     protected static class ConnectionProvider implements TimeoutTarget {
 
@@ -332,44 +335,46 @@ public class SalesforceClient implements Closeable {
             return config;
         }
 
-    }
+        // TODO : separete these GET methods from this class
 
-    protected static TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
-                                                           final String baseUrl, final long refreshInterval) {
-        try {
-            final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
-            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                    .param("assertion", jwt)
-                    .execute();
-            return parseTokenResponse(response.getContentAsStream());
-        } catch (final Exception e) {
-            throw new SalesforceDataStoreException("Failed to get token response .", e);
+        protected TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
+                                                               final String baseUrl, final long refreshInterval) {
+            try {
+                final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                        .param("assertion", jwt)
+                        .execute();
+                return parseTokenResponse(response.getContentAsStream());
+            } catch (final Exception e) {
+                throw new SalesforceDataStoreException("Failed to get token response .", e);
+            }
         }
-    }
 
-    protected static TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
+        protected TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
                                                               final String clientId, final String clientSecret, final String baseUrl) {
-        try {
-            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "password")
-                    .param("username", username)
-                    .param("password", password + securityToken)
-                    .param("client_id", clientId)
-                    .param("client_secret", clientSecret)
-                    .execute();
-            return parseTokenResponse(response.getContentAsStream());
-        }catch (final CurlException | IOException e) {
-            throw new SalesforceDataStoreException("Failed to get token response.", e);
+            try {
+                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "password")
+                        .param("username", username)
+                        .param("password", password + securityToken)
+                        .param("client_id", clientId)
+                        .param("client_secret", clientSecret)
+                        .execute();
+                return parseTokenResponse(response.getContentAsStream());
+            }catch (final CurlException | IOException e) {
+                throw new SalesforceDataStoreException("Failed to get token response.", e);
+            }
         }
-    }
 
-    protected static TokenResponse parseTokenResponse(final InputStream content) {
-        try {
-            return mapper.readValue(content, TokenResponse.class);
-        } catch (final IOException e) {
-            throw new SalesforceDataStoreException("Failed to parse token response.", e);
+        protected TokenResponse parseTokenResponse(final InputStream content) {
+            try {
+                return mapper.readValue(content, TokenResponse.class);
+            } catch (final IOException e) {
+                throw new SalesforceDataStoreException("Failed to parse token response.", e);
+            }
         }
+
     }
 
 }
