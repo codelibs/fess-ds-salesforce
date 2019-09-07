@@ -37,6 +37,8 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClient.BASE_URL_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.CLIENT_ID_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.PRIVATE_KEY_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.USERNAME_PARAM;
+import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByToken;
+import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByPass;
 import static org.codelibs.fess.ds.salesforce.SalesforceDataStoreTest.*;
 
 public class SalesforceClientTest extends LastaFluteTestCase {
@@ -133,16 +135,16 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     protected void doGetTokenResponseByToken(final ConnectionProvider connectionProvider) {
         try {
-            TokenResponse response = connectionProvider.getTokenResponseByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
+            TokenResponse response = getTokenResponseByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
             logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
         }
     }
 
-    protected void doGetTokenResponseByPassword(final ConnectionProvider connectionProvider) {
+    protected void doGetTokenResponseByPass(final ConnectionProvider connectionProvider) {
         try {
-            TokenResponse response = connectionProvider.getTokenResponseByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            TokenResponse response = getTokenResponseByPass(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
             logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -159,7 +161,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     protected void doGetConnectionByPassword(final ConnectionProvider connectionProvider) {
         try {
-            connectionProvider.getConnectionByPassword(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            connectionProvider.getConnectionByPass(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
         } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }

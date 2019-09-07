@@ -301,7 +301,7 @@ public class SalesforceClient implements Closeable {
         protected PartnerConnection getConnectionByPass(final String username, final String password,
                                                                 final String securityToken, final String clientId,
                                                                 final String clientSecret, final String baseUrl) throws ConnectionException {
-            final TokenResponse response = getTokenResponseByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
+            final TokenResponse response = getTokenResponseByPass(username, password, securityToken, clientId, clientSecret, baseUrl);
             final ConnectorConfig config = createConnectorConfig(response);
             return Connector.newConnection(config);
         }
@@ -348,7 +348,7 @@ public class SalesforceClient implements Closeable {
         }
     }
 
-    protected static TokenResponse getTokenResponseByPassword(final String username, final String password, final String securityToken,
+    protected static TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
                                                               final String clientId, final String clientSecret, final String baseUrl) {
         try {
             final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
