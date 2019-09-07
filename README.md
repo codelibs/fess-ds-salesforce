@@ -43,11 +43,11 @@ FessObj.contents=name,body
 | --- | --- |
 | *base_url* | URL of the Salesforce server (eg: `https://test.salesforce.com`) |
 | *username* | Username |
-| *auth_type* | `token` or `password` (if you choose `password`, the you have to set `client_secret` and `security_token`) |
+| *auth_type* | `oauth_token` or `oauth_password` (if you choose `oauth_password`, you have to set `client_secret` and `security_token`) |
 | *client_id* | Consumer key |
-| *private_key* | Private key (required for `token` only) |
-| *client_secret* | Consumer secret (required for `password` only) |
-| *security_token* | Security token (required for `password` only) |
+| *private_key* | Private key (required for `oauth_token` only) |
+| *client_secret* | Consumer secret (required for `oauth_password` only) |
+| *security_token* | Security token (required for `oauth_password` only) |
 | *custom* | Names of the Custom Objects that you created on the Salesforce (split by `,`). |
 | *${object_name}.title* | Field names of the Custom Objects that correspond to titles of documents |
 | *${object_name}.content* | Field names of the Custom Objects that correspond to contents of documents |
@@ -65,7 +65,7 @@ url=object.url
 
 | Key | Value |
 | --- | --- |
-| *object.type* |  The type of the Salesforce object (eg: `Case`, `User`, `Solution` ...) |
+| *object.type* |  The type of the Salesforce object (e.g. `Case`, `User`, `Solution` ...) |
 | *object.title* | The name of the Salesforce object. |
 | *object.description* | A short description of the Salesforce object. |
 | *object.content* | The text contents of the Salesforce object |
@@ -73,5 +73,5 @@ url=object.url
 | *object.content_length* | The content length of the Salesforce object |
 | *object.created* | The time when the Salesforce object was created. |
 | *object.last_modified* | The last time the Salesforce object was modified. |
-| *object.url* | The Salesforce object URL  |
+| *object.url* | The URL of the Salesforce object  |
 | *object.thumbnail* | The thumbnail URL of the Salesforce object |
