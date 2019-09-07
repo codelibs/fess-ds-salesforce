@@ -67,7 +67,7 @@ public class SalesforceClient implements Closeable {
     protected static final String BASE_URL_PARAM = "base_url";
     protected static final String AUTH_TYPE_PARAM = "auth_type";
     protected static final String USERNAME_PARAM = "username";
-    protected static final String PASSWORD_PARAM = "password";
+    protected static final String PASS_PARAM = "password";
     protected static final String SECURITY_TOKEN_PARAM = "security_token";
     protected static final String CLIENT_ID_PARAM = "client_id";
     protected static final String CLIENT_SECRET_PARAM = "client_secret";
@@ -79,8 +79,9 @@ public class SalesforceClient implements Closeable {
     protected static final String CUSTOM_PARAM = "custom";
     protected static final String REFRESH_TOKEN_INTERVAL_PARAM = "refresh_token_interval";
 
-    protected static final String TOKEN = "token";
-    protected static final String PASSWORD = "password";
+    // values for parameters
+    protected static final String OAUTH_TOKEN = "oauth_token";
+    protected static final String OAUTH_PASS = "oauth_password";
 
     protected final Map<String, String> paramMap;
     protected TimeoutTask refreshTokenTask;
@@ -106,7 +107,6 @@ public class SalesforceClient implements Closeable {
         return instanceUrl;
     }
 
-
     public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         Arrays.stream(StandardObject.values()).forEach(so -> {
 
@@ -126,18 +126,26 @@ public class SalesforceClient implements Closeable {
                     logger.warn("Failed to deserialize the JSON content.", e);
                 }
             });
-    });
+
+            try {
+                bulk.closeJob(job.getId());
+            } catch (final AsyncApiException e) {
+                logger.warn("Failed to close bulk connection", e);
+            }
+        });
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         if(paramMap.get(CUSTOM_PARAM) == null) return ;
         final List<String> customObjects = Arrays.stream(paramMap.get(CUSTOM_PARAM).split(",")).map(String::trim).collect(Collectors.toList());
         for (String co : customObjects) {
+
             final BulkConnection bulk = connectionProvider.getBulkConnection();
             final JobInfo job = BulkUtil.createJob(bulk, co);
             final SearchLayout layout = getSearchLayout(co);
             final String query = BulkUtil.createQuery(co, layout.fields());
             final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
+
             BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
                 try {
                     mapper.readTree(stream).forEach(a -> {
@@ -148,6 +156,12 @@ public class SalesforceClient implements Closeable {
                     logger.warn("Failed to deserialize the JSON content.", e);
                 }
             });
+
+            try {
+                bulk.closeJob(job.getId());
+            } catch (final AsyncApiException e) {
+                logger.warn("Failed to close bulk connection", e);
+            }
         }
     }
 
@@ -186,7 +200,7 @@ public class SalesforceClient implements Closeable {
 
         protected final String authType;
         protected final String username;
-        protected final String password;
+        protected final String pass;
         protected final String privateKey;
         protected final String securityToken;
         protected final String clientId;
@@ -198,7 +212,7 @@ public class SalesforceClient implements Closeable {
 
         protected ConnectionProvider(final Map<String, String> paramMap) {
             username = paramMap.get(USERNAME_PARAM);
-            password = paramMap.get(PASSWORD_PARAM);
+            pass = paramMap.get(PASS_PARAM);
             privateKey = paramMap.get(PRIVATE_KEY_PARAM);
             securityToken = paramMap.get(SECURITY_TOKEN_PARAM);
             clientId = paramMap.get(CLIENT_ID_PARAM);
@@ -216,7 +230,7 @@ public class SalesforceClient implements Closeable {
 
         @Override
         public void expired() {
-            if (authType.equals(TOKEN)) {
+            if (authType.equals(OAUTH_TOKEN)) {
                 refreshConnection();
             }
         }
@@ -231,29 +245,30 @@ public class SalesforceClient implements Closeable {
 
         protected PartnerConnection getConnection() {
             switch(authType) {
-                case TOKEN: {
+                case OAUTH_TOKEN: {
                     if (username == null || clientId == null || privateKey == null) {
-                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "'required for Token Auth.");
+                        throw new SalesforceDataStoreException("parameters '{" + USERNAME_PARAM + "}', '{" +
+                                CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' required for token authentication.");
                     }
                     try {
                         return getConnectionByToken(username, clientId, privateKey, baseUrl, refreshInterval);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by Token Auth", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by token auth", e);
                     }
                 }
-                case PASSWORD: {
-                    if (username == null || password == null || securityToken == null || clientId == null || clientSecret == null) {
-                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASSWORD_PARAM + "', '" + SECURITY_TOKEN_PARAM +
-                                "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for Password Auth.");
+                case OAUTH_PASS: {
+                    if (username == null || pass == null || securityToken == null || clientId == null || clientSecret == null) {
+                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASS_PARAM + "', '" + SECURITY_TOKEN_PARAM +
+                                "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for password authentication.");
                     }
                     try {
-                        return getConnectionByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
+                        return getConnectionByPass(username, pass, securityToken, clientId, clientSecret, baseUrl);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by Password Auth.", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by password auth.", e);
                     }
                 }
                 default: {
-                    throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' required.");
+                    throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' invalid.");
                 }
             }
         }
@@ -283,7 +298,7 @@ public class SalesforceClient implements Closeable {
             return Connector.newConnection(config);
         }
 
-        protected PartnerConnection getConnectionByPassword(final String username, final String password,
+        protected PartnerConnection getConnectionByPass(final String username, final String password,
                                                                 final String securityToken, final String clientId,
                                                                 final String clientSecret, final String baseUrl) throws ConnectionException {
             final TokenResponse response = getTokenResponseByPassword(username, password, securityToken, clientId, clientSecret, baseUrl);
@@ -298,8 +313,8 @@ public class SalesforceClient implements Closeable {
                     .replaceFirst("/services.*", "/services/async/" + API_VERSION));
 
             if (logger.isDebugEnabled()) {
-                logger.info("Session Id : " + config.getSessionId());
-                logger.info("Rest Endpoint : " + config.getRestEndpoint());
+                logger.info("Session Id : {}", config.getSessionId());
+                logger.info("Rest Endpoint : {}", config.getRestEndpoint());
             }
 
             return new BulkConnection(config);
@@ -311,42 +326,42 @@ public class SalesforceClient implements Closeable {
             config.setAuthEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION);
             config.setServiceEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION + "/" + response.getId());
             if (logger.isDebugEnabled()) {
-                logger.info("Auth Endpoint : " + config.getAuthEndpoint());
-                logger.info("Service Endpoint : " + config.getServiceEndpoint());
+                logger.info("Auth Endpoint : {}", config.getAuthEndpoint());
+                logger.info("Service Endpoint : {}", config.getServiceEndpoint());
             }
             return config;
         }
 
-        protected TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
-                                                        final String baseUrl, final long refreshInterval) {
-            try {
-                final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
-                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        .param("assertion", jwt)
-                        .execute();
-                return parseTokenResponse(response.getContentAsStream());
-            } catch (final Exception e) {
-                throw new SalesforceDataStoreException("Failed to get token response .", e);
-            }
-        }
+    }
 
-        protected TokenResponse getTokenResponseByPassword(final String username, final String password, final String securityToken,
-                                                               final String clientId, final String clientSecret, final String baseUrl) {
-            try {
-                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "password")
-                        .param("username", username)
-                        .param("password", password + securityToken)
-                        .param("client_id", clientId)
-                        .param("client_secret", clientSecret)
-                        .execute();
-                return parseTokenResponse(response.getContentAsStream());
-            }catch (final CurlException | IOException e) {
-                throw new SalesforceDataStoreException("Failed to get token response.", e);
-            }
+    protected static TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
+                                                           final String baseUrl, final long refreshInterval) {
+        try {
+            final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                    .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    .param("assertion", jwt)
+                    .execute();
+            return parseTokenResponse(response.getContentAsStream());
+        } catch (final Exception e) {
+            throw new SalesforceDataStoreException("Failed to get token response .", e);
         }
+    }
 
+    protected static TokenResponse getTokenResponseByPassword(final String username, final String password, final String securityToken,
+                                                              final String clientId, final String clientSecret, final String baseUrl) {
+        try {
+            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                    .param("grant_type", "password")
+                    .param("username", username)
+                    .param("password", password + securityToken)
+                    .param("client_id", clientId)
+                    .param("client_secret", clientSecret)
+                    .execute();
+            return parseTokenResponse(response.getContentAsStream());
+        }catch (final CurlException | IOException e) {
+            throw new SalesforceDataStoreException("Failed to get token response.", e);
+        }
     }
 
     protected static TokenResponse parseTokenResponse(final InputStream content) {

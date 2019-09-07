@@ -30,7 +30,12 @@ import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 public class AuthUtil {
+
     private static final Logger logger = Logger.getLogger(AuthUtil.class);
+
+    private AuthUtil() {
+        throw new IllegalStateException("Utility class.");
+    }
 
     public static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", "");
@@ -41,22 +46,25 @@ public class AuthUtil {
     public static String createJWT(final String username, final String clientId, final String privateKeyPem,
                                       final String baseUrl, final long refreshInterval)
             throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
-        final long expire = (System.currentTimeMillis() / 1000) + refreshInterval;
+        final StringBuilder token = new StringBuilder();
+
         final String header = "{\"alg\":\"RS256\"}";
+        token.append(Base64.encodeBase64URLSafeString(header.getBytes(StandardCharsets.UTF_8)));
+        token.append(".");
+
+        final long expire = (System.currentTimeMillis() / 1000) + refreshInterval;
         final String payload =
                         "{\"iss\": \"" + clientId + "\"," +
                         " \"sub\": \"" + username + "\"," +
                         " \"aud\": \"" + baseUrl + "\"," +
                         " \"exp\": \"" + expire + "\"}" ;
-        final StringBuilder token = new StringBuilder();
-        token.append(Base64.encodeBase64URLSafeString(header.getBytes(StandardCharsets.UTF_8)));
-        token.append(".");
         token.append(Base64.encodeBase64URLSafeString(payload.getBytes(StandardCharsets.UTF_8)));
 
         final PrivateKey rsaPrivateKey = getPrivateKey(privateKeyPem);
         final Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(rsaPrivateKey);
         signature.update(token.toString().getBytes(StandardCharsets.UTF_8));
+
         final String signedPayload = Base64.encodeBase64URLSafeString(signature.sign());
         token.append(".");
         token.append(signedPayload);

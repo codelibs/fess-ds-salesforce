@@ -40,7 +40,12 @@ import org.apache.log4j.Logger;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 
 public class BulkUtil {
+
     private static final Logger logger = Logger.getLogger(BulkUtil.class);
+
+    private BulkUtil() {
+        throw new IllegalStateException("Utility class.");
+    }
 
     public static JobInfo createJob(final BulkConnection connection, final String objectType) {
         try {

@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SearchLayout {
-    protected String title;
-    protected List<String> contents;
-    protected List<String> descriptions;
-    protected String thumbnail;
-    protected static final String id = "Id";
-    protected static final String created = "CreatedDate";
-    protected static final String lastModified = "LastModifiedDate";
+    private String title;
+    private List<String> contents;
+    private List<String> descriptions;
+    private String thumbnail;
+    private static final String id = "Id";
+    private static final String created = "CreatedDate";
+    private static final String lastModified = "LastModifiedDate";
 
     public SearchLayout() {
     }
