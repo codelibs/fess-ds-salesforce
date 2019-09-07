@@ -15,18 +15,48 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 納入商品 */
 public class SAsset extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.SerialNumber, Field.Status,
-            Field.Description).map(Enum::name).collect(Collectors.toList());
+    /** 納入商品 ID */
+    protected static final String ID = "Id";
+    /** 商品コード */
+    protected static final String PRODUCT_CODE = "ProductCode";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 納入商品名 */
+    protected static final String NAME = "Name";
+    /** シリアル番号 */
+    protected static final String SERIAL_NUMBER = "SerialNumber";
+    /** 納入日 */
+    protected static final String INSTALL_DATE = "InstallDate";
+    /** 購入日 */
+    protected static final String PURCHASE_DATE = "PurchaseDate";
+    /** 使用終了日 */
+    protected static final String USAGE_END_DATE = "UsageEndDate";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 商品 SKU */
+    protected static final String STOCK_KEEPING_UNIT = "StockKeepingUnit";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, SERIAL_NUMBER, STATUS, DESCRIPTION);
 
     @Override
     public String getTitle() {
@@ -38,36 +68,4 @@ public class SAsset extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 納入商品 ID */
-        Id,
-        /** 商品コード */
-        ProductCode,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 納入商品名 */
-        Name,
-        /** シリアル番号 */
-        SerialNumber,
-        /** 納入日 */
-        InstallDate,
-        /** 購入日 */
-        PurchaseDate,
-        /** 使用終了日 */
-        UsageEndDate,
-        /** 状況 */
-        Status,
-        /** 説明 */
-        Description,
-        /** 商品 SKU */
-        StockKeepingUnit,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }

@@ -17,17 +17,42 @@ package org.codelibs.fess.ds.salesforce.api.sobject;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** キャンペーン */
 public class SCampaign extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Arrays.asList(Field.Name, Field.Type, Field.Status,
-            Field.Description)
-            .stream().map(o -> o.name()).collect(Collectors.toList());
+    /** キャンペーン ID */
+    protected static final String ID = "Id";
+    /** 名前 */
+    protected static final String NAME = "Name";
+    /** 種別 */
+    protected static final String TYPE = "Type";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 開始日 */
+    protected static final String START_DATE = "StartDate";
+    /** 終了日 */
+    protected static final String END_DATE = "EndDate";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終活動日 */
+    protected static final String LAST_ACTIVITY_DATE = "LastActivityDate";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, TYPE, STATUS, DESCRIPTION);
 
     @Override
     public String getTitle() {
@@ -39,32 +64,4 @@ public class SCampaign extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** キャンペーン ID */
-        Id,
-        /** 名前 */
-        Name,
-        /** 種別 */
-        Type,
-        /** 状況 */
-        Status,
-        /** 開始日 */
-        StartDate,
-        /** 終了日 */
-        EndDate,
-        /** 説明 */
-        Description,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終活動日 */
-        LastActivityDate,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }

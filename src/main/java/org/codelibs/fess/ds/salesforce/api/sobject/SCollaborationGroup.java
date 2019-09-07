@@ -15,19 +15,54 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** グループ */
 public class SCollaborationGroup extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Description, Field.InformationTitle,
-            Field.InformationBody, Field.GroupEmail).map(Enum::name).collect(Collectors.toList());
-    protected static final String thumbnail = Field.SmallPhotoUrl.name();
+    /** グループ ID */
+    protected static final String ID = "Id";
+    /** 名前 */
+    protected static final String NAME = "Name";
+    /** アクセス種別 */
+    protected static final String COLLABORATION_TYPE = "CollaborationType";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 実寸大の写真の URL */
+    protected static final String FULL_PHOTO_URL = "FullPhotoUrl";
+    /** プロファイル写真 (中) の URL */
+    protected static final String MEDIUM_PHOTO_URL = "MediumPhotoUrl";
+    /** 写真 */
+    protected static final String SMALL_PHOTO_URL = "SmallPhotoUrl";
+    /** 最終フィード更新日 */
+    protected static final String LAST_FEED_MODIFIED_DATE = "LastFeedModifiedDate";
+    /** 情報のタイトル */
+    protected static final String INFORMATION_TITLE = "InformationTitle";
+    /** 情報 */
+    protected static final String INFORMATION_BODY = "InformationBody";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** グループのメール */
+    protected static final String GROUP_EMAIL = "GroupEmail";
+    /** バナー写真の URL */
+    protected static final String BANNER_PHOTO_URL = "BannerPhotoUrl";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, INFORMATION_TITLE, INFORMATION_BODY, GROUP_EMAIL);
+
+    protected static final String thumbnail = SMALL_PHOTO_URL;
 
     @Override
     public String getTitle() {
@@ -44,40 +79,4 @@ public class SCollaborationGroup extends SearchLayout {
         return thumbnail;
     }
 
-    private enum Field {
-        /** グループ ID */
-        Id,
-        /** 名前 */
-        Name,
-        /** アクセス種別 */
-        CollaborationType,
-        /** 説明 */
-        Description,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 実寸大の写真の URL */
-        FullPhotoUrl,
-        /** プロファイル写真 (中) の URL */
-        MediumPhotoUrl,
-        /** 写真 */
-        SmallPhotoUrl,
-        /** 最終フィード更新日 */
-        LastFeedModifiedDate,
-        /** 情報のタイトル */
-        InformationTitle,
-        /** 情報 */
-        InformationBody,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** グループのメール */
-        GroupEmail,
-        /** バナー写真の URL */
-        BannerPhotoUrl
-    }
 }

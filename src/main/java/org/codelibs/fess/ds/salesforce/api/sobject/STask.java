@@ -15,18 +15,62 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** ToDo */
 public class STask extends SearchLayout {
 
-    protected static final String title = Field.Subject.name();
-    protected static final List<String> contents = Stream.of(Field.Subject, Field.Status, Field.Priority,
-            Field.Description).map(Enum::name).collect(Collectors.toList());
+    /** 活動 ID */
+    protected static final String ID = "Id";
+    /** 件名 */
+    protected static final String SUBJECT = "Subject";
+    /** 期日のみ */
+    protected static final String ACTIVITY_DATE = "ActivityDate";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 優先度 */
+    protected static final String PRIORITY = "Priority";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 通話種別 */
+    protected static final String CALL_TYPE = "CallType";
+    /** 通話結果 */
+    protected static final String CALL_DISPOSITION = "CallDisposition";
+    /** 通話オブジェクト ID */
+    protected static final String CALL_OBJECT = "CallObject";
+    /** アラーム日付/時間 */
+    protected static final String REMINDER_DATE_TIME = "ReminderDateTime";
+    /** 繰り返しの開始 */
+    protected static final String RECURRENCE_START_DATE_ONLY = "RecurrenceStartDateOnly";
+    /** 繰り返しの終了 */
+    protected static final String RECURRENCE_END_DATE_ONLY = "RecurrenceEndDateOnly";
+    /** 繰り返しタイムゾーン */
+    protected static final String RECURRENCE_TIME_ZONE_SID_KEY = "RecurrenceTimeZoneSidKey";
+    /** 繰り返し種別 */
+    protected static final String RECURRENCE_TYPE = "RecurrenceType";
+    /** 繰り返しインスタンス */
+    protected static final String RECURRENCE_INSTANCE = "RecurrenceInstance";
+    /** 繰り返し月 */
+    protected static final String RECURRENCE_MONTH_OF_YEAR = "RecurrenceMonthOfYear";
+    /** この ToDo を繰り返す */
+    protected static final String RECURRENCE_REGENERATED_TYPE = "RecurrenceRegeneratedType";
+    /** ToDo のサブ種別 */
+    protected static final String TASK_SUBTYPE = "TaskSubtype";
+    /** 完了日 */
+    protected static final String COMPLETED_DATE_TIME = "CompletedDateTime";
+
+    protected static final String title = SUBJECT;
+
+    protected static final List<String> contents = Arrays.asList(SUBJECT, STATUS, PRIORITY, DESCRIPTION);
 
     @Override
     public String getTitle() {
@@ -38,50 +82,4 @@ public class STask extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 活動 ID */
-        Id,
-        /** 件名 */
-        Subject,
-        /** 期日のみ */
-        ActivityDate,
-        /** 状況 */
-        Status,
-        /** 優先度 */
-        Priority,
-        /** 説明 */
-        Description,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 通話種別 */
-        CallType,
-        /** 通話結果 */
-        CallDisposition,
-        /** 通話オブジェクト ID */
-        CallObject,
-        /** アラーム日付/時間 */
-        ReminderDateTime,
-        /** 繰り返しの開始 */
-        RecurrenceStartDateOnly,
-        /** 繰り返しの終了 */
-        RecurrenceEndDateOnly,
-        /** 繰り返しタイムゾーン */
-        RecurrenceTimeZoneSidKey,
-        /** 繰り返し種別 */
-        RecurrenceType,
-        /** 繰り返しインスタンス */
-        RecurrenceInstance,
-        /** 繰り返し月 */
-        RecurrenceMonthOfYear,
-        /** この ToDo を繰り返す */
-        RecurrenceRegeneratedType,
-        /** ToDo のサブ種別 */
-        TaskSubtype,
-        /** 完了日 */
-        CompletedDateTime
-    }
 }

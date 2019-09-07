@@ -15,20 +15,67 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** ケース */
 public class SCase extends SearchLayout {
 
-    protected static final String title = Field.Subject.name();
-    protected static final List<String> contents = Stream.of(Field.CaseNumber, Field.SuppliedName, Field.SuppliedEmail,
-    Field.SuppliedPhone, Field.SuppliedCompany, Field.Type, Field.Status, Field.Reason, Field.Origin,
-            Field.Subject, Field.Description, Field.ContactPhone, Field.ContactMobile,
-            Field.ContactEmail, Field.ContactFax, Field.Comments).map(Enum::name).collect(Collectors.toList());
+    /** ケース ID */
+    protected static final String ID = "Id";
+    /** ケース番号 */
+    protected static final String CASE_NUMBER = "CaseNumber";
+    /** 名前 */
+    protected static final String SUPPLIED_NAME = "SuppliedName";
+    /** メールアドレス */
+    protected static final String SUPPLIED_EMAIL = "SuppliedEmail";
+    /** 電話 */
+    protected static final String SUPPLIED_PHONE = "SuppliedPhone";
+    /** 会社名 */
+    protected static final String SUPPLIED_COMPANY = "SuppliedCompany";
+    /** ケース種別 */
+    protected static final String TYPE = "Type";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 原因 */
+    protected static final String REASON = "Reason";
+    /** 発生源 */
+    protected static final String ORIGIN = "Origin";
+    /** 件名 */
+    protected static final String SUBJECT = "Subject";
+    /** 優先度 */
+    protected static final String PRIORITY = "Priority";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 完了日 */
+    protected static final String CLOSED_DATE = "ClosedDate";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 取引先責任者 電話 */
+    protected static final String CONTACT_PHONE = "ContactPhone";
+    /** 取引先責任者 携帯 */
+    protected static final String CONTACT_MOBILE = "ContactMobile";
+    /** 取引先責任者 メール */
+    protected static final String CONTACT_EMAIL = "ContactEmail";
+    /** 取引先責任者 Fax */
+    protected static final String CONTACT_FAX = "ContactFax";
+    /** 社内コメント */
+    protected static final String COMMENTS = "Comments";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = SUBJECT;
+
+    protected static final List<String> contents = Arrays.asList(CASE_NUMBER, SUPPLIED_NAME, SUPPLIED_EMAIL, SUPPLIED_PHONE, SUPPLIED_COMPANY,
+            TYPE, STATUS, REASON, ORIGIN, SUBJECT, DESCRIPTION, CONTACT_PHONE, CONTACT_MOBILE, CONTACT_EMAIL, CONTACT_FAX, COMMENTS);
 
     @Override
     public String getTitle() {
@@ -40,54 +87,4 @@ public class SCase extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** ケース ID */
-        Id,
-        /** ケース番号 */
-        CaseNumber,
-        /** 名前 */
-        SuppliedName,
-        /** メールアドレス */
-        SuppliedEmail,
-        /** 電話 */
-        SuppliedPhone,
-        /** 会社名 */
-        SuppliedCompany,
-        /** ケース種別 */
-        Type,
-        /** 状況 */
-        Status,
-        /** 原因 */
-        Reason,
-        /** 発生源 */
-        Origin,
-        /** 件名 */
-        Subject,
-        /** 優先度 */
-        Priority,
-        /** 説明 */
-        Description,
-        /** 完了日 */
-        ClosedDate,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 取引先責任者 電話 */
-        ContactPhone,
-        /** 取引先責任者 携帯 */
-        ContactMobile,
-        /** 取引先責任者 メール */
-        ContactEmail,
-        /** 取引先責任者 Fax */
-        ContactFax,
-        /** 社内コメント */
-        Comments,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }

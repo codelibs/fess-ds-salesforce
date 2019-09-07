@@ -15,18 +15,70 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 契約 */
 public class SContract extends SearchLayout {
 
-    protected static final String title = Field.ContractNumber.name();
-    protected static final List<String> contents = Stream.of(Field.Status, Field.Description, Field.ContractNumber)
-            .map(Enum::name).collect(Collectors.toList());
+    /** 契約 ID */
+    protected static final String ID = "Id";
+    /** 所有者に対する終了通知 */
+    protected static final String OWNER_EXPIRATION_NOTICE = "OwnerExpirationNotice";
+    /** 契約開始日 */
+    protected static final String START_DATE = "StartDate";
+    /** 契約終了日 */
+    protected static final String END_DATE = "EndDate";
+    /** 町名・番地(請求先) */
+    protected static final String BILLING_STREET = "BillingStreet";
+    /** 市区郡(請求先) */
+    protected static final String BILLING_CITY = "BillingCity";
+    /** 都道府県(請求先) */
+    protected static final String BILLING_STATE = "BillingState";
+    /** 郵便番号(請求先) */
+    protected static final String BILLING_POSTAL_CODE = "BillingPostalCode";
+    /** 国(請求先) */
+    protected static final String BILLING_COUNTRY = "BillingCountry";
+    /** Billing Geocode Accuracy */
+    protected static final String BILLING_GEOCODE_ACCURACY = "BillingGeocodeAccuracy";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 自社 契約日 */
+    protected static final String COMPANY_SIGNED_DATE = "CompanySignedDate";
+    /** 顧客 調印者役職 */
+    protected static final String CUSTOMER_SIGNED_TITLE = "CustomerSignedTitle";
+    /** 顧客 契約日 */
+    protected static final String CUSTOMER_SIGNED_DATE = "CustomerSignedDate";
+    /** 特記事項 */
+    protected static final String SPECIAL_TERMS = "SpecialTerms";
+    /** 有効日 */
+    protected static final String ACTIVATED_DATE = "ActivatedDate";
+    /** 状況のカテゴリ */
+    protected static final String STATUS_CODE = "StatusCode";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 契約番号 */
+    protected static final String CONTRACT_NUMBER = "ContractNumber";
+    /** 最終承認日 */
+    protected static final String LAST_APPROVED_DATE = "LastApprovedDate";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終活動日 */
+    protected static final String LAST_ACTIVITY_DATE = "LastActivityDate";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = CONTRACT_NUMBER;
+
+    protected static final List<String> contents = Arrays.asList(STATUS, DESCRIPTION, CONTRACT_NUMBER);
 
     @Override
     public String getTitle() {
@@ -38,58 +90,4 @@ public class SContract extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 契約 ID */
-        Id,
-        /** 所有者に対する終了通知 */
-        OwnerExpirationNotice,
-        /** 契約開始日 */
-        StartDate,
-        /** 契約終了日 */
-        EndDate,
-        /** 町名・番地(請求先) */
-        BillingStreet,
-        /** 市区郡(請求先) */
-        BillingCity,
-        /** 都道府県(請求先) */
-        BillingState,
-        /** 郵便番号(請求先) */
-        BillingPostalCode,
-        /** 国(請求先) */
-        BillingCountry,
-        /** Billing Geocode Accuracy */
-        BillingGeocodeAccuracy,
-        /** 状況 */
-        Status,
-        /** 自社 契約日 */
-        CompanySignedDate,
-        /** 顧客 調印者役職 */
-        CustomerSignedTitle,
-        /** 顧客 契約日 */
-        CustomerSignedDate,
-        /** 特記事項 */
-        SpecialTerms,
-        /** 有効日 */
-        ActivatedDate,
-        /** 状況のカテゴリ */
-        StatusCode,
-        /** 説明 */
-        Description,
-        /** 契約番号 */
-        ContractNumber,
-        /** 最終承認日 */
-        LastApprovedDate,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終活動日 */
-        LastActivityDate,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }

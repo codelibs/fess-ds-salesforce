@@ -15,18 +15,46 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 画像 */
 public class SImage extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.ImageTitle, Field.ImageAlternateText,
-            Field.ImageUrl).map(Enum::name).collect(Collectors.toList());
+    /** 画像 ID */
+    protected static final String ID = "Id";
+    /** 名前 */
+    protected static final String NAME = "Name";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** 画像ビュー種別 */
+    protected static final String IMAGE_VIEW_TYPE = "ImageViewType";
+    /** 画像タイトル */
+    protected static final String IMAGE_TITLE = "ImageTitle";
+    /** 画像の代替テキスト */
+    protected static final String IMAGE_ALTERNATE_TEXT = "ImageAlternateText";
+    /** 画像の URL */
+    protected static final String IMAGE_URL = "ImageUrl";
+    /** 画像クラス */
+    protected static final String IMAGE_CLASS = "ImageClass";
+    /** 画像クラスオブジェクト種別 */
+    protected static final String IMAGE_CLASS_OBJECT_TYPE = "ImageClassObjectType";
+    /** キャプチャ角度 */
+    protected static final String CAPTURED_ANGLE = "CapturedAngle";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, IMAGE_TITLE, IMAGE_ALTERNATE_TEXT, IMAGE_URL);
 
     @Override
     public String getTitle() {
@@ -38,34 +66,4 @@ public class SImage extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 画像 ID */
-        Id,
-        /** 名前 */
-        Name,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** 画像ビュー種別 */
-        ImageViewType,
-        /** 画像タイトル */
-        ImageTitle,
-        /** 画像の代替テキスト */
-        ImageAlternateText,
-        /** 画像の URL */
-        ImageUrl,
-        /** 画像クラス */
-        ImageClass,
-        /** 画像クラスオブジェクト種別 */
-        ImageClassObjectType,
-        /** キャプチャ角度 */
-        CapturedAngle
-    }
 }

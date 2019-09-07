@@ -15,17 +15,40 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** おすすめ */
 public class SRecommendation extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Description).map(Enum::name).collect(Collectors.toList());
+    /** おすすめ ID */
+    protected static final String ID = "Id";
+    /** 名前 */
+    protected static final String NAME = "Name";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** アクション */
+    protected static final String ACTION_REFERENCE = "ActionReference";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 承諾の表示ラベル */
+    protected static final String ACCEPTANCE_LABEL = "AcceptanceLabel";
+    /** 却下の表示ラベル */
+    protected static final String REJECTION_LABEL = "RejectionLabel";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION);
 
     @Override
     public String getTitle() {
@@ -37,28 +60,4 @@ public class SRecommendation extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** おすすめ ID */
-        Id,
-        /** 名前 */
-        Name,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** アクション */
-        ActionReference,
-        /** 説明 */
-        Description,
-        /** 承諾の表示ラベル */
-        AcceptanceLabel,
-        /** 却下の表示ラベル */
-        RejectionLabel
-    }
 }

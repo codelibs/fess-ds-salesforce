@@ -15,9 +15,8 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
@@ -25,9 +24,44 @@ import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 /** 商談 */
 public class SOpportunity extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Description, Field.StageName,
-            Field.Type, Field.NextStep).map(Enum::name).collect(Collectors.toList());
+    /** 商談 ID */
+    protected static final String ID = "Id";
+    /** 商談名 */
+    protected static final String NAME = "Name";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** フェーズ */
+    protected static final String STAGE_NAME = "StageName";
+    /** 完了予定日 */
+    protected static final String CLOSE_DATE = "CloseDate";
+    /** 商談 種別 */
+    protected static final String TYPE = "Type";
+    /** 次のステップ */
+    protected static final String NEXT_STEP = "NextStep";
+    /** リードソース */
+    protected static final String LEAD_SOURCE = "LeadSource";
+    /** 売上予測分類 */
+    protected static final String FORECAST_CATEGORY = "ForecastCategory";
+    /** 売上予測分類 */
+    protected static final String FORECAST_CATEGORY_NAME = "ForecastCategoryName";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終活動日 */
+    protected static final String LAST_ACTIVITY_DATE = "LastActivityDate";
+    /** 会計期間 */
+    protected static final String FISCAL = "Fiscal";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, STAGE_NAME, TYPE, NEXT_STEP);
 
     @Override
     public String getTitle() {
@@ -39,40 +73,4 @@ public class SOpportunity extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 商談 ID */
-        Id,
-        /** 商談名 */
-        Name,
-        /** 説明 */
-        Description,
-        /** フェーズ */
-        StageName,
-        /** 完了予定日 */
-        CloseDate,
-        /** 商談 種別 */
-        Type,
-        /** 次のステップ */
-        NextStep,
-        /** リードソース */
-        LeadSource,
-        /** 売上予測分類 */
-        ForecastCategory,
-        /** 売上予測分類 */
-        ForecastCategoryName,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終活動日 */
-        LastActivityDate,
-        /** 会計期間 */
-        Fiscal,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }

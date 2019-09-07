@@ -15,18 +15,38 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** 納入商品リレーション */
 class SAssetRelationship extends SearchLayout {
 
-    protected static final String title = Field.AssetRelationshipNumber.name();
-    protected static final List<String> contents = Stream.of(Field.AssetRelationshipNumber).map (Enum::name)
-            .collect(Collectors.toList());
+    /** 納入商品リレーション ID */
+    protected static final String ID = "Id";
+    /** 納入商品リレーション番号 */
+    protected static final String ASSET_RELATIONSHIP_NUMBER = "AssetRelationshipNumber";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** 開始日 */
+    protected static final String FROM_DATE = "FromDate";
+    /** 終了日 */
+    protected static final String TO_DATE = "ToDate";
+    /** リレーション種別 */
+    protected static final String RELATIONSHIP_TYPE = "RelationshipType";
+
+    protected static final String title = ASSET_RELATIONSHIP_NUMBER;
+
+    protected static final List<String> contents = Arrays.asList(ASSET_RELATIONSHIP_NUMBER);
 
     @Override
     public String getTitle() {
@@ -38,26 +58,4 @@ class SAssetRelationship extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** 納入商品リレーション ID */
-        Id,
-        /** 納入商品リレーション番号 */
-        AssetRelationshipNumber,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** 開始日 */
-        FromDate,
-        /** 終了日 */
-        ToDate,
-        /** リレーション種別 */
-        RelationshipType
-    }
 }

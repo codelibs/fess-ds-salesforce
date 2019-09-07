@@ -15,18 +15,36 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** マクロ */
 public class SMacro extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Description, Field.StartingContext)
-            .map(Enum::name).collect(Collectors.toList());
+    /** マクロ ID */
+    protected static final String ID = "Id";
+    /** マクロ名 */
+    protected static final String NAME = "Name";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** 説明 */
+    protected static final String DESCRIPTION = "Description";
+    /** 適用先 */
+    protected static final String STARTING_CONTEXT = "StartingContext";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, STARTING_CONTEXT);
 
     @Override
     public String getTitle() {
@@ -38,24 +56,4 @@ public class SMacro extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** マクロ ID */
-        Id,
-        /** マクロ名 */
-        Name,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** 説明 */
-        Description,
-        /** 適用先 */
-        StartingContext
-    }
 }

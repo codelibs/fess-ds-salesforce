@@ -15,19 +15,128 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** ユーザ */
 public class SUser extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Username, Field.Name, Field.CompanyName,
-            Field.Division, Field.Department, Field.Title, Field.Email, Field.Phone, Field.Fax,
-            Field.MobilePhone, Field.Alias, Field.CommunityNickname, Field.AboutMe).map(Enum::name).collect(Collectors.toList());
+    /** ユーザ ID */
+    protected static final String ID = "Id";
+    /** ユーザ名 */
+    protected static final String USERNAME = "Username";
+    /** 姓 */
+    protected static final String LAST_NAME = "LastName";
+    /** 名 */
+    protected static final String FIRST_NAME = "FirstName";
+    /** 氏名 */
+    protected static final String NAME = "Name";
+    /** 会社名 */
+    protected static final String COMPANY_NAME = "CompanyName";
+    /** ディビジョン */
+    protected static final String DIVISION = "Division";
+    /** 部署 */
+    protected static final String DEPARTMENT = "Department";
+    /** 役職 */
+    protected static final String TITLE = "Title";
+    /** 町名・番地 */
+    protected static final String STREET = "Street";
+    /** 市区郡 */
+    protected static final String CITY = "City";
+    /** 都道府県 */
+    protected static final String STATE = "State";
+    /** 郵便番号 */
+    protected static final String POSTAL_CODE = "PostalCode";
+    /** 国 */
+    protected static final String COUNTRY = "Country";
+    /** Geocode Accuracy */
+    protected static final String GEOCODE_ACCURACY = "GeocodeAccuracy";
+    /** メール */
+    protected static final String EMAIL = "Email";
+    /** 送信者のメールアドレス */
+    protected static final String SENDER_EMAIL = "SenderEmail";
+    /** メール送信者の名前 */
+    protected static final String SENDER_NAME = "SenderName";
+    /** メールの署名 */
+    protected static final String SIGNATURE = "Signature";
+    /** 登録情報照会メールの件名 */
+    protected static final String STAY_IN_TOUCH_SUBJECT = "StayInTouchSubject";
+    /** 登録情報照会メールの署名 */
+    protected static final String STAY_IN_TOUCH_SIGNATURE = "StayInTouchSignature";
+    /** 登録情報照会メールのメモ */
+    protected static final String STAY_IN_TOUCH_NOTE = "StayInTouchNote";
+    /** 電話 */
+    protected static final String PHONE = "Phone";
+    /** Fax */
+    protected static final String FAX = "Fax";
+    /** モバイル */
+    protected static final String MOBILE_PHONE = "MobilePhone";
+    /** 別名 */
+    protected static final String ALIAS = "Alias";
+    /** ニックネーム */
+    protected static final String COMMUNITY_NICKNAME = "CommunityNickname";
+    /** ユーザの写真のバッジテキストのフロート表示 */
+    protected static final String BADGE_TEXT = "BadgeText";
+    /** タイムゾーン */
+    protected static final String TIME_ZONE_SID_KEY = "TimeZoneSidKey";
+    /** 地域 */
+    protected static final String LOCALE_SID_KEY = "LocaleSidKey";
+    /** メールの文字コード */
+    protected static final String EMAIL_ENCODING_KEY = "EmailEncodingKey";
+    /** ユーザ種別 */
+    protected static final String USER_TYPE = "UserType";
+    /** 言語 */
+    protected static final String LANGUAGE_LOCALE_KEY = "LanguageLocaleKey";
+    /** 従業員番号 */
+    protected static final String EMPLOYEE_NUMBER = "EmployeeNumber";
+    /** 最終ログイン */
+    protected static final String LAST_LOGIN_DATE = "LastLoginDate";
+    /** 前回のパスワードの変更またはリセット */
+    protected static final String LAST_PASSWORD_CHANGE_DATE = "LastPasswordChangeDate";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** Force.com Connect Offline トライアル期限 */
+    protected static final String OFFLINE_TRIAL_EXPIRATION_DATE = "OfflineTrialExpirationDate";
+    /** Sales Anywhere トライアル期限 */
+    protected static final String OFFLINE_PDA_TRIAL_EXPIRATION_DATE = "OfflinePdaTrialExpirationDate";
+    /** 内線 */
+    protected static final String EXTENSION = "Extension";
+    /** SAML 統合 ID */
+    protected static final String FEDERATION_IDENTIFIER = "FederationIdentifier";
+    /** 自己紹介 */
+    protected static final String ABOUT_ME = "AboutMe";
+    /** 実寸大の写真の URL */
+    protected static final String FULL_PHOTO_URL = "FullPhotoUrl";
+    /** 写真 */
+    protected static final String SMALL_PHOTO_URL = "SmallPhotoUrl";
+    /** 不在通知 */
+    protected static final String OUT_OF_OFFICE_MESSAGE = "OutOfOfficeMessage";
+    /** プロファイル写真 (中) の URL */
+    protected static final String MEDIUM_PHOTO_URL = "MediumPhotoUrl";
+    /** Chatter メールハイライト送信頻度 */
+    protected static final String DIGEST_FREQUENCY = "DigestFrequency";
+    /** グループに参加する場合のデフォルト通知頻度 */
+    protected static final String DEFAULT_GROUP_NOTIFICATION_FREQUENCY = "DefaultGroupNotificationFrequency";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** バナー写真の URL */
+    protected static final String BANNER_PHOTO_URL = "BannerPhotoUrl";
+    /** iOS バナー写真の URL */
+    protected static final String SMALL_BANNER_PHOTO_URL = "SmallBannerPhotoUrl";
+    /** Android バナー写真の URL */
+    protected static final String MEDIUM_BANNER_PHOTO_URL = "MediumBannerPhotoUrl";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT, TITLE, EMAIL, PHONE, FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
 
     @Override
     public String getTitle() {
@@ -39,116 +148,4 @@ public class SUser extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** ユーザ ID */
-        Id,
-        /** ユーザ名 */
-        Username,
-        /** 姓 */
-        LastName,
-        /** 名 */
-        FirstName,
-        /** 氏名 */
-        Name,
-        /** 会社名 */
-        CompanyName,
-        /** ディビジョン */
-        Division,
-        /** 部署 */
-        Department,
-        /** 役職 */
-        Title,
-        /** 町名・番地 */
-        Street,
-        /** 市区郡 */
-        City,
-        /** 都道府県 */
-        State,
-        /** 郵便番号 */
-        PostalCode,
-        /** 国 */
-        Country,
-        /** Geocode Accuracy */
-        GeocodeAccuracy,
-        /** メール */
-        Email,
-        /** 送信者のメールアドレス */
-        SenderEmail,
-        /** メール送信者の名前 */
-        SenderName,
-        /** メールの署名 */
-        Signature,
-        /** 登録情報照会メールの件名 */
-        StayInTouchSubject,
-        /** 登録情報照会メールの署名 */
-        StayInTouchSignature,
-        /** 登録情報照会メールのメモ */
-        StayInTouchNote,
-        /** 電話 */
-        Phone,
-        /** Fax */
-        Fax,
-        /** モバイル */
-        MobilePhone,
-        /** 別名 */
-        Alias,
-        /** ニックネーム */
-        CommunityNickname,
-        /** ユーザの写真のバッジテキストのフロート表示 */
-        BadgeText,
-        /** タイムゾーン */
-        TimeZoneSidKey,
-        /** 地域 */
-        LocaleSidKey,
-        /** メールの文字コード */
-        EmailEncodingKey,
-        /** ユーザ種別 */
-        UserType,
-        /** 言語 */
-        LanguageLocaleKey,
-        /** 従業員番号 */
-        EmployeeNumber,
-        /** 最終ログイン */
-        LastLoginDate,
-        /** 前回のパスワードの変更またはリセット */
-        LastPasswordChangeDate,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** Force.com Connect Offline トライアル期限 */
-        OfflineTrialExpirationDate,
-        /** Sales Anywhere トライアル期限 */
-        OfflinePdaTrialExpirationDate,
-        /** 内線 */
-        Extension,
-        /** SAML 統合 ID */
-        FederationIdentifier,
-        /** 自己紹介 */
-        AboutMe,
-        /** 実寸大の写真の URL */
-        FullPhotoUrl,
-        /** 写真 */
-        SmallPhotoUrl,
-        /** 不在通知 */
-        OutOfOfficeMessage,
-        /** プロファイル写真 (中) の URL */
-        MediumPhotoUrl,
-        /** Chatter メールハイライト送信頻度 */
-        DigestFrequency,
-        /** グループに参加する場合のデフォルト通知頻度 */
-        DefaultGroupNotificationFrequency,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** バナー写真の URL */
-        BannerPhotoUrl,
-        /** iOS バナー写真の URL */
-        SmallBannerPhotoUrl,
-        /** Android バナー写真の URL */
-        MediumBannerPhotoUrl
-    }
 }

@@ -15,18 +15,38 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** クイックテキスト */
 public class SQuickText extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Message, Field.Category,
-            Field.Channel).map(Enum::name).collect(Collectors.toList());
+    /** クイックテキスト ID */
+    protected static final String ID = "Id";
+    /** クイックテキスト名 */
+    protected static final String NAME = "Name";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** メッセージ */
+    protected static final String MESSAGE = "Message";
+    /** カテゴリ */
+    protected static final String CATEGORY = "Category";
+    /** チャネル */
+    protected static final String CHANNEL = "Channel";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, MESSAGE, CATEGORY, CHANNEL);
 
     @Override
     public String getTitle() {
@@ -38,27 +58,4 @@ public class SQuickText extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** クイックテキスト ID */
-        Id,
-        /** クイックテキスト名 */
-        Name,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** メッセージ */
-        Message,
-        /** カテゴリ */
-        Category,
-        /** チャネル */
-        Channel
-
-    }
 }

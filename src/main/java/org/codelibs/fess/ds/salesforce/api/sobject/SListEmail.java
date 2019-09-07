@@ -15,18 +15,46 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** リストメール */
 public class SListEmail extends SearchLayout {
 
-    protected static final String title = Field.Name.name();
-    protected static final List<String> contents = Stream.of(Field.Name, Field.Subject, Field.TextBody,
-            Field.FromName, Field.FromAddress, Field.Status).map(Enum::name).collect(Collectors.toList());
+    /** リストメール ID */
+    protected static final String ID = "Id";
+    /** 名前 */
+    protected static final String NAME = "Name";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+    /** 件名 */
+    protected static final String SUBJECT = "Subject";
+    /** HTML 内容 */
+    protected static final String HTML_BODY = "HtmlBody";
+    /** テキスト内容 */
+    protected static final String TEXT_BODY = "TextBody";
+    /** 差出人名 */
+    protected static final String FROM_NAME = "FromName";
+    /** 送信元アドレス */
+    protected static final String FROM_ADDRESS = "FromAddress";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 予定日 */
+    protected static final String SCHEDULED_DATE = "ScheduledDate";
+
+    protected static final String title = NAME;
+
+    protected static final List<String> contents = Arrays.asList(NAME, SUBJECT, TEXT_BODY, FROM_NAME, FROM_ADDRESS, STATUS);
 
     @Override
     public String getTitle() {
@@ -38,34 +66,4 @@ public class SListEmail extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** リストメール ID */
-        Id,
-        /** 名前 */
-        Name,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate,
-        /** 件名 */
-        Subject,
-        /** HTML 内容 */
-        HtmlBody,
-        /** テキスト内容 */
-        TextBody,
-        /** 差出人名 */
-        FromName,
-        /** 送信元アドレス */
-        FromAddress,
-        /** 状況 */
-        Status,
-        /** 予定日 */
-        ScheduledDate
-    }
 }

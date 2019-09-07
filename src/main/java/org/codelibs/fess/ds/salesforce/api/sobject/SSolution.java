@@ -15,18 +15,38 @@
  */
 package org.codelibs.fess.ds.salesforce.api.sobject;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
 /** ソリューション */
 public class SSolution extends SearchLayout {
 
-    protected static final String title = Field.SolutionName.name();
-    protected static final List<String> contents = Stream.of(Field.SolutionName, Field.Status, Field.SolutionNote)
-            .map(Enum::name).collect(Collectors.toList());
+    /** ソリューション ID */
+    protected static final String ID = "Id";
+    /** ソリューション 番号 */
+    protected static final String SOLUTION_NUMBER = "SolutionNumber";
+    /** ソリューション名 */
+    protected static final String SOLUTION_NAME = "SolutionName";
+    /** 状況 */
+    protected static final String STATUS = "Status";
+    /** 説明 */
+    protected static final String SOLUTION_NOTE = "SolutionNote";
+    /** 作成日 */
+    protected static final String CREATED_DATE = "CreatedDate";
+    /** 最終更新日 */
+    protected static final String LAST_MODIFIED_DATE = "LastModifiedDate";
+    /** System Modstamp */
+    protected static final String SYSTEM_MODSTAMP = "SystemModstamp";
+    /** 最終閲覧日 */
+    protected static final String LAST_VIEWED_DATE = "LastViewedDate";
+    /** 最終参照日 */
+    protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
+
+    protected static final String title = SOLUTION_NAME;
+
+    protected static final List<String> contents = Arrays.asList(SOLUTION_NAME, STATUS, SOLUTION_NOTE);
 
     @Override
     public String getTitle() {
@@ -38,26 +58,4 @@ public class SSolution extends SearchLayout {
         return contents;
     }
 
-    private enum Field {
-        /** ソリューション ID */
-        Id,
-        /** ソリューション 番号 */
-        SolutionNumber,
-        /** ソリューション名 */
-        SolutionName,
-        /** 状況 */
-        Status,
-        /** 説明 */
-        SolutionNote,
-        /** 作成日 */
-        CreatedDate,
-        /** 最終更新日 */
-        LastModifiedDate,
-        /** System Modstamp */
-        SystemModstamp,
-        /** 最終閲覧日 */
-        LastViewedDate,
-        /** 最終参照日 */
-        LastReferencedDate
-    }
 }
