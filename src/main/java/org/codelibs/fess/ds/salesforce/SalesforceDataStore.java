@@ -77,10 +77,8 @@ public class SalesforceDataStore extends AbstractDataStore {
             logger.debug("configMap: {}", configMap);
         }
 
-        final SalesforceClient client = createClient(paramMap);
-
         final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getOrDefault(NUMBER_OF_THREADS, "1")));
-        try {
+        try (final SalesforceClient client = createClient(paramMap)) {
             storeStandardObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
             storeCustomObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
             if (logger.isDebugEnabled()) {
