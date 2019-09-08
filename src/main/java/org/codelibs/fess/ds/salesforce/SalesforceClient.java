@@ -335,46 +335,44 @@ public class SalesforceClient implements Closeable {
             return config;
         }
 
-        // TODO : separete these GET methods from this class
+    } // class ConnectionProvider
 
-        protected TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
-                                                               final String baseUrl, final long refreshInterval) {
-            try {
-                final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
-                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        .param("assertion", jwt)
-                        .execute();
-                return parseTokenResponse(response.getContentAsStream());
-            } catch (final Exception e) {
-                throw new SalesforceDataStoreException("Failed to get token response .", e);
-            }
+    protected static TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
+                                                    final String baseUrl, final long refreshInterval) {
+        try {
+            final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                    .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    .param("assertion", jwt)
+                    .execute();
+            return parseTokenResponse(response.getContentAsStream());
+        } catch (final Exception e) {
+            throw new SalesforceDataStoreException("Failed to get token response .", e);
         }
+    }
 
-        protected TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
-                                                              final String clientId, final String clientSecret, final String baseUrl) {
-            try {
-                final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "password")
-                        .param("username", username)
-                        .param("password", password + securityToken)
-                        .param("client_id", clientId)
-                        .param("client_secret", clientSecret)
-                        .execute();
-                return parseTokenResponse(response.getContentAsStream());
-            }catch (final CurlException | IOException e) {
-                throw new SalesforceDataStoreException("Failed to get token response.", e);
-            }
+    protected static TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
+                                                   final String clientId, final String clientSecret, final String baseUrl) {
+        try {
+            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
+                    .param("grant_type", "password")
+                    .param("username", username)
+                    .param("password", password + securityToken)
+                    .param("client_id", clientId)
+                    .param("client_secret", clientSecret)
+                    .execute();
+            return parseTokenResponse(response.getContentAsStream());
+        }catch (final CurlException | IOException e) {
+            throw new SalesforceDataStoreException("Failed to get token response.", e);
         }
+    }
 
-        protected TokenResponse parseTokenResponse(final InputStream content) {
-            try {
-                return mapper.readValue(content, TokenResponse.class);
-            } catch (final IOException e) {
-                throw new SalesforceDataStoreException("Failed to parse token response.", e);
-            }
+    protected static TokenResponse parseTokenResponse(final InputStream content) {
+        try {
+            return mapper.readValue(content, TokenResponse.class);
+        } catch (final IOException e) {
+            throw new SalesforceDataStoreException("Failed to parse token response.", e);
         }
-
     }
 
 }

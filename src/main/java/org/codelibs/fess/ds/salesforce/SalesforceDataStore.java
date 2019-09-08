@@ -158,7 +158,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                                    final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
                                    final SearchData data, final SalesforceClient client) {
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
-        String url = client.getInstanceUrl() + "/" + data.getId();
+        final String url = client.getInstanceUrl() + "/" + data.getId();
         try {
 
             final UrlFilter urlFilter = (UrlFilter) configMap.get(URL_FILTER);
@@ -224,10 +224,6 @@ public class SalesforceDataStore extends AbstractDataStore {
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
             failureUrlService.store(dataConfig, errorName, url, target);
         } catch (final Throwable t) {
-            if (url == null) {
-                url = StringUtil.EMPTY;
-            }
-
             logger.warn("Crawling Access Exception at : " + dataMap, t);
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
             failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), url, t);

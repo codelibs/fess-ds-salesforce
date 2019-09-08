@@ -94,7 +94,7 @@ public class SUser extends SearchLayout {
     /** 最終ログイン */
     protected static final String LAST_LOGIN_DATE = "LastLoginDate";
     /** 前回のパスワードの変更またはリセット */
-    protected static final String LAST_PASSWORD_CHANGE_DATE = "LastPasswordChangeDate";
+    protected static final String LAST_PASS_CHANGE_DATE = "LastPasswordChangeDate";
     /** 作成日 */
     protected static final String CREATED_DATE = "CreatedDate";
     /** 最終更新日 */
@@ -136,7 +136,8 @@ public class SUser extends SearchLayout {
 
     protected static final String title = NAME;
 
-    protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT, TITLE, EMAIL, PHONE, FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
+    protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT,
+            TITLE, EMAIL, PHONE, FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
 
     @Override
     public String getTitle() {
