@@ -52,13 +52,11 @@ public class SImage extends SearchLayout {
     /** キャプチャ角度 */
     protected static final String CAPTURED_ANGLE = "CapturedAngle";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, IMAGE_TITLE, IMAGE_ALTERNATE_TEXT, IMAGE_URL);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

@@ -68,13 +68,11 @@ public class STask extends SearchLayout {
     /** 完了日 */
     protected static final String COMPLETED_DATE_TIME = "CompletedDateTime";
 
-    protected static final String title = SUBJECT;
-
     protected static final List<String> contents = Arrays.asList(SUBJECT, STATUS, PRIORITY, DESCRIPTION);
 
     @Override
     public String getTitle() {
-        return title;
+        return SUBJECT;
     }
 
     @Override

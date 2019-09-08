@@ -46,13 +46,11 @@ public class SRecommendation extends SearchLayout {
     /** 却下の表示ラベル */
     protected static final String REJECTION_LABEL = "RejectionLabel";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

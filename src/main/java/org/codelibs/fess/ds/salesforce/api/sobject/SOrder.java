@@ -89,13 +89,11 @@ public class SOrder extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(STATUS, DESCRIPTION, TYPE, NAME, ORDER_NUMBER);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

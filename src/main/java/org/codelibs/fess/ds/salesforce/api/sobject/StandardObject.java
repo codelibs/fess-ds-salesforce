@@ -20,51 +20,51 @@ import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 public enum StandardObject {
 
     /** D&amp;B 企業 */
-    DandBCompany(new SDandBCompany()),
+    DAND_B_COMPANY(new SDandBCompany()),
     /** ToDo */
-    Task(new STask()),
+    TASK(new STask()),
     /** おすすめ */
-    Recommendation(new SRecommendation()),
+    RECOMMENDATION(new SRecommendation()),
     /** アイデア */
-    Idea(new SIdea()),
+    IDEA(new SIdea()),
     /** キャンペーン */
-    Campaign(new SCampaign()),
+    CAMPAIGN(new SCampaign()),
     /** クイックテキスト */
-    QuickText(new SQuickText()),
+    QUICK_TEXT(new SQuickText()),
     /** グループ */
-    CollaborationGroup(new SCollaborationGroup()),
+    COLLABORATION_GROUP(new SCollaborationGroup()),
     /** ケース */
-    Case(new SCase()),
+    CASE(new SCase()),
     /** ソリューション */
-    Solution(new SSolution()),
+    SOLUTION(new SSolution()),
     /** マクロ */
-    Macro(new SMacro()),
+    MACRO(new SMacro()),
     /** ユーザ */
-    User(new SUser()),
+    USER(new SUser()),
     /** リストメール */
-    ListEmail(new SListEmail()),
+    LIST_EMAIL(new SListEmail()),
     /** リード */
-    Lead(new SLead()),
+    LEAD(new SLead()),
     /** 価格表 */
-    Pricebook2(new SPricebook2()),
+    PRICEBOOK2(new SPricebook2()),
     /** 取引先 */
-    Account(new SAccount()),
+    ACCOUNT(new SAccount()),
     /** 取引先責任者 */
-    Contact(new SContact()),
+    CONTACT(new SContact()),
     /** 商品 */
-    Product2(new SProduct2()),
+    PRODUCT2(new SProduct2()),
     /** 商談 */
-    Opportunity(new SOpportunity()),
+    OPPORTUNITY(new SOpportunity()),
     /** 契約 */
-    Contract(new SContract()),
+    CONTRACT(new SContract()),
     /** 注文 */
-    Order(new SOrder()),
+    ORDER(new SOrder()),
     /** 画像 */
-    Image(new SImage()),
+    IMAGE(new SImage()),
     /** 納入商品 */
-    Asset(new SAsset()),
+    ASSET(new SAsset()),
     /** 納入商品リレーション */
-    AssetRelationship(new SAssetRelationship());
+    ASSET_RELATIONSHIP(new SAssetRelationship());
 
     private final SearchLayout layout;
 

@@ -76,13 +76,11 @@ public class SContract extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
-    protected static final String title = CONTRACT_NUMBER;
-
     protected static final List<String> contents = Arrays.asList(STATUS, DESCRIPTION, CONTRACT_NUMBER);
 
     @Override
     public String getTitle() {
-        return title;
+        return CONTRACT_NUMBER;
     }
 
     @Override

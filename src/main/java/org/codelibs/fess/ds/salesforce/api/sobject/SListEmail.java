@@ -52,13 +52,11 @@ public class SListEmail extends SearchLayout {
     /** 予定日 */
     protected static final String SCHEDULED_DATE = "ScheduledDate";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, SUBJECT, TEXT_BODY, FROM_NAME, FROM_ADDRESS, STATUS);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

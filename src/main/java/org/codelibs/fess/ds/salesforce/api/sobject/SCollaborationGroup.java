@@ -58,15 +58,11 @@ public class SCollaborationGroup extends SearchLayout {
     /** バナー写真の URL */
     protected static final String BANNER_PHOTO_URL = "BannerPhotoUrl";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, INFORMATION_TITLE, INFORMATION_BODY, GROUP_EMAIL);
-
-    protected static final String thumbnail = SMALL_PHOTO_URL;
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override
@@ -76,7 +72,7 @@ public class SCollaborationGroup extends SearchLayout {
 
     @Override
     public String getThumbnail() {
-        return thumbnail;
+        return SMALL_PHOTO_URL;
     }
 
 }

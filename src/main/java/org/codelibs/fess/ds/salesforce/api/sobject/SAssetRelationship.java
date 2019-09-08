@@ -44,13 +44,11 @@ class SAssetRelationship extends SearchLayout {
     /** リレーション種別 */
     protected static final String RELATIONSHIP_TYPE = "RelationshipType";
 
-    protected static final String title = ASSET_RELATIONSHIP_NUMBER;
-
     protected static final List<String> contents = Arrays.asList(ASSET_RELATIONSHIP_NUMBER);
 
     @Override
     public String getTitle() {
-        return title;
+        return ASSET_RELATIONSHIP_NUMBER;
     }
 
     @Override

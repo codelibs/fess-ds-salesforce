@@ -72,14 +72,12 @@ public class SCase extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
-    protected static final String title = SUBJECT;
-
     protected static final List<String> contents = Arrays.asList(CASE_NUMBER, SUPPLIED_NAME, SUPPLIED_EMAIL, SUPPLIED_PHONE, SUPPLIED_COMPANY,
             TYPE, STATUS, REASON, ORIGIN, SUBJECT, DESCRIPTION, CONTACT_PHONE, CONTACT_MOBILE, CONTACT_EMAIL, CONTACT_FAX, COMMENTS);
 
     @Override
     public String getTitle() {
-        return title;
+        return SUBJECT;
     }
 
     @Override

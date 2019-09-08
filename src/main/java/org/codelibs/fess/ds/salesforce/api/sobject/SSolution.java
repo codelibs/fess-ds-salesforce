@@ -44,13 +44,11 @@ public class SSolution extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
-    protected static final String title = SOLUTION_NAME;
-
     protected static final List<String> contents = Arrays.asList(SOLUTION_NAME, STATUS, SOLUTION_NOTE);
 
     @Override
     public String getTitle() {
-        return title;
+        return SOLUTION_NAME;
     }
 
     @Override

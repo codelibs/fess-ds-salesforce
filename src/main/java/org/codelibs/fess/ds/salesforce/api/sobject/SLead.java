@@ -98,13 +98,11 @@ public class SLead extends SearchLayout {
     /** メール不達発生日 */
     protected static final String EMAIL_BOUNCED_DATE = "EmailBouncedDate";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, TITLE, COMPANY, PHONE, MOBILE_PHONE, FAX, EMAIL, WEBSITE, DESCRIPTION, STATUS, INDUSTRY);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

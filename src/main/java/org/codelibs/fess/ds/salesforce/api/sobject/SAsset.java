@@ -54,13 +54,11 @@ public class SAsset extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, SERIAL_NUMBER, STATUS, DESCRIPTION);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

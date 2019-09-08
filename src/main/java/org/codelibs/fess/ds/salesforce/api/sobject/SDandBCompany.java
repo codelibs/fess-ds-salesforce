@@ -230,13 +230,11 @@ public class SDandBCompany extends SearchLayout {
     /** 第 6 SIC8 の説明 */
     protected static final String SIXTH_SIC8_DESC = "SixthSic8Desc";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, DUNS_NUMBER, PHONE, FAX, URL, LOCATION_STATUS, DESCRIPTION);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

@@ -44,13 +44,11 @@ public class SQuickText extends SearchLayout {
     /** チャネル */
     protected static final String CHANNEL = "Channel";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, MESSAGE, CATEGORY, CHANNEL);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

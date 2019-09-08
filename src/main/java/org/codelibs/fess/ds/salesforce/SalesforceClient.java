@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.CaseFormat;
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
@@ -110,17 +111,17 @@ public class SalesforceClient implements Closeable {
 
     public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
         for(final StandardObject so : StandardObject.values()) {
-
+            final String soName = convertSnakeToCamel(so.name());
             final BulkConnection bulk = connectionProvider.getBulkConnection();
-            final JobInfo job = BulkUtil.createJob(bulk, so.name());
+            final JobInfo job = BulkUtil.createJob(bulk, soName);
             final SearchLayout layout = getSearchLayout(so);
-            final String query = BulkUtil.createQuery(so.name(), layout.fields());
+            final String query = BulkUtil.createQuery(soName, layout.fields());
             final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
 
             BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
                 try {
                     mapper.readTree(stream).forEach(a -> {
-                        final SearchData data = new SearchData(so.name(), a, layout);
+                        final SearchData data = new SearchData(soName, a, layout);
                         consumer.accept(data);
                     });
                 } catch (final IOException e) {
@@ -134,6 +135,10 @@ public class SalesforceClient implements Closeable {
                 logger.warn("Failed to close the job : {}. {}" ,job.getId(), e);
             }
         }
+    }
+
+    protected static String convertSnakeToCamel(final String snakeString) {
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, snakeString);
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {

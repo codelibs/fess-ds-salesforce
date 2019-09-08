@@ -37,6 +37,7 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClient.BASE_URL_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.CLIENT_ID_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.PRIVATE_KEY_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.USERNAME_PARAM;
+import static org.codelibs.fess.ds.salesforce.SalesforceClient.convertSnakeToCamel;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByPass;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByToken;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.parseTokenResponse;
@@ -53,7 +54,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     public static final String PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----";
     public static final long REFRESH_INTERVAL = 0;
 
-    Map<String, String> params;
+    Map<String, String> paramMap;
     SalesforceClient client;
     ConnectionProvider connectionProvider;
 
@@ -70,13 +71,13 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        params = new HashMap<>();
-        params.put(BASE_URL_PARAM, BASE_URL);
-        params.put(AUTH_TYPE_PARAM, AUTH_TYPE);
-        params.put(USERNAME_PARAM, USERNAME);
-        params.put(CLIENT_ID_PARAM, CLIENT_ID);
-        params.put(PRIVATE_KEY_PARAM, PRIVATE_KEY);
-        // client = new SalesforceClient(params); TODO
+        paramMap = new HashMap<>();
+        paramMap.put(BASE_URL_PARAM, BASE_URL);
+        paramMap.put(AUTH_TYPE_PARAM, AUTH_TYPE);
+        paramMap.put(USERNAME_PARAM, USERNAME);
+        paramMap.put(CLIENT_ID_PARAM, CLIENT_ID);
+        paramMap.put(PRIVATE_KEY_PARAM, PRIVATE_KEY);
+        // client = new SalesforceClient(paramMap); TODO
     }
 
     public void testGetSearchLayout() {
@@ -85,7 +86,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     }
 
     public void doGetSearchLayout() {
-        final StandardObject asset = StandardObject.Asset;
+        final StandardObject asset = StandardObject.ASSET;
         final SearchLayout layout = client.getSearchLayout(asset);
         assertEquals(asset.getLayout().getTitle(), layout.getTitle());
         assertEquals(asset.getLayout().getContents(), layout.getContents());
@@ -93,7 +94,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     public void testConnectionProvider() {
         try {
-            connectionProvider = new ConnectionProvider(params);
+            connectionProvider = new ConnectionProvider(paramMap);
         } catch (Exception e) {
             // fail(e.getMessage());
         }
@@ -184,4 +185,10 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         TokenResponse response = parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
         assertEquals("test_token", response.getAccessToken());
     }
+
+    public void test_convertSnakeToCamel() {
+        assertEquals("DandBCompany", convertSnakeToCamel("DAND_B_COMPANY"));
+        assertEquals("CollaborationGroup", convertSnakeToCamel("COLLABORATION_GROUP"));
+    }
+
 }

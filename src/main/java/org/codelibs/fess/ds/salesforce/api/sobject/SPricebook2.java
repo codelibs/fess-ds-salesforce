@@ -41,13 +41,11 @@ public class SPricebook2 extends SearchLayout {
     /** 説明 */
     protected static final String DESCRIPTION = "Description";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

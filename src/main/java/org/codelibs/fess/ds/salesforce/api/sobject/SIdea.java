@@ -52,13 +52,11 @@ public class SIdea extends SearchLayout {
     /** 作成者の名前 */
     protected static final String CREATOR_NAME = "CreatorName";
 
-    protected static final String title = TITLE;
-
     protected static final List<String> contents = Arrays.asList(TITLE, BODY, CATEGORIES, STATUS, CREATOR_NAME);
 
     @Override
     public String getTitle() {
-        return title;
+        return TITLE;
     }
 
     @Override

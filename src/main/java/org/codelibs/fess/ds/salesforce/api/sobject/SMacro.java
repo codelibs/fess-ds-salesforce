@@ -42,13 +42,11 @@ public class SMacro extends SearchLayout {
     /** 適用先 */
     protected static final String STARTING_CONTEXT = "StartingContext";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, STARTING_CONTEXT);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

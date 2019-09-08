@@ -24,9 +24,9 @@ public class SearchLayout {
     private List<String> contents;
     private List<String> descriptions;
     private String thumbnail;
-    private static final String id = "Id";
-    private static final String created = "CreatedDate";
-    private static final String lastModified = "LastModifiedDate";
+    private static final String ID = "Id";
+    private static final String CREATED_DATE = "CreatedDate";
+    private static final String LAST_MODIFIED_DATE = "LastModifiedDate";
 
     public SearchLayout() {
     }
@@ -55,15 +55,15 @@ public class SearchLayout {
     }
 
     public String getId() {
-        return id;
+        return ID;
     }
 
     public String getCreated() {
-        return created;
+        return CREATED_DATE;
     }
 
     public String getLastModified() {
-        return lastModified;
+        return LAST_MODIFIED_DATE;
     }
 
     public List<String> fields() {
@@ -77,9 +77,9 @@ public class SearchLayout {
         if(thumbnail != null) {
             fields.add(thumbnail);
         }
-        fields.add(id);
-        fields.add(created);
-        fields.add(lastModified);
+        fields.add(getId());
+        fields.add(getCreated());
+        fields.add(getLastModified());
         return fields.stream().distinct().collect(Collectors.toList());
     }
 

@@ -110,13 +110,11 @@ public class SAccount extends SearchLayout {
     /** 産業区分の説明 */
     protected static final String SIC_DESC = "SicDesc";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, TYPE, PHONE, FAX, WEBSITE, TICKER_SYMBOL, DESCRIPTION, SITE, DUNS_NUMBER);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override

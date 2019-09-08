@@ -52,13 +52,11 @@ public class SProduct2 extends SearchLayout {
     /** 商品 SKU */
     protected static final String STOCK_KEEPING_UNIT = "StockKeepingUnit";
 
-    protected static final String title = NAME;
-
     protected static final List<String> contents = Arrays.asList(NAME, PRODUCT_CODE, DESCRIPTION, FAMILY, EXTERNAL_ID, DISPLAY_URL);
 
     @Override
     public String getTitle() {
-        return title;
+        return NAME;
     }
 
     @Override
