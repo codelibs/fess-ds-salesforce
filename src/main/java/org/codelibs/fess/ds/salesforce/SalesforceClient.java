@@ -119,7 +119,7 @@ public class SalesforceClient implements Closeable {
             final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
 
             BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
-                try {
+                try (stream) {
                     mapper.readTree(stream).forEach(a -> {
                         final SearchData data = new SearchData(soName, a, layout);
                         consumer.accept(data);
@@ -154,7 +154,7 @@ public class SalesforceClient implements Closeable {
             final BatchInfo batch = BulkUtil.createBatch(bulk, job, query);
 
             BulkUtil.getQueryResultStream(bulk, job, batch, ignoreError).forEach(stream -> {
-                try {
+                try (stream) {
                     mapper.readTree(stream).forEach(a -> {
                         final SearchData data = new SearchData(co, a, layout);
                         consumer.accept(data);
@@ -252,7 +252,7 @@ public class SalesforceClient implements Closeable {
         }
 
         protected PartnerConnection getConnection() {
-            switch(authType) {
+            switch (authType) {
                 case OAUTH_TOKEN: {
                     if (username == null || clientId == null || privateKey == null) {
                         throw new SalesforceDataStoreException("parameters '{" + USERNAME_PARAM + "}', '{" +
