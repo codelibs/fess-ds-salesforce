@@ -11,7 +11,7 @@ See [Maven Repository](http://central.maven.org/maven2/org/codelibs/fess/fess-ds
 
 ## Installation 
 
-You can also install the plugin on the administration (See [the Administration guide](https://fess.codelibs.org/13.3/admin/plugin-guide.html)).
+See [Plugin](https://fess.codelibs.org/13.3/admin/plugin-guide.html) of Administration guide.
 
 ## Getting Started
 
