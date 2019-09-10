@@ -63,7 +63,7 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     @Override
     public String getName() {
-        return "Salesforce";
+        return this.getClass().getSimpleName();
     }
 
     @Override
