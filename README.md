@@ -10,17 +10,8 @@ Salesforce Data Store is an extension for Fess Data Store Crawling.
 See [Maven Repository](http://central.maven.org/maven2/org/codelibs/fess/fess-ds-salesforce/).
 
 ## Installation 
-### For 13.2.x and older
-
-1. Download fess-ds-salesforce-X.X.X.jar
-2. Copy fess-ds-salesforce-X.X.X.jar to $FESS\_HOME/app/WEB-INF/lib or /usr/share/fess/app/WEB-INF/lib
-
-### For 13.3 and later
 
 You can also install the plugin on the administration (See [the Administration guide](https://fess.codelibs.org/13.3/admin/plugin-guide.html)).
-
-1. Download fess-ds-salesforce-X.X.X.jar
-2. Copy fess-ds-salesforce-X.X.X.jar to $FESS\_HOME/app/WEB-INF/plugin or /usr/share/fess/app/WEB-INF/plugin
 
 ## Getting Started
 
