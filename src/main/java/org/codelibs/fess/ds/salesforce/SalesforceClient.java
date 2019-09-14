@@ -398,14 +398,14 @@ public class SalesforceClient implements Closeable {
             }
         }
 
-        protected static TokenResponse parseTokenResponse(final InputStream content) {
-            try {
-                return mapper.readValue(content, TokenResponse.class);
-            } catch (final IOException e) {
-                throw new SalesforceDataStoreException("Failed to parse token response.", e);
-            }
-        }
-
     } // class ConnectionProvider
+
+    protected static TokenResponse parseTokenResponse(final InputStream content) {
+        try {
+            return mapper.readValue(content, TokenResponse.class);
+        } catch (final IOException e) {
+            throw new SalesforceDataStoreException("Failed to parse token response.", e);
+        }
+    }
 
 }
