@@ -20,6 +20,8 @@ import static java.util.Collections.emptyList;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ import org.codelibs.core.timer.TimeoutTarget;
 import org.codelibs.core.timer.TimeoutTask;
 import org.codelibs.curl.Curl;
 import org.codelibs.curl.CurlException;
+import org.codelibs.curl.CurlRequest;
 import org.codelibs.curl.CurlResponse;
 import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.codelibs.fess.ds.salesforce.util.AuthUtil;
@@ -80,6 +83,9 @@ public class SalesforceClient implements Closeable {
     protected static final String THUMBNAIL_PARAM = "thumbnail";
     protected static final String CUSTOM_PARAM = "custom";
     protected static final String REFRESH_TOKEN_INTERVAL_PARAM = "refresh_token_interval";
+    protected static final String PROXY_HOST_PARAM = "proxy_host";
+    protected static final String PROXY_PORT_PARAM = "proxy_port";
+
 
     // values for parameters
     protected static final String OAUTH_TOKEN = "oauth_token";
@@ -215,6 +221,7 @@ public class SalesforceClient implements Closeable {
         protected final String clientSecret;
         protected final String baseUrl;
         protected final Long refreshInterval;
+        protected Proxy proxy;
         protected PartnerConnection partnerConnection;
         protected BulkConnection bulkConnection;
 
@@ -227,6 +234,21 @@ public class SalesforceClient implements Closeable {
             clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
             baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
             authType = paramMap.get(AUTH_TYPE_PARAM);
+
+            final String httpProxyHost = paramMap.get(PROXY_HOST_PARAM);
+            final String httpProxyPort = paramMap.get(PROXY_PORT_PARAM);
+            if (httpProxyHost != null) {
+                if (httpProxyPort == null) {
+                    throw new SalesforceDataStoreException("parameter " + "'" + PROXY_PORT_PARAM + "' required.");
+                }
+                try {
+                    final int port = Integer.parseInt(httpProxyPort);
+                    proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(httpProxyHost, port));
+                } catch (final NumberFormatException e) {
+                    throw new SalesforceDataStoreException("parameter " + "'" + PROXY_PORT_PARAM + "' invalid.", e);
+                }
+            }
+
             refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL));
             partnerConnection = getConnection();
             try {
@@ -259,7 +281,7 @@ public class SalesforceClient implements Closeable {
                                 CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' required for token authentication.");
                     }
                     try {
-                        return getConnectionByToken(username, clientId, privateKey, baseUrl, refreshInterval);
+                        return getConnectionByToken();
                     } catch (final ConnectionException e) {
                         throw new SalesforceDataStoreException("Failed to get connection by token authentication", e);
                     }
@@ -270,7 +292,7 @@ public class SalesforceClient implements Closeable {
                                 "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for password authentication.");
                     }
                     try {
-                        return getConnectionByPass(username, pass, securityToken, clientId, clientSecret, baseUrl);
+                        return getConnectionByPass();
                     } catch (final ConnectionException e) {
                         throw new SalesforceDataStoreException("Failed to get connection by password authentication.", e);
                     }
@@ -296,9 +318,8 @@ public class SalesforceClient implements Closeable {
             }
         }
 
-        protected PartnerConnection getConnectionByToken(final String username, final String clientId, final String privateKeyPem,
-                                                             final String baseUrl, final long refreshInterval) throws ConnectionException {
-            final TokenResponse response = getTokenResponseByToken(username, clientId, privateKeyPem, baseUrl, refreshInterval);
+        protected PartnerConnection getConnectionByToken() throws ConnectionException {
+            final TokenResponse response = getTokenResponseByToken();
             if (response.getAccessToken() == null) {
                 throw new SalesforceDataStoreException("Failed to get access token : " + "[" + response.getError() + " : " + response.getErrorDescription() + "]");
             }
@@ -306,10 +327,8 @@ public class SalesforceClient implements Closeable {
             return Connector.newConnection(config);
         }
 
-        protected PartnerConnection getConnectionByPass(final String username, final String password,
-                                                                final String securityToken, final String clientId,
-                                                                final String clientSecret, final String baseUrl) throws ConnectionException {
-            final TokenResponse response = getTokenResponseByPass(username, password, securityToken, clientId, clientSecret, baseUrl);
+        protected PartnerConnection getConnectionByPass() throws ConnectionException {
+            final TokenResponse response = getTokenResponseByPass();
             final ConnectorConfig config = createConnectorConfig(response);
             return Connector.newConnection(config);
         }
@@ -319,7 +338,9 @@ public class SalesforceClient implements Closeable {
             config.setSessionId(connection.getConfig().getSessionId());
             config.setRestEndpoint(connection.getConfig().getServiceEndpoint()
                     .replaceFirst("/services.*", "/services/async/" + API_VERSION));
-
+            if (proxy != null) {
+                config.setProxy(proxy);
+            }
             if (logger.isDebugEnabled()) {
                 logger.info("Session Id : {}", config.getSessionId());
                 logger.info("Rest Endpoint : {}", config.getRestEndpoint());
@@ -333,6 +354,9 @@ public class SalesforceClient implements Closeable {
             config.setSessionId(response.getAccessToken());
             config.setAuthEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION);
             config.setServiceEndpoint(response.getInstanceUrl() + "/services/Soap/u/" + API_VERSION + "/" + response.getId());
+            if (proxy != null) {
+                config.setProxy(proxy);
+            }
             if (logger.isDebugEnabled()) {
                 logger.info("Auth Endpoint : {}", config.getAuthEndpoint());
                 logger.info("Service Endpoint : {}", config.getServiceEndpoint());
@@ -340,44 +364,48 @@ public class SalesforceClient implements Closeable {
             return config;
         }
 
+        protected TokenResponse getTokenResponseByToken() {
+            try {
+                final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
+                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                        .param("assertion", jwt);
+                if (proxy != null) {
+                    request.proxy(proxy);
+                }
+                final CurlResponse response = request.execute();
+                return parseTokenResponse(response.getContentAsStream());
+            } catch (final Exception e) {
+                throw new SalesforceDataStoreException("Failed to get token response .", e);
+            }
+        }
+
+        protected TokenResponse getTokenResponseByPass() {
+            try {
+                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "password")
+                        .param("username", username)
+                        .param("password", pass + securityToken)
+                        .param("client_id", clientId)
+                        .param("client_secret", clientSecret);
+                if (proxy != null) {
+                    request.proxy(proxy);
+                }
+                final CurlResponse response = request.execute();
+                return parseTokenResponse(response.getContentAsStream());
+            }catch (final CurlException | IOException e) {
+                throw new SalesforceDataStoreException("Failed to get token response.", e);
+            }
+        }
+
+        protected static TokenResponse parseTokenResponse(final InputStream content) {
+            try {
+                return mapper.readValue(content, TokenResponse.class);
+            } catch (final IOException e) {
+                throw new SalesforceDataStoreException("Failed to parse token response.", e);
+            }
+        }
+
     } // class ConnectionProvider
-
-    protected static TokenResponse getTokenResponseByToken(final String username, final String clientId, final String privateKeyPem,
-                                                    final String baseUrl, final long refreshInterval) {
-        try {
-            final String jwt = AuthUtil.createJWT(username, clientId, privateKeyPem, baseUrl, refreshInterval);
-            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                    .param("assertion", jwt)
-                    .execute();
-            return parseTokenResponse(response.getContentAsStream());
-        } catch (final Exception e) {
-            throw new SalesforceDataStoreException("Failed to get token response .", e);
-        }
-    }
-
-    protected static TokenResponse getTokenResponseByPass(final String username, final String password, final String securityToken,
-                                                   final String clientId, final String clientSecret, final String baseUrl) {
-        try {
-            final CurlResponse response = Curl.post(baseUrl + "/services/oauth2/token")
-                    .param("grant_type", "password")
-                    .param("username", username)
-                    .param("password", password + securityToken)
-                    .param("client_id", clientId)
-                    .param("client_secret", clientSecret)
-                    .execute();
-            return parseTokenResponse(response.getContentAsStream());
-        }catch (final CurlException | IOException e) {
-            throw new SalesforceDataStoreException("Failed to get token response.", e);
-        }
-    }
-
-    protected static TokenResponse parseTokenResponse(final InputStream content) {
-        try {
-            return mapper.readValue(content, TokenResponse.class);
-        } catch (final IOException e) {
-            throw new SalesforceDataStoreException("Failed to parse token response.", e);
-        }
-    }
 
 }

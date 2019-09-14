@@ -56,7 +56,7 @@ public class BulkUtil {
             job.setContentType(ContentType.JSON);
             final JobInfo result = connection.createJob(job);
             if (logger.isDebugEnabled()) {
-                logger.info("Created a job : " + job);
+                // logger.info("Created a job : " + job);
             }
             return result;
         } catch (final AsyncApiException e) {
@@ -68,7 +68,7 @@ public class BulkUtil {
         try {
             final BatchInfo batch = connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
             if (logger.isDebugEnabled()) {
-                logger.info("Created a batch : " + batch);
+                // logger.info("Created a batch : " + batch);
             }
             return batch;
         } catch (final AsyncApiException e) {
@@ -85,7 +85,6 @@ public class BulkUtil {
     throws InterruptedException {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture future = new CompletableFuture<String[]>();
-
         executor.scheduleAtFixedRate(() -> {
             try {
                 final BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);

@@ -38,10 +38,6 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClient.CLIENT_ID_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.PRIVATE_KEY_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.USERNAME_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.convertSnakeToCamel;
-import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByPass;
-import static org.codelibs.fess.ds.salesforce.SalesforceClient.getTokenResponseByToken;
-import static org.codelibs.fess.ds.salesforce.SalesforceClient.parseTokenResponse;
-import static org.codelibs.fess.ds.salesforce.SalesforceDataStoreTest.*;
 
 public class SalesforceClientTest extends LastaFluteTestCase {
 
@@ -106,7 +102,8 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         // doGetTokenResponseByPassword(connectionProvider);
         // doGetConnectionByToken(connectionProvider);
         // doGetConnectionByPassword(connectionProvider);
-        // doCreateConfig(connectionProvider);
+        // doCreateConfig(connectionProvider();
+        // dodoParseTokenResponse(connectionProvider);
 
     }
 
@@ -126,9 +123,9 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    protected void doGetTokenResponseByToken() {
+    protected void doGetTokenResponseByToken(final ConnectionProvider connectionProvider) {
         try {
-            TokenResponse response = getTokenResponseByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
+            TokenResponse response = connectionProvider.getTokenResponseByToken();
             logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -137,7 +134,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     protected void doGetTokenResponseByPass() {
         try {
-            TokenResponse response = getTokenResponseByPass(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            TokenResponse response = connectionProvider.getTokenResponseByPass();
             logger.debug("AccessToken: " + response.getAccessToken());
         } catch (SalesforceDataStoreException e) {
             fail("Failed to get AccessToken by '" + e.getMessage() + "'");
@@ -146,7 +143,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     protected void doGetConnectionByToken(final ConnectionProvider connectionProvider) {
         try {
-            connectionProvider.getConnectionByToken(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
+            connectionProvider.getConnectionByToken();
         } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
@@ -154,7 +151,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     protected void doGetConnectionByPassword(final ConnectionProvider connectionProvider) {
         try {
-            connectionProvider.getConnectionByPass(USERNAME, PASSWORD, SECURITY_TOKEN, CLIENT_ID, CLIENT_SECRET, BASE_URL);
+            connectionProvider.getConnectionByPass();
         } catch (ConnectionException e) {
             fail("Failed to get connection by '" + e.getMessage() + "'");
         }
@@ -167,7 +164,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
                     "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n" +
                     "\"signature\":\"test_signature\"," +
                     "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
-            TokenResponse response = parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
+            TokenResponse response = connectionProvider.parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
             ConnectorConfig config = connectionProvider.createConnectorConfig(response);
             assertEquals("test_token", config.getSessionId());
             assertEquals("https://testInstance.salesforce.com/services/Soap/u/" + API_VERSION, config.getAuthEndpoint());
@@ -177,12 +174,12 @@ public class SalesforceClientTest extends LastaFluteTestCase {
         }
     }
 
-    public void test_getParseTokenResponse() {
+    public void doParseTokenResponse(final ConnectionProvider connectionProvider) {
         String json = "{ \"id\":\"https://login.salesforce.com/id/00Dx0000000BV7z/testId\",\n" +
                 "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n" +
                 "\"signature\":\"test_signature\"," +
                 "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
-        TokenResponse response = parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
+        TokenResponse response = connectionProvider.parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
         assertEquals("test_token", response.getAccessToken());
     }
 
