@@ -261,7 +261,7 @@ public class SalesforceClient implements Closeable {
                     try {
                         return getConnectionByToken(username, clientId, privateKey, baseUrl, refreshInterval);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by token auth", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by token authentication", e);
                     }
                 }
                 case OAUTH_PASS: {
@@ -272,7 +272,7 @@ public class SalesforceClient implements Closeable {
                     try {
                         return getConnectionByPass(username, pass, securityToken, clientId, clientSecret, baseUrl);
                     } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by password auth.", e);
+                        throw new SalesforceDataStoreException("Failed to get connection by password authentication.", e);
                     }
                 }
                 default: {
