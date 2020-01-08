@@ -19,7 +19,7 @@ See [Plugin](https://fess.codelibs.org/13.3/admin/plugin-guide.html) of Administ
 
 ```
 base_url=https://login.salesforce.com
-auth_type=token
+auth_type=oauth_token
 username=admin@example.com
 client_id=...
 private_key=...
