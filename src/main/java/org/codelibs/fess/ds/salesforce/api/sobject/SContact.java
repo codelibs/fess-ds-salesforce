@@ -112,7 +112,8 @@ public class SContact extends SearchLayout {
     /** 状況をクリーンアップ */
     protected static final String CLEAN_STATUS = "CleanStatus";
 
-    protected static final List<String> contents = Arrays.asList(NAME, PHONE, FAX, MOBILE_PHONE, HOME_PHONE, OTHER_PHONE, EMAIL, TITLE, DEPARTMENT, DESCRIPTION);
+    protected static final List<String> contents =
+            Arrays.asList(NAME, PHONE, FAX, MOBILE_PHONE, HOME_PHONE, OTHER_PHONE, EMAIL, TITLE, DEPARTMENT, DESCRIPTION);
 
     @Override
     public String getTitle() {

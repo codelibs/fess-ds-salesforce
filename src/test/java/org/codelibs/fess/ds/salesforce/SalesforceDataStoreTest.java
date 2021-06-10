@@ -76,10 +76,8 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
         FessConfig fessConfig = ComponentUtil.getFessConfig();
         Map<String, String> scriptMap = new HashMap<>();
         Map<String, Object> defaultDataMap = new HashMap<>();
-        dataStore.storeData(dataConfig, new TestCallback(
-            dataMap ->
-            logger.debug(dataMap.get(fessConfig.getIndexFieldTitle()).toString()))
-        , paramMap, scriptMap, defaultDataMap);
+        dataStore.storeData(dataConfig, new TestCallback(dataMap -> logger.debug(dataMap.get(fessConfig.getIndexFieldTitle()).toString())),
+                paramMap, scriptMap, defaultDataMap);
     }
 
 }

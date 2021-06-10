@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-
 /** 価格表 */
 public class SPricebook2 extends SearchLayout {
 

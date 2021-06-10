@@ -45,9 +45,8 @@ public class AuthUtil {
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
-    public static String createJWT(final String username, final String clientId, final String privateKeyPem,
-                                      final String baseUrl, final long refreshInterval)
-            throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
+    public static String createJWT(final String username, final String clientId, final String privateKeyPem, final String baseUrl,
+            final long refreshInterval) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
         final StringBuilder token = new StringBuilder();
 
         final String header = "{\"alg\":\"RS256\"}";
@@ -55,11 +54,8 @@ public class AuthUtil {
         token.append(".");
 
         final long expire = (System.currentTimeMillis() / 1000) + refreshInterval;
-        final String payload =
-                        "{\"iss\": \"" + clientId + "\"," +
-                        " \"sub\": \"" + username + "\"," +
-                        " \"aud\": \"" + baseUrl + "\"," +
-                        " \"exp\": \"" + expire + "\"}" ;
+        final String payload = "{\"iss\": \"" + clientId + "\"," + " \"sub\": \"" + username + "\"," + " \"aud\": \"" + baseUrl + "\","
+                + " \"exp\": \"" + expire + "\"}";
         token.append(Base64.encodeBase64URLSafeString(payload.getBytes(StandardCharsets.UTF_8)));
 
         final PrivateKey rsaPrivateKey = getPrivateKey(privateKeyPem);
@@ -73,6 +69,5 @@ public class AuthUtil {
 
         return token.toString();
     }
-
 
 }

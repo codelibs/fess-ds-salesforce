@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-
 /** 注文 */
 public class SOrder extends SearchLayout {
 

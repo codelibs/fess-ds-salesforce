@@ -55,7 +55,7 @@ public class TokenResponse {
 
     @Override
     public String toString() {
-        return "[accessToken=" + accessToken + ", instanceUrl=" + instanceUrl + ", id=" + id + ", " +
-                "tokenType=" + tokenType + ", error=" + error + ", errorDescription=" + errorDescription + "]";
+        return "[accessToken=" + accessToken + ", instanceUrl=" + instanceUrl + ", id=" + id + ", " + "tokenType=" + tokenType + ", error="
+                + error + ", errorDescription=" + errorDescription + "]";
     }
 }

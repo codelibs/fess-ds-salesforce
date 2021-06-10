@@ -68,7 +68,7 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     @Override
     public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, String> paramMap,
-                          final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap) {
+            final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap) {
 
         final Map<String, Object> configMap = new HashMap<>();
         configMap.put(IGNORE_ERROR, isIgnoreError(paramMap));
@@ -128,33 +128,30 @@ public class SalesforceDataStore extends AbstractDataStore {
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
-    protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
-                                      final Map<String, String> paramMap, final Map<String, String> scriptMap,
-                                      final Map<String, Object> defaultDataMap, final ExecutorService executorService,
-                                      final SalesforceClient client) throws InterruptedException {
+    protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
+            final Map<String, Object> configMap, final Map<String, String> paramMap, final Map<String, String> scriptMap,
+            final Map<String, Object> defaultDataMap, final ExecutorService executorService, final SalesforceClient client)
+            throws InterruptedException {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
-        client.getStandardObjects(data ->
-                executorService.execute(() ->
-                        processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
-                ), ignoreError);
-    }
-
-    protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
-                                    final Map<String, String> paramMap, final Map<String, String> scriptMap,
-                                    final Map<String, Object> defaultDataMap, final ExecutorService executorService,
-                                    final SalesforceClient client) throws InterruptedException {
-        final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
-        client.getCustomObjects(data ->
-                executorService.execute(() ->
-                        processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)
-                ),
+        client.getStandardObjects(
+                data -> executorService.execute(
+                        () -> processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)),
                 ignoreError);
     }
 
-    protected void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback,
-                                   final Map<String, Object> configMap, final Map<String, String> paramMap,
-                                   final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
-                                   final SearchData data, final SalesforceClient client) {
+    protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
+            final Map<String, String> paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
+            final ExecutorService executorService, final SalesforceClient client) throws InterruptedException {
+        final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
+        client.getCustomObjects(
+                data -> executorService.execute(
+                        () -> processSearchData(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, data, client)),
+                ignoreError);
+    }
+
+    protected void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
+            final Map<String, String> paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
+            final SearchData data, final SalesforceClient client) {
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
         final String url = client.getInstanceUrl() + "/" + data.getId();
         try {
@@ -188,8 +185,9 @@ public class SalesforceDataStore extends AbstractDataStore {
                 logger.debug("resultMap: {}", resultMap);
             }
 
+            final String scriptType = getScriptType(paramMap);
             for (final Map.Entry<String, String> entry : scriptMap.entrySet()) {
-                final Object convertValue = convertValue(entry.getValue(), resultMap);
+                final Object convertValue = convertValue(scriptType, entry.getValue(), resultMap);
                 if (convertValue != null) {
                     dataMap.put(entry.getKey(), convertValue);
                 }

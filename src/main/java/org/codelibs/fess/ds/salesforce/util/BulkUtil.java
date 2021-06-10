@@ -80,28 +80,27 @@ public class BulkUtil {
         return "SELECT " + String.join(",", fields) + " FROM " + objectType;
     }
 
-    public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job,
-                                                         final BatchInfo batch, final boolean ignoreError)
-    throws InterruptedException {
+    public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job, final BatchInfo batch,
+            final boolean ignoreError) throws InterruptedException {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture future = new CompletableFuture<String[]>();
         executor.scheduleAtFixedRate(() -> {
             try {
                 final BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);
                 switch (info.getState()) {
-                    case Completed: {
-                        final QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
-                        future.complete(queryResults.getResult());
-                        break;
-                    }
-                    case Failed: {
-                        logger.warn("Batch:" + batch.getId() + " Failed caused by '" + info.getStateMessage() + "'");
-                        future.complete(new String[0]);
-                        break;
-                    }
-                    default: {
-                        logger.debug("Batch:" + batch.getId() + " " + info.getState());
-                    }
+                case Completed: {
+                    final QueryResultList queryResults = connection.getQueryResultList(job.getId(), batch.getId(), ContentType.JSON);
+                    future.complete(queryResults.getResult());
+                    break;
+                }
+                case Failed: {
+                    logger.warn("Batch:" + batch.getId() + " Failed caused by '" + info.getStateMessage() + "'");
+                    future.complete(new String[0]);
+                    break;
+                }
+                default: {
+                    logger.debug("Batch:" + batch.getId() + " " + info.getState());
+                }
                 }
             } catch (final AsyncApiException e) {
                 logger.warn(e);
@@ -112,15 +111,13 @@ public class BulkUtil {
         future.whenComplete((result, exceptions) -> executor.shutdownNow());
 
         try {
-            return Arrays.stream((String[]) future.get())
-                    .map(o -> {
-                        try {
-                            return connection.getQueryResultStream(job.getId(), batch.getId(), o);
-                        } catch (final AsyncApiException e) {
-                            throw new SalesforceDataStoreException("Failed to get query result stream by bulk connection.", e);
-                        }
-                    }
-            ).collect(Collectors.toList());
+            return Arrays.stream((String[]) future.get()).map(o -> {
+                try {
+                    return connection.getQueryResultStream(job.getId(), batch.getId(), o);
+                } catch (final AsyncApiException e) {
+                    throw new SalesforceDataStoreException("Failed to get query result stream by bulk connection.", e);
+                }
+            }).collect(Collectors.toList());
         } catch (final ExecutionException e) {
             if (ignoreError) {
                 logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch, e);

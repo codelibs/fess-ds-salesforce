@@ -60,8 +60,7 @@ public class SalesforceClient implements Closeable {
 
     protected static final Logger logger = LoggerFactory.getLogger(SalesforceClient.class);
 
-    protected static final ObjectMapper mapper =
-            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     protected static final String BASE_URL = "https://login.salesforce.com";
     protected static final String API_VERSION = "46.0";
@@ -85,7 +84,6 @@ public class SalesforceClient implements Closeable {
     protected static final String REFRESH_TOKEN_INTERVAL_PARAM = "refresh_token_interval";
     protected static final String PROXY_HOST_PARAM = "proxy_host";
     protected static final String PROXY_PORT_PARAM = "proxy_port";
-
 
     // values for parameters
     protected static final String OAUTH_TOKEN = "oauth_token";
@@ -116,7 +114,7 @@ public class SalesforceClient implements Closeable {
     }
 
     public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
-        for(final StandardObject so : StandardObject.values()) {
+        for (final StandardObject so : StandardObject.values()) {
             final String soName = convertSnakeToCamel(so.name());
             final BulkConnection bulk = connectionProvider.getBulkConnection();
             final JobInfo job = BulkUtil.createJob(bulk, soName);
@@ -138,7 +136,7 @@ public class SalesforceClient implements Closeable {
             try {
                 bulk.closeJob(job.getId());
             } catch (final AsyncApiException e) {
-                logger.warn("Failed to close the job : {}. {}" ,job.getId(), e);
+                logger.warn("Failed to close the job : {}. {}", job.getId(), e);
             }
         }
     }
@@ -148,9 +146,10 @@ public class SalesforceClient implements Closeable {
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
-        if(paramMap.get(CUSTOM_PARAM) == null) return ;
-        final String[] customObjects = Arrays.stream(StringUtil.split(paramMap.get(CUSTOM_PARAM), ","))
-                        .map(String::trim).toArray(String[]::new);
+        if (paramMap.get(CUSTOM_PARAM) == null)
+            return;
+        final String[] customObjects =
+                Arrays.stream(StringUtil.split(paramMap.get(CUSTOM_PARAM), ",")).map(String::trim).toArray(String[]::new);
         for (final String co : customObjects) {
 
             final BulkConnection bulk = connectionProvider.getBulkConnection();
@@ -173,40 +172,34 @@ public class SalesforceClient implements Closeable {
             try {
                 bulk.closeJob(job.getId());
             } catch (final AsyncApiException e) {
-                logger.warn("Failed to close the job : {}. {}" ,job.getId(), e);
+                logger.warn("Failed to close the job : {}. {}", job.getId(), e);
             }
         }
     }
 
     protected SearchLayout getSearchLayout(final StandardObject obj) {
         final String title = paramMap.getOrDefault(obj.name() + "." + TITLE_PARAM, obj.getLayout().getTitle());
-        final List<String> contents =
-                paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null ?
-                        Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM)
-                                .split(","))
-                                .map(String::trim).collect(Collectors.toList())
-                        : obj.getLayout().getContents();
-        final List<String> descriptions =
-                paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM) != null ?
-                        Arrays.stream(paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
-                        : obj.getLayout().getDescriptions();
+        final List<String> contents = paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null
+                ? Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                : obj.getLayout().getContents();
+        final List<String> descriptions = paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM) != null ? Arrays
+                .stream(paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                : obj.getLayout().getDescriptions();
         final String thumbnail = paramMap.getOrDefault(obj.name() + "." + THUMBNAIL_PARAM, obj.getLayout().getThumbnail());
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
     protected SearchLayout getSearchLayout(final String type) {
         final String title = paramMap.getOrDefault(type + "." + TITLE_PARAM, type);
-        final List<String> contents =
-                paramMap.get(type + "." + CONTENTS_PARAM) != null ?
-                        Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
-                        : emptyList();
-        final List<String> descriptions = paramMap.get(type + "." + DESCRIPTIONS_PARAM) != null ?
-                Arrays.stream(paramMap.get(type + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final List<String> contents = paramMap.get(type + "." + CONTENTS_PARAM) != null
+                ? Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+                : emptyList();
+        final List<String> descriptions = paramMap.get(type + "." + DESCRIPTIONS_PARAM) != null
+                ? Arrays.stream(paramMap.get(type + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
                 : emptyList();
         final String thumbnail = paramMap.get(type + "." + THUMBNAIL_PARAM);
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
-
 
     protected static class ConnectionProvider implements TimeoutTarget {
 
@@ -275,31 +268,32 @@ public class SalesforceClient implements Closeable {
 
         protected PartnerConnection getConnection() {
             switch (authType) {
-                case OAUTH_TOKEN: {
-                    if (username == null || clientId == null || privateKey == null) {
-                        throw new SalesforceDataStoreException("parameters '{" + USERNAME_PARAM + "}', '{" +
-                                CLIENT_ID_PARAM + "', '" + PRIVATE_KEY_PARAM + "' required for token authentication.");
-                    }
-                    try {
-                        return getConnectionByToken();
-                    } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by token authentication", e);
-                    }
+            case OAUTH_TOKEN: {
+                if (username == null || clientId == null || privateKey == null) {
+                    throw new SalesforceDataStoreException("parameters '{" + USERNAME_PARAM + "}', '{" + CLIENT_ID_PARAM + "', '"
+                            + PRIVATE_KEY_PARAM + "' required for token authentication.");
                 }
-                case OAUTH_PASS: {
-                    if (username == null || pass == null || securityToken == null || clientId == null || clientSecret == null) {
-                        throw new SalesforceDataStoreException("parameters '" + USERNAME_PARAM + "', '" + PASS_PARAM + "', '" + SECURITY_TOKEN_PARAM +
-                                "', '" + CLIENT_ID_PARAM + "', '" + CLIENT_SECRET_PARAM + "' required for password authentication.");
-                    }
-                    try {
-                        return getConnectionByPass();
-                    } catch (final ConnectionException e) {
-                        throw new SalesforceDataStoreException("Failed to get connection by password authentication.", e);
-                    }
+                try {
+                    return getConnectionByToken();
+                } catch (final ConnectionException e) {
+                    throw new SalesforceDataStoreException("Failed to get connection by token authentication", e);
                 }
-                default: {
-                    throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' invalid.");
+            }
+            case OAUTH_PASS: {
+                if (username == null || pass == null || securityToken == null || clientId == null || clientSecret == null) {
+                    throw new SalesforceDataStoreException(
+                            "parameters '" + USERNAME_PARAM + "', '" + PASS_PARAM + "', '" + SECURITY_TOKEN_PARAM + "', '" + CLIENT_ID_PARAM
+                                    + "', '" + CLIENT_SECRET_PARAM + "' required for password authentication.");
                 }
+                try {
+                    return getConnectionByPass();
+                } catch (final ConnectionException e) {
+                    throw new SalesforceDataStoreException("Failed to get connection by password authentication.", e);
+                }
+            }
+            default: {
+                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' invalid.");
+            }
             }
         }
 
@@ -321,7 +315,8 @@ public class SalesforceClient implements Closeable {
         protected PartnerConnection getConnectionByToken() throws ConnectionException {
             final TokenResponse response = getTokenResponseByToken();
             if (response.getAccessToken() == null) {
-                throw new SalesforceDataStoreException("Failed to get access token : " + "[" + response.getError() + " : " + response.getErrorDescription() + "]");
+                throw new SalesforceDataStoreException(
+                        "Failed to get access token : " + "[" + response.getError() + " : " + response.getErrorDescription() + "]");
             }
             final ConnectorConfig config = createConnectorConfig(response);
             return Connector.newConnection(config);
@@ -336,8 +331,8 @@ public class SalesforceClient implements Closeable {
         protected BulkConnection getBulkConnection(final PartnerConnection connection) throws AsyncApiException {
             final ConnectorConfig config = new ConnectorConfig();
             config.setSessionId(connection.getConfig().getSessionId());
-            config.setRestEndpoint(connection.getConfig().getServiceEndpoint()
-                    .replaceFirst("/services.*", "/services/async/" + API_VERSION));
+            config.setRestEndpoint(
+                    connection.getConfig().getServiceEndpoint().replaceFirst("/services.*", "/services/async/" + API_VERSION));
             if (proxy != null) {
                 config.setProxy(proxy);
             }
@@ -368,8 +363,7 @@ public class SalesforceClient implements Closeable {
             try {
                 final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
                 final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        .param("assertion", jwt);
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer").param("assertion", jwt);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
@@ -382,18 +376,15 @@ public class SalesforceClient implements Closeable {
 
         protected TokenResponse getTokenResponseByPass() {
             try {
-                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "password")
-                        .param("username", username)
-                        .param("password", pass + securityToken)
-                        .param("client_id", clientId)
-                        .param("client_secret", clientSecret);
+                final CurlRequest request =
+                        Curl.post(baseUrl + "/services/oauth2/token").param("grant_type", "password").param("username", username)
+                                .param("password", pass + securityToken).param("client_id", clientId).param("client_secret", clientSecret);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
                 final CurlResponse response = request.execute();
                 return parseTokenResponse(response.getContentAsStream());
-            }catch (final CurlException | IOException e) {
+            } catch (final CurlException | IOException e) {
                 throw new SalesforceDataStoreException("Failed to get token response.", e);
             }
         }

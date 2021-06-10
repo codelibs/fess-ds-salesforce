@@ -134,8 +134,8 @@ public class SUser extends SearchLayout {
     /** Android バナー写真の URL */
     protected static final String MEDIUM_BANNER_PHOTO_URL = "MediumBannerPhotoUrl";
 
-    protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT,
-            TITLE, EMAIL, PHONE, FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
+    protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT, TITLE, EMAIL, PHONE,
+            FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
 
     @Override
     public String getTitle() {

@@ -34,24 +34,26 @@ public class SearchData {
     public SearchData(final String type, final JsonNode node, final SearchLayout obj) {
         this.type = type;
         this.id = node.get(obj.getId()).asText();
-        if(node.get(obj.getTitle()) != null) {
+        if (node.get(obj.getTitle()) != null) {
             title = node.get(obj.getTitle()).asText();
         } else {
             title = StringUtil.EMPTY;
         }
-        if(obj.getContents() != null) {
-            this.content = obj.getContents().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
+        if (obj.getContents() != null) {
+            this.content = obj.getContents().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText())
+                    .collect(Collectors.joining("\n"));
         } else {
             this.content = StringUtil.EMPTY;
         }
-        if(obj.getDescriptions() != null) {
-            this.description = obj.getDescriptions().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText()).collect(Collectors.joining("\n"));
+        if (obj.getDescriptions() != null) {
+            this.description = obj.getDescriptions().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText())
+                    .collect(Collectors.joining("\n"));
         } else {
             this.description = StringUtil.EMPTY;
         }
         this.created = new Date(node.get(obj.getCreated()).asLong());
         this.lastModified = new Date(node.get(obj.getLastModified()).asLong());
-        if(obj.getThumbnail() != null && node.get(obj.getThumbnail()) != null) {
+        if (obj.getThumbnail() != null && node.get(obj.getThumbnail()) != null) {
             this.thumbnail = node.get(obj.getThumbnail()).asText();
         } else {
             this.thumbnail = StringUtil.EMPTY;

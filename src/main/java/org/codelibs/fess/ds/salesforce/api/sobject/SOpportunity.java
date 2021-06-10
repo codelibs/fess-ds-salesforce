@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-
 /** 商談 */
 public class SOpportunity extends SearchLayout {
 

@@ -68,13 +68,13 @@ public class SearchLayout {
 
     public List<String> fields() {
         final List<String> fields = new ArrayList<>();
-        if(contents != null) {
+        if (contents != null) {
             fields.addAll(contents);
         }
-        if(descriptions != null) {
+        if (descriptions != null) {
             fields.addAll(descriptions);
         }
-        if(thumbnail != null) {
+        if (thumbnail != null) {
             fields.add(thumbnail);
         }
         fields.add(getId());

@@ -44,7 +44,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesforceClientTest.class);
 
-    public static final String BASE_URL= "https://login.salesforce.com";
+    public static final String BASE_URL = "https://login.salesforce.com";
     public static final String AUTH_TYPE = "token";
     public static final String USERNAME = "sforce@example.com";
     public static final String CLIENT_ID = "...";
@@ -159,25 +159,26 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     protected void doCreateConfig(final ConnectionProvider connectionProvider) {
         try {
 
-            String json = "{ \"id\":\"https://login.salesforce.com/id/test/testId\",\n" +
-                    "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n" +
-                    "\"signature\":\"test_signature\"," +
-                    "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
+            String json = "{ \"id\":\"https://login.salesforce.com/id/test/testId\",\n"
+                    + "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n"
+                    + "\"signature\":\"test_signature\","
+                    + "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
             TokenResponse response = parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
             ConnectorConfig config = connectionProvider.createConnectorConfig(response);
             assertEquals("test_token", config.getSessionId());
             assertEquals("https://testInstance.salesforce.com/services/Soap/u/" + API_VERSION, config.getAuthEndpoint());
-            assertEquals("https://testInstance.salesforce.com/services/Soap/u/" + API_VERSION + "/https://login.salesforce.com/id/test/testId", config.getAuthEndpoint());
+            assertEquals(
+                    "https://testInstance.salesforce.com/services/Soap/u/" + API_VERSION + "/https://login.salesforce.com/id/test/testId",
+                    config.getAuthEndpoint());
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
 
     public void test_ParseTokenResponse() {
-        String json = "{ \"id\":\"https://login.salesforce.com/id/00Dx0000000BV7z/testId\",\n" +
-                "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n" +
-                "\"signature\":\"test_signature\"," +
-                "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
+        String json = "{ \"id\":\"https://login.salesforce.com/id/00Dx0000000BV7z/testId\",\n"
+                + "\"issued_at\":\"1278448384422\",\"instance_url\":\"https://testInstance.salesforce.com/\",\n"
+                + "\"signature\":\"test_signature\"," + "\"access_token\":\"test_token\",\"token_type\":\"Bearer\",\"scope\":\"id api\"}";
         TokenResponse response = parseTokenResponse(new ByteArrayInputStream(json.getBytes(Charset.forName("UTF-8"))));
         assertEquals("test_token", response.getAccessToken());
     }
