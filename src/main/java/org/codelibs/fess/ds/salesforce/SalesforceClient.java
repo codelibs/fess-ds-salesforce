@@ -28,6 +28,23 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.codelibs.core.lang.StringUtil;
+import org.codelibs.core.timer.TimeoutManager;
+import org.codelibs.core.timer.TimeoutTarget;
+import org.codelibs.core.timer.TimeoutTask;
+import org.codelibs.curl.Curl;
+import org.codelibs.curl.CurlException;
+import org.codelibs.curl.CurlRequest;
+import org.codelibs.curl.CurlResponse;
+import org.codelibs.fess.ds.salesforce.api.SearchData;
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
+import org.codelibs.fess.ds.salesforce.api.TokenResponse;
+import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
+import org.codelibs.fess.ds.salesforce.util.AuthUtil;
+import org.codelibs.fess.ds.salesforce.util.BulkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
@@ -39,22 +56,6 @@ import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
-import org.codelibs.core.lang.StringUtil;
-import org.codelibs.core.timer.TimeoutManager;
-import org.codelibs.core.timer.TimeoutTarget;
-import org.codelibs.core.timer.TimeoutTask;
-import org.codelibs.curl.Curl;
-import org.codelibs.curl.CurlException;
-import org.codelibs.curl.CurlRequest;
-import org.codelibs.curl.CurlResponse;
-import org.codelibs.fess.ds.salesforce.api.TokenResponse;
-import org.codelibs.fess.ds.salesforce.util.AuthUtil;
-import org.codelibs.fess.ds.salesforce.util.BulkUtil;
-import org.codelibs.fess.ds.salesforce.api.SearchData;
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SalesforceClient implements Closeable {
 
@@ -146,8 +147,9 @@ public class SalesforceClient implements Closeable {
     }
 
     public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
-        if (paramMap.get(CUSTOM_PARAM) == null)
+        if (paramMap.get(CUSTOM_PARAM) == null) {
             return;
+        }
         final String[] customObjects =
                 Arrays.stream(StringUtil.split(paramMap.get(CUSTOM_PARAM), ",")).map(String::trim).toArray(String[]::new);
         for (final String co : customObjects) {
@@ -253,7 +255,7 @@ public class SalesforceClient implements Closeable {
 
         @Override
         public void expired() {
-            if (authType.equals(OAUTH_TOKEN)) {
+            if (OAUTH_TOKEN.equals(authType)) {
                 refreshConnection();
             }
         }

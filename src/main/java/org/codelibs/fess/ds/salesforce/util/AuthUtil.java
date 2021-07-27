@@ -15,11 +15,6 @@
  */
 package org.codelibs.fess.ds.salesforce.util;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.log4j.Logger;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -30,6 +25,9 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 
 public class AuthUtil {
 

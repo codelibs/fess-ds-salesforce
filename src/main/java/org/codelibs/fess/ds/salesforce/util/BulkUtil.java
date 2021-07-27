@@ -28,6 +28,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
+import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
 import com.sforce.async.BulkConnection;
@@ -36,8 +39,6 @@ import com.sforce.async.ContentType;
 import com.sforce.async.JobInfo;
 import com.sforce.async.OperationEnum;
 import com.sforce.async.QueryResultList;
-import org.apache.log4j.Logger;
-import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 
 public class BulkUtil {
 
@@ -122,9 +123,8 @@ public class BulkUtil {
             if (ignoreError) {
                 logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch, e);
                 return Collections.emptyList();
-            } else {
-                throw new SalesforceDataStoreException("Failed to get query results.", e);
             }
+            throw new SalesforceDataStoreException("Failed to get query results.", e);
         }
 
     }

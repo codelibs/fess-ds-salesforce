@@ -18,8 +18,9 @@ package org.codelibs.fess.ds.salesforce.api;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.codelibs.core.lang.StringUtil;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class SearchData {
     protected String type;
