@@ -15,11 +15,11 @@
  */
 package org.codelibs.fess.ds.salesforce.util;
 
+import java.util.Arrays;
+
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 public class BulkUtilTest extends LastaFluteTestCase {
 

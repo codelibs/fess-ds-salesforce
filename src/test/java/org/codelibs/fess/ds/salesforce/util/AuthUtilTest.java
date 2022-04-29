@@ -15,13 +15,17 @@
  */
 package org.codelibs.fess.ds.salesforce.util;
 
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.*;
+import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.BASE_URL;
+import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.CLIENT_ID;
+import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.PRIVATE_KEY;
+import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.REFRESH_INTERVAL;
+import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.USERNAME;
+
+import java.security.PrivateKey;
 
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.security.PrivateKey;
 
 public class AuthUtilTest extends LastaFluteTestCase {
 

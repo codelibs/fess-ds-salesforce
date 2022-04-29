@@ -15,10 +15,11 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
-import org.codelibs.fess.ds.callback.IndexUpdateCallback;
-
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.codelibs.fess.ds.callback.IndexUpdateCallback;
+import org.codelibs.fess.entity.DataStoreParams;
 
 public class TestCallback implements IndexUpdateCallback {
 
@@ -31,7 +32,7 @@ public class TestCallback implements IndexUpdateCallback {
     }
 
     @Override
-    public void store(Map<String, String> paramMap, Map<String, Object> dataMap) {
+    public void store(DataStoreParams paramMap, Map<String, Object> dataMap) {
         long startTime = System.currentTimeMillis();
         action.accept(dataMap);
         executeTime += System.currentTimeMillis() - startTime;

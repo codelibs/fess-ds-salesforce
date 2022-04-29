@@ -16,15 +16,14 @@
 package org.codelibs.fess.ds.salesforce;
 
 import static java.util.Collections.emptyList;
+import static org.codelibs.core.stream.StreamUtil.split;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,6 +41,7 @@ import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
 import org.codelibs.fess.ds.salesforce.util.AuthUtil;
 import org.codelibs.fess.ds.salesforce.util.BulkUtil;
+import org.codelibs.fess.entity.DataStoreParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,17 +90,17 @@ public class SalesforceClient implements Closeable {
     protected static final String OAUTH_TOKEN = "oauth_token";
     protected static final String OAUTH_PASS = "oauth_password";
 
-    protected final Map<String, String> paramMap;
+    protected final DataStoreParams paramMap;
     protected TimeoutTask refreshTokenTask;
     protected final ConnectionProvider connectionProvider;
     protected final String instanceUrl;
 
-    public SalesforceClient(final Map<String, String> paramMap) {
+    public SalesforceClient(final DataStoreParams paramMap) {
         this.paramMap = paramMap;
         connectionProvider = new ConnectionProvider(paramMap);
         instanceUrl = connectionProvider.getPartnerConnection().getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
         refreshTokenTask = TimeoutManager.getInstance().addTimeoutTarget(connectionProvider,
-                Integer.parseInt(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
+                Integer.parseInt(paramMap.getAsString(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
     }
 
     @Override
@@ -150,8 +150,8 @@ public class SalesforceClient implements Closeable {
         if (paramMap.get(CUSTOM_PARAM) == null) {
             return;
         }
-        final String[] customObjects =
-                Arrays.stream(StringUtil.split(paramMap.get(CUSTOM_PARAM), ",")).map(String::trim).toArray(String[]::new);
+        final String[] customObjects = split(paramMap.getAsString(CUSTOM_PARAM), ",")
+                .get(stream -> stream.map(String::trim).filter(StringUtil::isNotBlank).toArray(n -> new String[n]));
         for (final String co : customObjects) {
 
             final BulkConnection bulk = connectionProvider.getBulkConnection();
@@ -180,26 +180,27 @@ public class SalesforceClient implements Closeable {
     }
 
     protected SearchLayout getSearchLayout(final StandardObject obj) {
-        final String title = paramMap.getOrDefault(obj.name() + "." + TITLE_PARAM, obj.getLayout().getTitle());
-        final List<String> contents = paramMap.get(obj.name() + "." + CONTENTS_PARAM) != null
-                ? Arrays.stream(paramMap.get(obj.name() + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final String name = obj.name();
+        final String title = paramMap.getAsString(name + "." + TITLE_PARAM, obj.getLayout().getTitle());
+        final List<String> contents = paramMap.get(name + "." + CONTENTS_PARAM) instanceof final String s
+                ? split(s, ",").get(stream -> stream.map(String::trim).filter(StringUtil::isNotBlank).collect(Collectors.toList()))
                 : obj.getLayout().getContents();
-        final List<String> descriptions = paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM) != null ? Arrays
-                .stream(paramMap.get(obj.name() + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final List<String> descriptions = paramMap.get(name + "." + DESCRIPTIONS_PARAM) instanceof final String s
+                ? split(s, ",").get(stream -> stream.map(String::trim).filter(StringUtil::isNotBlank).collect(Collectors.toList()))
                 : obj.getLayout().getDescriptions();
-        final String thumbnail = paramMap.getOrDefault(obj.name() + "." + THUMBNAIL_PARAM, obj.getLayout().getThumbnail());
+        final String thumbnail = paramMap.getAsString(name + "." + THUMBNAIL_PARAM, obj.getLayout().getThumbnail());
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
     protected SearchLayout getSearchLayout(final String type) {
-        final String title = paramMap.getOrDefault(type + "." + TITLE_PARAM, type);
-        final List<String> contents = paramMap.get(type + "." + CONTENTS_PARAM) != null
-                ? Arrays.stream(paramMap.get(type + "." + CONTENTS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final String title = paramMap.getAsString(type + "." + TITLE_PARAM, type);
+        final List<String> contents = paramMap.get(type + "." + CONTENTS_PARAM) instanceof final String s
+                ? split(s, ",").get(stream -> stream.map(String::trim).filter(StringUtil::isNotBlank).collect(Collectors.toList()))
                 : emptyList();
-        final List<String> descriptions = paramMap.get(type + "." + DESCRIPTIONS_PARAM) != null
-                ? Arrays.stream(paramMap.get(type + "." + DESCRIPTIONS_PARAM).split(",")).map(String::trim).collect(Collectors.toList())
+        final List<String> descriptions = paramMap.get(type + "." + DESCRIPTIONS_PARAM) instanceof final String s
+                ? split(s, ",").get(stream -> stream.map(String::trim).filter(StringUtil::isNotBlank).collect(Collectors.toList()))
                 : emptyList();
-        final String thumbnail = paramMap.get(type + "." + THUMBNAIL_PARAM);
+        final String thumbnail = paramMap.getAsString(type + "." + THUMBNAIL_PARAM);
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
@@ -220,18 +221,18 @@ public class SalesforceClient implements Closeable {
         protected PartnerConnection partnerConnection;
         protected BulkConnection bulkConnection;
 
-        protected ConnectionProvider(final Map<String, String> paramMap) {
-            username = paramMap.get(USERNAME_PARAM);
-            pass = paramMap.get(PASS_PARAM);
-            privateKey = paramMap.get(PRIVATE_KEY_PARAM);
-            securityToken = paramMap.get(SECURITY_TOKEN_PARAM);
-            clientId = paramMap.get(CLIENT_ID_PARAM);
-            clientSecret = paramMap.get(CLIENT_SECRET_PARAM);
-            baseUrl = paramMap.get(BASE_URL_PARAM) != null ? paramMap.get(BASE_URL_PARAM) : BASE_URL;
-            authType = paramMap.get(AUTH_TYPE_PARAM);
+        protected ConnectionProvider(final DataStoreParams paramMap) {
+            username = paramMap.getAsString(USERNAME_PARAM);
+            pass = paramMap.getAsString(PASS_PARAM);
+            privateKey = paramMap.getAsString(PRIVATE_KEY_PARAM);
+            securityToken = paramMap.getAsString(SECURITY_TOKEN_PARAM);
+            clientId = paramMap.getAsString(CLIENT_ID_PARAM);
+            clientSecret = paramMap.getAsString(CLIENT_SECRET_PARAM);
+            baseUrl = paramMap.getAsString(BASE_URL_PARAM, BASE_URL);
+            authType = paramMap.getAsString(AUTH_TYPE_PARAM);
 
-            final String httpProxyHost = paramMap.get(PROXY_HOST_PARAM);
-            final String httpProxyPort = paramMap.get(PROXY_PORT_PARAM);
+            final String httpProxyHost = paramMap.getAsString(PROXY_HOST_PARAM);
+            final String httpProxyPort = paramMap.getAsString(PROXY_PORT_PARAM);
             if (httpProxyHost != null) {
                 if (httpProxyPort == null) {
                     throw new SalesforceDataStoreException("parameter " + "'" + PROXY_PORT_PARAM + "' required.");
@@ -244,7 +245,7 @@ public class SalesforceClient implements Closeable {
                 }
             }
 
-            refreshInterval = Long.parseLong(paramMap.getOrDefault(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL));
+            refreshInterval = Long.parseLong(paramMap.getAsString(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL));
             partnerConnection = getConnection();
             try {
                 bulkConnection = getBulkConnection(partnerConnection);

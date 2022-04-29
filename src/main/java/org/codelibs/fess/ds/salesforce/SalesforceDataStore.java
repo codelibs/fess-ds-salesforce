@@ -32,8 +32,12 @@ import org.codelibs.fess.crawler.filter.UrlFilter;
 import org.codelibs.fess.ds.AbstractDataStore;
 import org.codelibs.fess.ds.callback.IndexUpdateCallback;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
+import org.codelibs.fess.entity.DataStoreParams;
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.exception.DataStoreException;
+import org.codelibs.fess.helper.CrawlerStatsHelper;
+import org.codelibs.fess.helper.CrawlerStatsHelper.StatsAction;
+import org.codelibs.fess.helper.CrawlerStatsHelper.StatsKeyObject;
 import org.codelibs.fess.util.ComponentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +72,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     }
 
     @Override
-    public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, String> paramMap,
+    public void storeData(final DataConfig dataConfig, final IndexUpdateCallback callback, final DataStoreParams paramMap,
             final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap) {
 
         final Map<String, Object> configMap = new HashMap<>();
@@ -78,7 +82,7 @@ public class SalesforceDataStore extends AbstractDataStore {
             logger.debug("configMap: {}", configMap);
         }
 
-        final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getOrDefault(NUMBER_OF_THREADS, "1")));
+        final ExecutorService executorService = newFixedThreadPool(Integer.parseInt(paramMap.getAsString(NUMBER_OF_THREADS, "1")));
         try (final SalesforceClient client = createClient(paramMap)) {
             storeStandardObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
             storeCustomObjects(dataConfig, callback, configMap, paramMap, scriptMap, defaultDataMap, executorService, client);
@@ -94,25 +98,25 @@ public class SalesforceDataStore extends AbstractDataStore {
         }
     }
 
-    protected SalesforceClient createClient(final Map<String, String> paramMap) {
+    protected SalesforceClient createClient(final DataStoreParams paramMap) {
         return new SalesforceClient(paramMap);
     }
 
-    protected boolean isIgnoreError(final Map<String, String> paramMap) {
-        return Constants.TRUE.equalsIgnoreCase(paramMap.getOrDefault(IGNORE_ERROR, Constants.TRUE));
+    protected boolean isIgnoreError(final DataStoreParams paramMap) {
+        return Constants.TRUE.equalsIgnoreCase(paramMap.getAsString(IGNORE_ERROR, Constants.TRUE));
     }
 
-    protected UrlFilter getUrlFilter(final Map<String, String> paramMap) {
+    protected UrlFilter getUrlFilter(final DataStoreParams paramMap) {
         final UrlFilter urlFilter = ComponentUtil.getComponent(UrlFilter.class);
-        final String include = paramMap.get(INCLUDE_PATTERN);
+        final String include = paramMap.getAsString(INCLUDE_PATTERN);
         if (StringUtil.isNotBlank(include)) {
             urlFilter.addInclude(include);
         }
-        final String exclude = paramMap.get(EXCLUDE_PATTERN);
+        final String exclude = paramMap.getAsString(EXCLUDE_PATTERN);
         if (StringUtil.isNotBlank(exclude)) {
             urlFilter.addExclude(exclude);
         }
-        urlFilter.init(paramMap.get(Constants.CRAWLING_INFO_ID));
+        urlFilter.init(paramMap.getAsString(Constants.CRAWLING_INFO_ID));
         if (logger.isDebugEnabled()) {
             logger.debug("urlFilter: {}", urlFilter);
         }
@@ -128,7 +132,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     }
 
     protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
-            final Map<String, Object> configMap, final Map<String, String> paramMap, final Map<String, String> scriptMap,
+            final Map<String, Object> configMap, final DataStoreParams paramMap, final Map<String, String> scriptMap,
             final Map<String, Object> defaultDataMap, final ExecutorService executorService, final SalesforceClient client)
             throws InterruptedException {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
@@ -139,7 +143,7 @@ public class SalesforceDataStore extends AbstractDataStore {
     }
 
     protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
-            final Map<String, String> paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
+            final DataStoreParams paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
             final ExecutorService executorService, final SalesforceClient client) throws InterruptedException {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getCustomObjects(
@@ -149,23 +153,27 @@ public class SalesforceDataStore extends AbstractDataStore {
     }
 
     protected void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
-            final Map<String, String> paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
+            final DataStoreParams paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
             final SearchData data, final SalesforceClient client) {
+        final CrawlerStatsHelper crawlerStatsHelper = ComponentUtil.getCrawlerStatsHelper();
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
         final String url = client.getInstanceUrl() + "/" + data.getId();
+        final StatsKeyObject statsKey = new StatsKeyObject(url);
         try {
+            crawlerStatsHelper.begin(statsKey);
 
             final UrlFilter urlFilter = (UrlFilter) configMap.get(URL_FILTER);
             if (urlFilter != null && !urlFilter.match(url)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Not matched: {}", url);
                 }
+                crawlerStatsHelper.discard(statsKey);
                 return;
             }
 
             logger.info("Crawling URL: {}", url);
 
-            final Map<String, Object> resultMap = new LinkedHashMap<>(paramMap);
+            final Map<String, Object> resultMap = new LinkedHashMap<>(paramMap.asMap());
             final Map<String, Object> objectMap = new HashMap<>();
 
             objectMap.put(OBJECT_ID, data.getId());
@@ -180,6 +188,8 @@ public class SalesforceDataStore extends AbstractDataStore {
             objectMap.put(OBJECT_THUMBNAIL, data.getThumbnail());
             resultMap.put(OBJECT, objectMap);
 
+            crawlerStatsHelper.record(statsKey, StatsAction.PREPARED);
+
             if (logger.isDebugEnabled()) {
                 logger.debug("resultMap: {}", resultMap);
             }
@@ -192,17 +202,24 @@ public class SalesforceDataStore extends AbstractDataStore {
                 }
             }
 
+            crawlerStatsHelper.record(statsKey, StatsAction.EVALUATED);
+
             if (logger.isDebugEnabled()) {
                 logger.debug("dataMap: {}", dataMap);
             }
 
+            if (dataMap.get("url") instanceof String statsUrl) {
+                statsKey.setUrl(statsUrl);
+            }
+
             callback.store(paramMap, dataMap);
+            crawlerStatsHelper.record(statsKey, StatsAction.FINISHED);
         } catch (final CrawlingAccessException e) {
             logger.warn("Crawling Access Exception at : " + dataMap, e);
 
             Throwable target = e;
-            if (target instanceof MultipleCrawlingAccessException) {
-                final Throwable[] causes = ((MultipleCrawlingAccessException) target).getCauses();
+            if (target instanceof MultipleCrawlingAccessException ex) {
+                final Throwable[] causes = ex.getCauses();
                 if (causes.length > 0) {
                     target = causes[causes.length - 1];
                 }
@@ -218,10 +235,14 @@ public class SalesforceDataStore extends AbstractDataStore {
 
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
             failureUrlService.store(dataConfig, errorName, url, target);
+            crawlerStatsHelper.record(statsKey, StatsAction.ACCESS_EXCEPTION);
         } catch (final Throwable t) {
             logger.warn("Crawling Access Exception at : " + dataMap, t);
             final FailureUrlService failureUrlService = ComponentUtil.getComponent(FailureUrlService.class);
             failureUrlService.store(dataConfig, t.getClass().getCanonicalName(), url, t);
+            crawlerStatsHelper.record(statsKey, StatsAction.EXCEPTION);
+        } finally {
+            crawlerStatsHelper.done(statsKey);
         }
     }
 

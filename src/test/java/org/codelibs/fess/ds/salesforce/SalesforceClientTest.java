@@ -15,22 +15,6 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.sforce.ws.ConnectionException;
-import com.sforce.ws.ConnectorConfig;
-import org.codelibs.fess.ds.salesforce.api.SearchLayout;
-import org.codelibs.fess.ds.salesforce.api.TokenResponse;
-import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
-import org.codelibs.fess.ds.salesforce.SalesforceClient;
-import org.codelibs.fess.ds.salesforce.SalesforceClient.ConnectionProvider;
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.API_VERSION;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.AUTH_TYPE_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.BASE_URL_PARAM;
@@ -39,6 +23,21 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClient.PRIVATE_KEY_PARAM
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.USERNAME_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.convertSnakeToCamel;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.parseTokenResponse;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
+
+import org.codelibs.fess.ds.salesforce.SalesforceClient.ConnectionProvider;
+import org.codelibs.fess.ds.salesforce.api.SearchLayout;
+import org.codelibs.fess.ds.salesforce.api.TokenResponse;
+import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
+import org.codelibs.fess.entity.DataStoreParams;
+import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sforce.ws.ConnectionException;
+import com.sforce.ws.ConnectorConfig;
 
 public class SalesforceClientTest extends LastaFluteTestCase {
 
@@ -51,7 +50,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     public static final String PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----";
     public static final long REFRESH_INTERVAL = 0;
 
-    Map<String, String> paramMap;
+    DataStoreParams paramMap;
     SalesforceClient client;
     ConnectionProvider connectionProvider;
 
@@ -68,7 +67,7 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        paramMap = new HashMap<>();
+        paramMap = new DataStoreParams();
         paramMap.put(BASE_URL_PARAM, BASE_URL);
         paramMap.put(AUTH_TYPE_PARAM, AUTH_TYPE);
         paramMap.put(USERNAME_PARAM, USERNAME);

@@ -15,15 +15,16 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codelibs.fess.entity.DataStoreParams;
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.util.ComponentUtil;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SalesforceDataStoreTest extends LastaFluteTestCase {
 
@@ -67,7 +68,7 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
 
     private void doStoreData() {
         DataConfig dataConfig = new DataConfig();
-        Map<String, String> paramMap = new HashMap<>();
+        DataStoreParams paramMap = new DataStoreParams();
         paramMap.put("auth_type", "token");
         paramMap.put("username", USERNAME);
         paramMap.put("client_id", CLIENT_ID);

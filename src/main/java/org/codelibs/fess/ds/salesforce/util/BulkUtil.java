@@ -28,8 +28,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
@@ -42,7 +43,7 @@ import com.sforce.async.QueryResultList;
 
 public class BulkUtil {
 
-    private static final Logger logger = Logger.getLogger(BulkUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(BulkUtil.class);
 
     private BulkUtil() {
         throw new IllegalStateException("Utility class.");
@@ -57,7 +58,7 @@ public class BulkUtil {
             job.setContentType(ContentType.JSON);
             final JobInfo result = connection.createJob(job);
             if (logger.isDebugEnabled()) {
-                // logger.info("Created a job : " + job);
+                logger.debug("Created a job : {}", job);
             }
             return result;
         } catch (final AsyncApiException e) {
@@ -69,7 +70,7 @@ public class BulkUtil {
         try {
             final BatchInfo batch = connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
             if (logger.isDebugEnabled()) {
-                // logger.info("Created a batch : " + batch);
+                logger.debug("Created a batch : {}", batch);
             }
             return batch;
         } catch (final AsyncApiException e) {
@@ -95,16 +96,16 @@ public class BulkUtil {
                     break;
                 }
                 case Failed: {
-                    logger.warn("Batch:" + batch.getId() + " Failed caused by '" + info.getStateMessage() + "'");
+                    logger.warn("Batch:{} Failed caused by '{}'", batch.getId(), info.getStateMessage());
                     future.complete(new String[0]);
                     break;
                 }
                 default: {
-                    logger.debug("Batch:" + batch.getId() + " " + info.getState());
+                    logger.debug("Batch:{} {}", batch.getId(), info.getState());
                 }
                 }
             } catch (final AsyncApiException e) {
-                logger.warn(e);
+                logger.warn("Failed to call async api.", e);
                 future.completeExceptionally(e);
             }
         }, 1, 10, TimeUnit.SECONDS);
@@ -121,7 +122,7 @@ public class BulkUtil {
             }).collect(Collectors.toList());
         } catch (final ExecutionException e) {
             if (ignoreError) {
-                logger.warn("Failed to get query results. JOB = " + job + ", BATCH = " + batch, e);
+                logger.warn("Failed to get query results. JOB = {}, BATCH = {}", job, batch, e);
                 return Collections.emptyList();
             }
             throw new SalesforceDataStoreException("Failed to get query results.", e);
