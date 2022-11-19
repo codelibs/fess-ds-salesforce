@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.codelibs.core.exception.InterruptedRuntimeException;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class BulkUtil {
     }
 
     public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job, final BatchInfo batch,
-            final boolean ignoreError) throws InterruptedException {
+            final boolean ignoreError) {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         final CompletableFuture future = new CompletableFuture<String[]>();
         executor.scheduleAtFixedRate(() -> {
@@ -120,6 +121,8 @@ public class BulkUtil {
                     throw new SalesforceDataStoreException("Failed to get query result stream by bulk connection.", e);
                 }
             }).collect(Collectors.toList());
+        } catch (final InterruptedException e) {
+            throw new InterruptedRuntimeException(e);
         } catch (final ExecutionException e) {
             if (ignoreError) {
                 logger.warn("Failed to get query results. JOB = {}, BATCH = {}", job, batch, e);

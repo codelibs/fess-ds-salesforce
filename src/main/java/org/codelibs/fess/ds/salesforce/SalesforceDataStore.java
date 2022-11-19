@@ -23,6 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.codelibs.core.exception.InterruptedRuntimeException;
 import org.codelibs.core.lang.StringUtil;
 import org.codelibs.fess.Constants;
 import org.codelibs.fess.app.service.FailureUrlService;
@@ -34,7 +35,6 @@ import org.codelibs.fess.ds.callback.IndexUpdateCallback;
 import org.codelibs.fess.ds.salesforce.api.SearchData;
 import org.codelibs.fess.entity.DataStoreParams;
 import org.codelibs.fess.es.config.exentity.DataConfig;
-import org.codelibs.fess.exception.DataStoreException;
 import org.codelibs.fess.helper.CrawlerStatsHelper;
 import org.codelibs.fess.helper.CrawlerStatsHelper.StatsAction;
 import org.codelibs.fess.helper.CrawlerStatsHelper.StatsKeyObject;
@@ -92,7 +92,7 @@ public class SalesforceDataStore extends AbstractDataStore {
             executorService.shutdown();
             executorService.awaitTermination(60, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-            throw new DataStoreException("Interrupted.", e);
+            throw new InterruptedRuntimeException(e);
         } finally {
             executorService.shutdownNow();
         }
@@ -133,8 +133,7 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
             final Map<String, Object> configMap, final DataStoreParams paramMap, final Map<String, String> scriptMap,
-            final Map<String, Object> defaultDataMap, final ExecutorService executorService, final SalesforceClient client)
-            throws InterruptedException {
+            final Map<String, Object> defaultDataMap, final ExecutorService executorService, final SalesforceClient client) {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getStandardObjects(
                 data -> executorService.execute(
@@ -144,7 +143,7 @@ public class SalesforceDataStore extends AbstractDataStore {
 
     protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
             final DataStoreParams paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
-            final ExecutorService executorService, final SalesforceClient client) throws InterruptedException {
+            final ExecutorService executorService, final SalesforceClient client) {
         final boolean ignoreError = (Boolean) configMap.get(IGNORE_ERROR);
         client.getCustomObjects(
                 data -> executorService.execute(
@@ -209,7 +208,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                 logger.debug("dataMap: {}", dataMap);
             }
 
-            if (dataMap.get("url") instanceof String statsUrl) {
+            if (dataMap.get("url") instanceof final String statsUrl) {
                 statsKey.setUrl(statsUrl);
             }
 
@@ -219,7 +218,7 @@ public class SalesforceDataStore extends AbstractDataStore {
             logger.warn("Crawling Access Exception at : {}", dataMap, e);
 
             Throwable target = e;
-            if (target instanceof MultipleCrawlingAccessException ex) {
+            if (target instanceof final MultipleCrawlingAccessException ex) {
                 final Throwable[] causes = ex.getCauses();
                 if (causes.length > 0) {
                     target = causes[causes.length - 1];

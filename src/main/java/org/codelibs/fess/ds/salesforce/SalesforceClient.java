@@ -114,7 +114,7 @@ public class SalesforceClient implements Closeable {
         return instanceUrl;
     }
 
-    public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
+    public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         for (final StandardObject so : StandardObject.values()) {
             final String soName = convertSnakeToCamel(so.name());
             final BulkConnection bulk = connectionProvider.getBulkConnection();
@@ -146,7 +146,7 @@ public class SalesforceClient implements Closeable {
         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, snakeString);
     }
 
-    public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) throws InterruptedException {
+    public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         if (paramMap.get(CUSTOM_PARAM) == null) {
             return;
         }
