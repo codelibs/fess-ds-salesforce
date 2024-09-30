@@ -17,7 +17,7 @@
 		<relativePath />
 	</parent>
 	<properties>
-		<force.version>47.0.0</force.version>
+		<force.version>61.1.0</force.version>
 	</properties>
 	<build>
 		<plugins>
