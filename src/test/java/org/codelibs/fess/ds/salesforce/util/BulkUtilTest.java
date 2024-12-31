@@ -17,13 +17,13 @@ package org.codelibs.fess.ds.salesforce.util;
 
 import java.util.Arrays;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BulkUtilTest extends LastaFluteTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(BulkUtil.class);
+    private static final Logger logger = LogManager.getLogger(BulkUtil.class);
 
     @Override
     protected String prepareConfigFile() {

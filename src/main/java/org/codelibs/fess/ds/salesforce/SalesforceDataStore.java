@@ -23,6 +23,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codelibs.core.exception.InterruptedRuntimeException;
 import org.codelibs.core.lang.StringUtil;
 import org.codelibs.fess.Constants;
@@ -39,12 +41,10 @@ import org.codelibs.fess.helper.CrawlerStatsHelper;
 import org.codelibs.fess.helper.CrawlerStatsHelper.StatsAction;
 import org.codelibs.fess.helper.CrawlerStatsHelper.StatsKeyObject;
 import org.codelibs.fess.util.ComponentUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SalesforceDataStore extends AbstractDataStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(SalesforceDataStore.class);
+    private static final Logger logger = LogManager.getLogger(SalesforceDataStore.class);
 
     // parameters
     protected static final String IGNORE_ERROR = "ignore_error";

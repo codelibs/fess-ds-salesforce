@@ -18,17 +18,17 @@ package org.codelibs.fess.ds.salesforce;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codelibs.fess.entity.DataStoreParams;
 import org.codelibs.fess.es.config.exentity.DataConfig;
 import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.util.ComponentUtil;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SalesforceDataStoreTest extends LastaFluteTestCase {
 
-    private Logger logger = LoggerFactory.getLogger(SalesforceDataStoreTest.class);
+    private Logger logger = LogManager.getLogger(SalesforceDataStoreTest.class);
 
     public static final String BASE_URL = "";
     public static final String USERNAME = "";

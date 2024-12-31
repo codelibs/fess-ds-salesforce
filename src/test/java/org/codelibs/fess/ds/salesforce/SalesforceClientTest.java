@@ -27,21 +27,21 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClient.parseTokenRespons
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codelibs.fess.ds.salesforce.SalesforceClient.ConnectionProvider;
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
 import org.codelibs.fess.entity.DataStoreParams;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
 public class SalesforceClientTest extends LastaFluteTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(SalesforceClientTest.class);
+    private static final Logger logger = LogManager.getLogger(SalesforceClientTest.class);
 
     public static final String BASE_URL = "https://login.salesforce.com";
     public static final String AUTH_TYPE = "token";

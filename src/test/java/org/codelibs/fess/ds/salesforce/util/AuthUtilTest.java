@@ -23,13 +23,13 @@ import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.USERNAME;
 
 import java.security.PrivateKey;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AuthUtilTest extends LastaFluteTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthUtilTest.class);
+    private static final Logger logger = LogManager.getLogger(AuthUtilTest.class);
 
     @Override
     protected String prepareConfigFile() {

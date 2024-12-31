@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codelibs.core.lang.StringUtil;
 import org.codelibs.core.timer.TimeoutManager;
 import org.codelibs.core.timer.TimeoutTarget;
@@ -42,8 +44,6 @@ import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
 import org.codelibs.fess.ds.salesforce.util.AuthUtil;
 import org.codelibs.fess.ds.salesforce.util.BulkUtil;
 import org.codelibs.fess.entity.DataStoreParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +59,7 @@ import com.sforce.ws.ConnectorConfig;
 
 public class SalesforceClient implements Closeable {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SalesforceClient.class);
+    protected static final Logger logger = LogManager.getLogger(SalesforceClient.class);
 
     protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -206,7 +206,7 @@ public class SalesforceClient implements Closeable {
 
     protected static class ConnectionProvider implements TimeoutTarget {
 
-        protected static final Logger logger = LoggerFactory.getLogger(ConnectionProvider.class);
+        protected static final Logger logger = LogManager.getLogger(ConnectionProvider.class);
 
         protected final String authType;
         protected final String username;

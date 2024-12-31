@@ -28,10 +28,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codelibs.core.exception.InterruptedRuntimeException;
 import org.codelibs.fess.ds.salesforce.SalesforceDataStoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
@@ -44,7 +44,7 @@ import com.sforce.async.QueryResultList;
 
 public class BulkUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(BulkUtil.class);
+    private static final Logger logger = LogManager.getLogger(BulkUtil.class);
 
     private BulkUtil() {
         throw new IllegalStateException("Utility class.");
