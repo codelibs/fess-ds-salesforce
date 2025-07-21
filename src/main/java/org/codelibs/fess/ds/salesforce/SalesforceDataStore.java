@@ -42,28 +42,58 @@ import org.codelibs.fess.helper.CrawlerStatsHelper.StatsKeyObject;
 import org.codelibs.fess.opensearch.config.exentity.DataConfig;
 import org.codelibs.fess.util.ComponentUtil;
 
+/**
+ * DataStore implementation for integrating Salesforce data with Fess search engine.
+ * This class handles crawling and indexing of Salesforce objects including both
+ * standard objects (Account, Case, User, etc.) and custom objects.
+ *
+ * <p>The data store supports various authentication methods (OAuth token, username/password)
+ * and provides parallel processing capabilities for efficient data retrieval from Salesforce APIs.</p>
+ */
 public class SalesforceDataStore extends AbstractDataStore {
+
+    /**
+     * Creates a new instance.
+     */
+    public SalesforceDataStore() {
+    }
 
     private static final Logger logger = LogManager.getLogger(SalesforceDataStore.class);
 
     // parameters
+    /** Parameter key for ignoring errors. */
     protected static final String IGNORE_ERROR = "ignore_error";
+    /** Parameter key for include patterns. */
     protected static final String INCLUDE_PATTERN = "include_pattern";
+    /** Parameter key for exclude patterns. */
     protected static final String EXCLUDE_PATTERN = "exclude_pattern";
+    /** Parameter key for URL filter. */
     protected static final String URL_FILTER = "url_filter";
+    /** Parameter key for the number of threads. */
     protected static final String NUMBER_OF_THREADS = "number_of_threads";
 
     // scripts
+    /** Script variable for the SObject data. */
     protected static final String OBJECT = "object";
+    /** Script variable for the SObject ID. */
     protected static final String OBJECT_ID = "id";
+    /** Script variable for the SObject type. */
     protected static final String OBJECT_TYPE = "type";
+    /** Script variable for the SObject title. */
     protected static final String OBJECT_TITLE = "title";
+    /** Script variable for the SObject content. */
     protected static final String OBJECT_CONTENT = "content";
+    /** Script variable for the SObject description. */
     protected static final String OBJECT_DESCRIPTION = "description";
+    /** Script variable for the SObject content length. */
     protected static final String OBJECT_CONTENT_LENGTH = "content_length";
+    /** Script variable for the SObject URL. */
     protected static final String OBJECT_URL = "url";
+    /** Script variable for the SObject created date. */
     protected static final String OBJECT_CREATED = "created";
+    /** Script variable for the SObject last modified date. */
     protected static final String OBJECT_LAST_MODIFIED = "last_modified";
+    /** Script variable for the SObject thumbnail. */
     protected static final String OBJECT_THUMBNAIL = "thumbnail";
 
     @Override
@@ -98,14 +128,32 @@ public class SalesforceDataStore extends AbstractDataStore {
         }
     }
 
+    /**
+     * Creates a SalesforceClient.
+     *
+     * @param paramMap The data store parameters.
+     * @return A SalesforceClient instance.
+     */
     protected SalesforceClient createClient(final DataStoreParams paramMap) {
         return new SalesforceClient(paramMap);
     }
 
+    /**
+     * Checks if errors should be ignored.
+     *
+     * @param paramMap The data store parameters.
+     * @return true if errors should be ignored, false otherwise.
+     */
     protected boolean isIgnoreError(final DataStoreParams paramMap) {
         return Constants.TRUE.equalsIgnoreCase(paramMap.getAsString(IGNORE_ERROR, Constants.TRUE));
     }
 
+    /**
+     * Gets the URL filter.
+     *
+     * @param paramMap The data store parameters.
+     * @return The URL filter.
+     */
     protected UrlFilter getUrlFilter(final DataStoreParams paramMap) {
         final UrlFilter urlFilter = ComponentUtil.getComponent(UrlFilter.class);
         final String include = paramMap.getAsString(INCLUDE_PATTERN);
@@ -123,6 +171,12 @@ public class SalesforceDataStore extends AbstractDataStore {
         return urlFilter;
     }
 
+    /**
+     * Creates a new fixed thread pool.
+     *
+     * @param nThreads The number of threads.
+     * @return A new ExecutorService.
+     */
     protected ExecutorService newFixedThreadPool(final int nThreads) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executor Thread Pool: {}", nThreads);
@@ -131,6 +185,18 @@ public class SalesforceDataStore extends AbstractDataStore {
                 new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
+    /**
+     * Stores standard objects.
+     *
+     * @param dataConfig The data config.
+     * @param callback The index update callback.
+     * @param configMap The config map.
+     * @param paramMap The data store parameters.
+     * @param scriptMap The script map.
+     * @param defaultDataMap The default data map.
+     * @param executorService The executor service.
+     * @param client The Salesforce client.
+     */
     protected void storeStandardObjects(final DataConfig dataConfig, final IndexUpdateCallback callback,
             final Map<String, Object> configMap, final DataStoreParams paramMap, final Map<String, String> scriptMap,
             final Map<String, Object> defaultDataMap, final ExecutorService executorService, final SalesforceClient client) {
@@ -141,6 +207,18 @@ public class SalesforceDataStore extends AbstractDataStore {
                 ignoreError);
     }
 
+    /**
+     * Stores custom objects.
+     *
+     * @param dataConfig The data config.
+     * @param callback The index update callback.
+     * @param configMap The config map.
+     * @param paramMap The data store parameters.
+     * @param scriptMap The script map.
+     * @param defaultDataMap The default data map.
+     * @param executorService The executor service.
+     * @param client The Salesforce client.
+     */
     protected void storeCustomObjects(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
             final DataStoreParams paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
             final ExecutorService executorService, final SalesforceClient client) {
@@ -151,6 +229,18 @@ public class SalesforceDataStore extends AbstractDataStore {
                 ignoreError);
     }
 
+    /**
+     * Processes the search data.
+     *
+     * @param dataConfig The data config.
+     * @param callback The index update callback.
+     * @param configMap The config map.
+     * @param paramMap The data store parameters.
+     * @param scriptMap The script map.
+     * @param defaultDataMap The default data map.
+     * @param data The search data.
+     * @param client The Salesforce client.
+     */
     protected void processSearchData(final DataConfig dataConfig, final IndexUpdateCallback callback, final Map<String, Object> configMap,
             final DataStoreParams paramMap, final Map<String, String> scriptMap, final Map<String, Object> defaultDataMap,
             final SearchData data, final SalesforceClient client) {

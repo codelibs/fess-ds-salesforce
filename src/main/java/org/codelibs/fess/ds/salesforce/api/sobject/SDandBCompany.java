@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** D&amp;B 企業 */
+/**
+ * Represents the D&amp;B Company (Dun &amp; Bradstreet) standard object in Salesforce.
+ * This object contains business information and credit ratings from D&amp;B's database
+ * for companies and organizations.
+ */
 public class SDandBCompany extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SDandBCompany() {
+    }
 
     /** D&amp;B 企業 ID */
     protected static final String ID = "Id";
@@ -230,6 +240,7 @@ public class SDandBCompany extends SearchLayout {
     /** 第 6 SIC8 の説明 */
     protected static final String SIXTH_SIC8_DESC = "SixthSic8Desc";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, DUNS_NUMBER, PHONE, FAX, URL, LOCATION_STATUS, DESCRIPTION);
 
     @Override

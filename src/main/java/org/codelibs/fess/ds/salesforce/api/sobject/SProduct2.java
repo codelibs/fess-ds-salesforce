@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 商品 */
+/**
+ * Represents a Salesforce Product object for items and services sold by the organization.
+ * This class extends SearchLayout to provide search functionality for products
+ * including their names, codes, descriptions, and product family information.
+ */
 public class SProduct2 extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SProduct2() {
+    }
 
     /** 商品 ID */
     protected static final String ID = "Id";
@@ -52,6 +62,7 @@ public class SProduct2 extends SearchLayout {
     /** 商品 SKU */
     protected static final String STOCK_KEEPING_UNIT = "StockKeepingUnit";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, PRODUCT_CODE, DESCRIPTION, FAMILY, EXTERNAL_ID, DISPLAY_URL);
 
     @Override

@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** リード */
+/**
+ * Represents the Lead standard object in Salesforce.
+ * Leads are prospects who have expressed interest in your product or service.
+ * They represent potential customers that have not yet been qualified as opportunities.
+ */
 public class SLead extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SLead() {
+    }
 
     /** リード ID */
     protected static final String ID = "Id";
@@ -98,6 +108,7 @@ public class SLead extends SearchLayout {
     /** メール不達発生日 */
     protected static final String EMAIL_BOUNCED_DATE = "EmailBouncedDate";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents =
             Arrays.asList(NAME, TITLE, COMPANY, PHONE, MOBILE_PHONE, FAX, EMAIL, WEBSITE, DESCRIPTION, STATUS, INDUSTRY);
 

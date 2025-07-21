@@ -19,36 +19,82 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+/**
+ * Represents the response from a Salesforce token request.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class TokenResponse {
+    /** The access token. */
     protected String accessToken;
+    /** The instance URL. */
     protected String instanceUrl;
+    /** The ID. */
     protected String id;
+    /** The token type. */
     protected String tokenType;
+    /** The error. */
     protected String error;
+    /** The error description. */
     protected String errorDescription;
 
+    /**
+     * Default constructor.
+     */
+    public TokenResponse() {
+        // Do nothing
+    }
+
+    /**
+     * Returns the access token.
+     *
+     * @return The access token.
+     */
     public String getAccessToken() {
         return accessToken;
     }
 
+    /**
+     * Returns the instance URL.
+     *
+     * @return The instance URL.
+     */
     public String getInstanceUrl() {
         return instanceUrl;
     }
 
+    /**
+     * Returns the ID.
+     *
+     * @return The ID.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the token type.
+     *
+     * @return The token type.
+     */
     public String getTokenType() {
         return tokenType;
     }
 
+    /**
+     * Returns the error.
+     *
+     * @return The error.
+     */
     public String getError() {
         return error;
     }
 
+    /**
+     * Returns the error description.
+     *
+     * @return The error description.
+     */
     public String getErrorDescription() {
         return errorDescription;
     }

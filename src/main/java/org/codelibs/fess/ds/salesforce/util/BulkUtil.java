@@ -42,6 +42,9 @@ import com.sforce.async.JobInfo;
 import com.sforce.async.OperationEnum;
 import com.sforce.async.QueryResultList;
 
+/**
+ * Utility class for Salesforce Bulk API operations.
+ */
 public class BulkUtil {
 
     private static final Logger logger = LogManager.getLogger(BulkUtil.class);
@@ -50,6 +53,13 @@ public class BulkUtil {
         throw new IllegalStateException("Utility class.");
     }
 
+    /**
+     * Creates a new Bulk API job.
+     *
+     * @param connection The BulkConnection to use.
+     * @param objectType The type of SObject for the job (e.g., "Account").
+     * @return The created {@link JobInfo}.
+     */
     public static JobInfo createJob(final BulkConnection connection, final String objectType) {
         try {
             final JobInfo job = new JobInfo();
@@ -67,6 +77,14 @@ public class BulkUtil {
         }
     }
 
+    /**
+     * Creates a new batch within a Bulk API job.
+     *
+     * @param connection The BulkConnection to use.
+     * @param job The parent {@link JobInfo}.
+     * @param query The SOQL query for the batch.
+     * @return The created {@link BatchInfo}.
+     */
     public static BatchInfo createBatch(final BulkConnection connection, final JobInfo job, final String query) {
         try {
             final BatchInfo batch = connection.createBatchFromStream(job, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
@@ -79,14 +97,30 @@ public class BulkUtil {
         }
     }
 
+    /**
+     * Constructs a SOQL query string.
+     *
+     * @param objectType The SObject type to query.
+     * @param fields The list of fields to retrieve.
+     * @return The SOQL query string.
+     */
     public static String createQuery(final String objectType, final List<String> fields) {
         return "SELECT " + String.join(",", fields) + " FROM " + objectType;
     }
 
+    /**
+     * Retrieves the query result streams for a completed batch.
+     *
+     * @param connection The BulkConnection to use.
+     * @param job The parent {@link JobInfo}.
+     * @param batch The {@link BatchInfo} to retrieve results from.
+     * @param ignoreError If true, ignores errors and returns an empty list.
+     * @return A list of {@link InputStream}s containing the query results.
+     */
     public static List<InputStream> getQueryResultStream(final BulkConnection connection, final JobInfo job, final BatchInfo batch,
             final boolean ignoreError) {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        final CompletableFuture future = new CompletableFuture<String[]>();
+        final CompletableFuture<String[]> future = new CompletableFuture<>();
         executor.scheduleAtFixedRate(() -> {
             try {
                 final BatchInfo info = connection.getBatchInfo(job.getId(), batch.getId(), ContentType.JSON);

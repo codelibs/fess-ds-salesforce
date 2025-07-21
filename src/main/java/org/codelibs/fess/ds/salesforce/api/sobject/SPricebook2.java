@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 価格表 */
+/**
+ * Represents a Salesforce Price Book object for managing product pricing and price lists.
+ * This class extends SearchLayout to provide search functionality for price books
+ * including their names and descriptions.
+ */
 public class SPricebook2 extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SPricebook2() {
+    }
 
     /** Price Book ID */
     protected static final String ID = "Id";
@@ -40,6 +50,7 @@ public class SPricebook2 extends SearchLayout {
     /** 説明 */
     protected static final String DESCRIPTION = "Description";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION);
 
     @Override

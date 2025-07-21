@@ -17,18 +17,37 @@ package org.codelibs.fess.ds.salesforce;
 
 import org.codelibs.fess.exception.DataStoreException;
 
+/**
+ * Exception thrown when an error occurs in the Salesforce DataStore.
+ */
 public class SalesforceDataStoreException extends DataStoreException {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructs a new SalesforceDataStoreException with the specified detail message and cause.
+     *
+     * @param message The detail message.
+     * @param cause The cause.
+     */
     public SalesforceDataStoreException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Constructs a new SalesforceDataStoreException with the specified detail message.
+     *
+     * @param message The detail message.
+     */
     public SalesforceDataStoreException(final String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new SalesforceDataStoreException with the specified cause.
+     *
+     * @param throwable The cause.
+     */
     public SalesforceDataStoreException(final Throwable throwable) {
         super(throwable);
     }

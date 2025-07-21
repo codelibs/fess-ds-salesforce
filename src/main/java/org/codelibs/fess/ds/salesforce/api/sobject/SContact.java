@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 取引先責任者 */
+/**
+ * Represents the layout for the Contact SObject in Salesforce.
+ */
 public class SContact extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SContact() {
+        // Do nothing
+    }
 
     /** 取引先責任者 ID */
     protected static final String ID = "Id";
@@ -112,6 +121,9 @@ public class SContact extends SearchLayout {
     /** 状況をクリーンアップ */
     protected static final String CLEAN_STATUS = "CleanStatus";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents =
             Arrays.asList(NAME, PHONE, FAX, MOBILE_PHONE, HOME_PHONE, OTHER_PHONE, EMAIL, TITLE, DEPARTMENT, DESCRIPTION);
 

@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** マクロ */
+/**
+ * Represents a Salesforce Macro object for automated actions and workflows.
+ * This class extends SearchLayout to provide search functionality for macros
+ * including their names, descriptions, and application contexts.
+ */
 public class SMacro extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SMacro() {
+    }
 
     /** マクロ ID */
     protected static final String ID = "Id";
@@ -42,6 +52,7 @@ public class SMacro extends SearchLayout {
     /** 適用先 */
     protected static final String STARTING_CONTEXT = "StartingContext";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, STARTING_CONTEXT);
 
     @Override

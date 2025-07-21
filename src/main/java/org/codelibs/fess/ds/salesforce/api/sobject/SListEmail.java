@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** リストメール */
+/**
+ * Represents a Salesforce List Email object for email campaign templates.
+ * This class extends SearchLayout to provide search functionality for list emails
+ * including their subjects, content, and delivery configuration.
+ */
 public class SListEmail extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SListEmail() {
+    }
 
     /** リストメール ID */
     protected static final String ID = "Id";
@@ -52,6 +62,7 @@ public class SListEmail extends SearchLayout {
     /** 予定日 */
     protected static final String SCHEDULED_DATE = "ScheduledDate";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, SUBJECT, TEXT_BODY, FROM_NAME, FROM_ADDRESS, STATUS);
 
     @Override

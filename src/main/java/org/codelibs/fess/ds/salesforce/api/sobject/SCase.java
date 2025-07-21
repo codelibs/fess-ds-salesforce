@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** ケース */
+/**
+ * Represents the layout for the Case SObject in Salesforce.
+ */
 public class SCase extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SCase() {
+        // Do nothing
+    }
 
     /** ケース ID */
     protected static final String ID = "Id";
@@ -72,6 +81,9 @@ public class SCase extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents =
             Arrays.asList(CASE_NUMBER, SUPPLIED_NAME, SUPPLIED_EMAIL, SUPPLIED_PHONE, SUPPLIED_COMPANY, TYPE, STATUS, REASON, ORIGIN,
                     SUBJECT, DESCRIPTION, CONTACT_PHONE, CONTACT_MOBILE, CONTACT_EMAIL, CONTACT_FAX, COMMENTS);

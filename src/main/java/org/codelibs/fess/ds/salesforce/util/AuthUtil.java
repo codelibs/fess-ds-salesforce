@@ -29,6 +29,9 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
+/**
+ * Utility class for Salesforce authentication.
+ */
 public class AuthUtil {
 
     private static final Logger logger = Logger.getLogger(AuthUtil.class);
@@ -37,12 +40,34 @@ public class AuthUtil {
         throw new IllegalStateException("Utility class.");
     }
 
+    /**
+     * Generates a {@link PrivateKey} object from a PEM format string.
+     *
+     * @param privateKeyPem The private key in PEM format.
+     * @return A {@link PrivateKey} object.
+     * @throws NoSuchAlgorithmException If the RSA algorithm is not available.
+     * @throws InvalidKeySpecException If the key specification is invalid.
+     */
     public static PrivateKey getPrivateKey(final String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         final String key = privateKeyPem.replaceAll("\\\\n|-----[A-Z ]+-----", "");
         final KeySpec keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(key));
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
+    /**
+     * Creates a JWT (JSON Web Token) for Salesforce authentication.
+     *
+     * @param username The Salesforce username.
+     * @param clientId The connected app's consumer key.
+     * @param privateKeyPem The private key in PEM format for signing.
+     * @param baseUrl The Salesforce instance URL (e.g., https://login.salesforce.com).
+     * @param refreshInterval The token expiration interval in seconds.
+     * @return The generated JWT as a String.
+     * @throws InvalidKeyException If the key is invalid.
+     * @throws InvalidKeySpecException If the key specification is invalid.
+     * @throws NoSuchAlgorithmException If the signing algorithm is not available.
+     * @throws SignatureException If an error occurs during the signing process.
+     */
     public static String createJWT(final String username, final String clientId, final String privateKeyPem, final String baseUrl,
             final long refreshInterval) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
         final StringBuilder token = new StringBuilder();
