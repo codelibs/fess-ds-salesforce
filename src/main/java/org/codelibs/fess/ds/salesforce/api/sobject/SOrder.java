@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 注文 */
+/**
+ * Represents a Salesforce Order object for tracking purchase orders and transactions.
+ * This class extends SearchLayout to provide search functionality for orders
+ * including their names, statuses, descriptions, and billing/shipping information.
+ */
 public class SOrder extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SOrder() {
+    }
 
     /** 注文 ID */
     protected static final String ID = "Id";
@@ -88,6 +98,7 @@ public class SOrder extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(STATUS, DESCRIPTION, TYPE, NAME, ORDER_NUMBER);
 
     @Override

@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** クイックテキスト */
+/**
+ * Represents a Salesforce Quick Text object for pre-written message templates.
+ * This class extends SearchLayout to provide search functionality for quick text messages
+ * including their names, message content, categories, and communication channels.
+ */
 public class SQuickText extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SQuickText() {
+    }
 
     /** クイックテキスト ID */
     protected static final String ID = "Id";
@@ -44,6 +54,7 @@ public class SQuickText extends SearchLayout {
     /** チャネル */
     protected static final String CHANNEL = "Channel";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, MESSAGE, CATEGORY, CHANNEL);
 
     @Override

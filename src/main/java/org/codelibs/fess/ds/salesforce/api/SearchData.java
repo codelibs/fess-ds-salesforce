@@ -22,16 +22,34 @@ import org.codelibs.core.lang.StringUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * Represents a search data object retrieved from Salesforce.
+ */
 public class SearchData {
+    /** The type of the SObject. */
     protected String type;
+    /** The ID of the SObject. */
     protected String id;
+    /** The title of the search data. */
     protected String title;
+    /** The content of the search data. */
     protected String content;
+    /** The description of the search data. */
     protected String description;
+    /** The creation date of the SObject. */
     protected Date created;
+    /** The last modified date of the SObject. */
     protected Date lastModified;
+    /** The thumbnail URL of the search data. */
     protected String thumbnail;
 
+    /**
+     * Constructs a new SearchData object.
+     *
+     * @param type The type of the SObject.
+     * @param node The JSON node representing the SObject.
+     * @param obj The search layout.
+     */
     public SearchData(final String type, final JsonNode node, final SearchLayout obj) {
         this.type = type;
         this.id = node.get(obj.getId()).asText();
@@ -61,34 +79,74 @@ public class SearchData {
         }
     }
 
+    /**
+     * Returns the type of the SObject.
+     *
+     * @return The type.
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Returns the ID of the SObject.
+     *
+     * @return The ID.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the title of the search data.
+     *
+     * @return The title.
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Returns the content of the search data.
+     *
+     * @return The content.
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * Returns the description of the search data.
+     *
+     * @return The description.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Returns the creation date of the SObject.
+     *
+     * @return The creation date.
+     */
     public Date getCreated() {
         return created;
     }
 
+    /**
+     * Returns the last modified date of the SObject.
+     *
+     * @return The last modified date.
+     */
     public Date getLastModified() {
         return lastModified;
     }
 
+    /**
+     * Returns the thumbnail URL of the search data.
+     *
+     * @return The thumbnail URL.
+     */
     public String getThumbnail() {
         return thumbnail;
     }

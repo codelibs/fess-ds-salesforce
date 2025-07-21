@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** キャンペーン */
+/**
+ * Represents the layout for the Campaign SObject in Salesforce.
+ */
 public class SCampaign extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SCampaign() {
+        // Do nothing
+    }
 
     /** キャンペーン ID */
     protected static final String ID = "Id";
@@ -50,6 +59,9 @@ public class SCampaign extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents = Arrays.asList(NAME, TYPE, STATUS, DESCRIPTION);
 
     @Override

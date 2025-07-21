@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 契約 */
+/**
+ * Represents the layout for the Contract SObject in Salesforce.
+ */
 public class SContract extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SContract() {
+        // Do nothing
+    }
 
     /** 契約 ID */
     protected static final String ID = "Id";
@@ -76,6 +85,9 @@ public class SContract extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents = Arrays.asList(STATUS, DESCRIPTION, CONTRACT_NUMBER);
 
     @Override

@@ -57,44 +57,80 @@ import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
+/**
+ * A client for accessing Salesforce data, supporting both standard and custom objects.
+ * It handles authentication, API communication, and data retrieval.
+ */
 public class SalesforceClient implements Closeable {
 
+    /** Logger instance. */
     protected static final Logger logger = LogManager.getLogger(SalesforceClient.class);
 
+    /** Jackson object mapper for JSON processing. */
     protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+    /** Default Salesforce login URL. */
     protected static final String BASE_URL = "https://login.salesforce.com";
+    /** Salesforce API version. */
     protected static final String API_VERSION = "46.0";
 
+    /** Default interval in seconds for refreshing the authentication token. */
     protected static String DEFAULT_REFRESH_TOKEN_INTERVAL = "3540";
 
     // parameters
+    /** Parameter key for the Salesforce base URL. */
     protected static final String BASE_URL_PARAM = "base_url";
+    /** Parameter key for the authentication type. */
     protected static final String AUTH_TYPE_PARAM = "auth_type";
+    /** Parameter key for the username. */
     protected static final String USERNAME_PARAM = "username";
+    /** Parameter key for the password. */
     protected static final String PASS_PARAM = "password";
+    /** Parameter key for the security token. */
     protected static final String SECURITY_TOKEN_PARAM = "security_token";
+    /** Parameter key for the client ID. */
     protected static final String CLIENT_ID_PARAM = "client_id";
+    /** Parameter key for the client secret. */
     protected static final String CLIENT_SECRET_PARAM = "client_secret";
+    /** Parameter key for the private key. */
     protected static final String PRIVATE_KEY_PARAM = "private_key";
+    /** Parameter key for the title field mapping. */
     protected static final String TITLE_PARAM = "title";
+    /** Parameter key for the contents field mapping. */
     protected static final String CONTENTS_PARAM = "contents";
+    /** Parameter key for the descriptions field mapping. */
     protected static final String DESCRIPTIONS_PARAM = "descriptions";
+    /** Parameter key for the thumbnail field mapping. */
     protected static final String THUMBNAIL_PARAM = "thumbnail";
+    /** Parameter key for the custom objects list. */
     protected static final String CUSTOM_PARAM = "custom";
+    /** Parameter key for the token refresh interval. */
     protected static final String REFRESH_TOKEN_INTERVAL_PARAM = "refresh_token_interval";
+    /** Parameter key for the proxy host. */
     protected static final String PROXY_HOST_PARAM = "proxy_host";
+    /** Parameter key for the proxy port. */
     protected static final String PROXY_PORT_PARAM = "proxy_port";
 
     // values for parameters
+    /** Value for OAuth token-based authentication. */
     protected static final String OAUTH_TOKEN = "oauth_token";
+    /** Value for OAuth password-based authentication. */
     protected static final String OAUTH_PASS = "oauth_password";
 
+    /** The data store parameters. */
     protected final DataStoreParams paramMap;
+    /** The scheduled task for refreshing the token. */
     protected TimeoutTask refreshTokenTask;
+    /** The provider for Salesforce connections. */
     protected final ConnectionProvider connectionProvider;
+    /** The Salesforce instance URL. */
     protected final String instanceUrl;
 
+    /**
+     * Constructs a new SalesforceClient with the given parameters.
+     *
+     * @param paramMap The data store parameters.
+     */
     public SalesforceClient(final DataStoreParams paramMap) {
         this.paramMap = paramMap;
         connectionProvider = new ConnectionProvider(paramMap);
@@ -110,10 +146,21 @@ public class SalesforceClient implements Closeable {
         }
     }
 
+    /**
+     * Returns the Salesforce instance URL.
+     *
+     * @return The instance URL.
+     */
     public String getInstanceUrl() {
         return instanceUrl;
     }
 
+    /**
+     * Retrieves standard Salesforce objects and processes them.
+     *
+     * @param consumer The consumer to accept the retrieved {@link SearchData}.
+     * @param ignoreError If true, errors during processing will be ignored.
+     */
     public void getStandardObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         for (final StandardObject so : StandardObject.values()) {
             final String soName = convertSnakeToCamel(so.name());
@@ -142,10 +189,22 @@ public class SalesforceClient implements Closeable {
         }
     }
 
+    /**
+     * Converts a string from snake_case to CamelCase.
+     *
+     * @param snakeString The string in snake_case.
+     * @return The converted string in CamelCase.
+     */
     protected static String convertSnakeToCamel(final String snakeString) {
         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, snakeString);
     }
 
+    /**
+     * Retrieves custom Salesforce objects and processes them.
+     *
+     * @param consumer The consumer to accept the retrieved {@link SearchData}.
+     * @param ignoreError If true, errors during processing will be ignored.
+     */
     public void getCustomObjects(final Consumer<SearchData> consumer, final boolean ignoreError) {
         if (paramMap.get(CUSTOM_PARAM) == null) {
             return;
@@ -179,6 +238,12 @@ public class SalesforceClient implements Closeable {
         }
     }
 
+    /**
+     * Gets the search layout for a standard object.
+     *
+     * @param obj The standard object.
+     * @return The search layout.
+     */
     protected SearchLayout getSearchLayout(final StandardObject obj) {
         final String name = obj.name();
         final String title = paramMap.getAsString(name + "." + TITLE_PARAM, obj.getLayout().getTitle());
@@ -192,6 +257,12 @@ public class SalesforceClient implements Closeable {
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
+    /**
+     * Gets the search layout for a custom object.
+     *
+     * @param type The custom object type.
+     * @return The search layout.
+     */
     protected SearchLayout getSearchLayout(final String type) {
         final String title = paramMap.getAsString(type + "." + TITLE_PARAM, type);
         final List<String> contents = paramMap.get(type + "." + CONTENTS_PARAM) instanceof final String s
@@ -204,23 +275,44 @@ public class SalesforceClient implements Closeable {
         return new SearchLayout(title, contents, descriptions, thumbnail);
     }
 
+    /**
+     * Provides and manages connections to Salesforce.
+     */
     protected static class ConnectionProvider implements TimeoutTarget {
 
+        /** Logger instance. */
         protected static final Logger logger = LogManager.getLogger(ConnectionProvider.class);
 
+        /** The authentication type. */
         protected final String authType;
+        /** The Salesforce username. */
         protected final String username;
+        /** The Salesforce password. */
         protected final String pass;
+        /** The private key for JWT authentication. */
         protected final String privateKey;
+        /** The security token for password authentication. */
         protected final String securityToken;
+        /** The connected app's client ID. */
         protected final String clientId;
+        /** The connected app's client secret. */
         protected final String clientSecret;
+        /** The Salesforce base URL. */
         protected final String baseUrl;
+        /** The token refresh interval. */
         protected final Long refreshInterval;
+        /** The proxy for the connection. */
         protected Proxy proxy;
+        /** The Partner API connection. */
         protected PartnerConnection partnerConnection;
+        /** The Bulk API connection. */
         protected BulkConnection bulkConnection;
 
+        /**
+         * Constructs a new ConnectionProvider.
+         *
+         * @param paramMap The data store parameters.
+         */
         protected ConnectionProvider(final DataStoreParams paramMap) {
             username = paramMap.getAsString(USERNAME_PARAM);
             pass = paramMap.getAsString(PASS_PARAM);
@@ -261,14 +353,29 @@ public class SalesforceClient implements Closeable {
             }
         }
 
+        /**
+         * Returns the Bulk API connection.
+         *
+         * @return The Bulk API connection.
+         */
         protected BulkConnection getBulkConnection() {
             return bulkConnection;
         }
 
+        /**
+         * Returns the Partner API connection.
+         *
+         * @return The Partner API connection.
+         */
         protected PartnerConnection getPartnerConnection() {
             return partnerConnection;
         }
 
+        /**
+         * Establishes a new Partner API connection based on the configured authentication type.
+         *
+         * @return The established PartnerConnection.
+         */
         protected PartnerConnection getConnection() {
             switch (authType) {
             case OAUTH_TOKEN: {
@@ -300,6 +407,9 @@ public class SalesforceClient implements Closeable {
             }
         }
 
+        /**
+         * Refreshes the Salesforce connections (Partner and Bulk).
+         */
         protected void refreshConnection() {
             if (logger.isDebugEnabled()) {
                 logger.debug("Refreshing access token and connection.");
@@ -315,6 +425,12 @@ public class SalesforceClient implements Closeable {
             }
         }
 
+        /**
+         * Establishes a Partner API connection using OAuth JWT Bearer Token Flow.
+         *
+         * @return The established PartnerConnection.
+         * @throws ConnectionException If a connection error occurs.
+         */
         protected PartnerConnection getConnectionByToken() throws ConnectionException {
             final TokenResponse response = getTokenResponseByToken();
             if (response.getAccessToken() == null) {
@@ -325,12 +441,25 @@ public class SalesforceClient implements Closeable {
             return Connector.newConnection(config);
         }
 
+        /**
+         * Establishes a Partner API connection using OAuth Username-Password Flow.
+         *
+         * @return The established PartnerConnection.
+         * @throws ConnectionException If a connection error occurs.
+         */
         protected PartnerConnection getConnectionByPass() throws ConnectionException {
             final TokenResponse response = getTokenResponseByPass();
             final ConnectorConfig config = createConnectorConfig(response);
             return Connector.newConnection(config);
         }
 
+        /**
+         * Creates a Bulk API connection from a Partner API connection.
+         *
+         * @param connection The Partner API connection.
+         * @return The created BulkConnection.
+         * @throws AsyncApiException If an API error occurs.
+         */
         protected BulkConnection getBulkConnection(final PartnerConnection connection) throws AsyncApiException {
             final ConnectorConfig config = new ConnectorConfig();
             config.setSessionId(connection.getConfig().getSessionId());
@@ -347,6 +476,12 @@ public class SalesforceClient implements Closeable {
             return new BulkConnection(config);
         }
 
+        /**
+         * Creates a ConnectorConfig from a token response.
+         *
+         * @param response The token response.
+         * @return The created ConnectorConfig.
+         */
         protected ConnectorConfig createConnectorConfig(final TokenResponse response) {
             final ConnectorConfig config = new ConnectorConfig();
             config.setSessionId(response.getAccessToken());
@@ -362,6 +497,11 @@ public class SalesforceClient implements Closeable {
             return config;
         }
 
+        /**
+         * Retrieves a token response using the OAuth JWT Bearer Token Flow.
+         *
+         * @return The token response.
+         */
         protected TokenResponse getTokenResponseByToken() {
             try {
                 final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
@@ -377,6 +517,11 @@ public class SalesforceClient implements Closeable {
             }
         }
 
+        /**
+         * Retrieves a token response using the OAuth Username-Password Flow.
+         *
+         * @return The token response.
+         */
         protected TokenResponse getTokenResponseByPass() {
             try {
                 final CurlRequest request =
@@ -394,6 +539,12 @@ public class SalesforceClient implements Closeable {
 
     } // class ConnectionProvider
 
+    /**
+     * Parses a token response from an input stream.
+     *
+     * @param content The input stream containing the JSON response.
+     * @return The parsed {@link TokenResponse}.
+     */
     protected static TokenResponse parseTokenResponse(final InputStream content) {
         try {
             return mapper.readValue(content, TokenResponse.class);

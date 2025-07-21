@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 取引先 */
+/**
+ * Represents the layout for the Account SObject in Salesforce.
+ * Defines the fields to be used for title and content in search results.
+ */
 public class SAccount extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SAccount() {
+        // Do nothing
+    }
 
     /** 取引先 ID */
     protected static final String ID = "Id";
@@ -110,6 +120,9 @@ public class SAccount extends SearchLayout {
     /** 産業区分の説明 */
     protected static final String SIC_DESC = "SicDesc";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents =
             Arrays.asList(NAME, TYPE, PHONE, FAX, WEBSITE, TICKER_SYMBOL, DESCRIPTION, SITE, DUNS_NUMBER);
 

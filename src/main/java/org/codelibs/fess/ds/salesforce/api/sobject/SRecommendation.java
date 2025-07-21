@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** おすすめ */
+/**
+ * Represents a Salesforce Recommendation object for AI-driven suggestions and guidance.
+ * This class extends SearchLayout to provide search functionality for recommendations
+ * including their names, descriptions, and action references.
+ */
 public class SRecommendation extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SRecommendation() {
+    }
 
     /** おすすめ ID */
     protected static final String ID = "Id";
@@ -46,6 +56,7 @@ public class SRecommendation extends SearchLayout {
     /** 却下の表示ラベル */
     protected static final String REJECTION_LABEL = "RejectionLabel";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION);
 
     @Override

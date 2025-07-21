@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** アイデア */
+/**
+ * Represents the Idea standard object in Salesforce.
+ * Ideas are suggestions for enhancements or new features that can be submitted
+ * by users and voted on by the community.
+ */
 public class SIdea extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SIdea() {
+    }
 
     /** アイデア ID */
     protected static final String ID = "Id";
@@ -52,6 +62,7 @@ public class SIdea extends SearchLayout {
     /** 作成者の名前 */
     protected static final String CREATOR_NAME = "CreatorName";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(TITLE, BODY, CATEGORIES, STATUS, CREATOR_NAME);
 
     @Override

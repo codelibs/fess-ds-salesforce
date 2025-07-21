@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** ユーザ */
+/**
+ * Represents a Salesforce User object for system users and their profile information.
+ * This class extends SearchLayout to provide search functionality for users
+ * including their names, contact information, roles, and organizational details.
+ */
 public class SUser extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SUser() {
+    }
 
     /** ユーザ ID */
     protected static final String ID = "Id";
@@ -134,6 +144,7 @@ public class SUser extends SearchLayout {
     /** Android バナー写真の URL */
     protected static final String MEDIUM_BANNER_PHOTO_URL = "MediumBannerPhotoUrl";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(USERNAME, NAME, COMPANY_NAME, DIVISION, DEPARTMENT, TITLE, EMAIL, PHONE,
             FAX, MOBILE_PHONE, ALIAS, COMMUNITY_NICKNAME, ABOUT_ME);
 

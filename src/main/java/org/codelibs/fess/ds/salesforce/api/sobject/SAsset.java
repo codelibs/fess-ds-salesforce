@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 納入商品 */
+/**
+ * Represents the layout for the Asset SObject in Salesforce.
+ */
 public class SAsset extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SAsset() {
+        // Do nothing
+    }
 
     /** 納入商品 ID */
     protected static final String ID = "Id";
@@ -54,6 +63,9 @@ public class SAsset extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents = Arrays.asList(NAME, SERIAL_NUMBER, STATUS, DESCRIPTION);
 
     @Override

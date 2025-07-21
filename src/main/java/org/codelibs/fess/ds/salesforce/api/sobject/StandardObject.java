@@ -17,6 +17,9 @@ package org.codelibs.fess.ds.salesforce.api.sobject;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
+/**
+ * Enum representing standard Salesforce objects.
+ */
 public enum StandardObject {
 
     /** D&amp;B 企業 */
@@ -68,6 +71,11 @@ public enum StandardObject {
 
     private final SearchLayout layout;
 
+    /**
+     * Returns the search layout for the standard object.
+     *
+     * @return The search layout.
+     */
     public final SearchLayout getLayout() {
         return this.layout;
     }

@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** ToDo */
+/**
+ * Represents a Salesforce Task object for activities, to-dos, and follow-up items.
+ * This class extends SearchLayout to provide search functionality for tasks
+ * including their subjects, status, priority, and descriptions.
+ */
 public class STask extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public STask() {
+    }
 
     /** 活動 ID */
     protected static final String ID = "Id";
@@ -68,6 +78,7 @@ public class STask extends SearchLayout {
     /** 完了日 */
     protected static final String COMPLETED_DATE_TIME = "CompletedDateTime";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(SUBJECT, STATUS, PRIORITY, DESCRIPTION);
 
     @Override

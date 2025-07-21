@@ -20,8 +20,17 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** グループ */
+/**
+ * Represents the layout for the CollaborationGroup SObject in Salesforce.
+ */
 public class SCollaborationGroup extends SearchLayout {
+
+    /**
+     * Default constructor.
+     */
+    public SCollaborationGroup() {
+        // Do nothing
+    }
 
     /** グループ ID */
     protected static final String ID = "Id";
@@ -58,6 +67,9 @@ public class SCollaborationGroup extends SearchLayout {
     /** バナー写真の URL */
     protected static final String BANNER_PHOTO_URL = "BannerPhotoUrl";
 
+    /**
+     * List of fields to be used for the main content of the search document.
+     */
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, INFORMATION_TITLE, INFORMATION_BODY, GROUP_EMAIL);
 
     @Override

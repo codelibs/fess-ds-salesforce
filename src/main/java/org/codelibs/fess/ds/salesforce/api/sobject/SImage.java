@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 画像 */
+/**
+ * Represents the Image standard object in Salesforce.
+ * This object stores image files and metadata that can be attached to other objects
+ * such as Products, Knowledge Articles, or other records.
+ */
 public class SImage extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SImage() {
+    }
 
     /** 画像 ID */
     protected static final String ID = "Id";
@@ -52,6 +62,7 @@ public class SImage extends SearchLayout {
     /** キャプチャ角度 */
     protected static final String CAPTURED_ANGLE = "CapturedAngle";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, IMAGE_TITLE, IMAGE_ALTERNATE_TEXT, IMAGE_URL);
 
     @Override

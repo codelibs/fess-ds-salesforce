@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** ソリューション */
+/**
+ * Represents a Salesforce Solution object for knowledge base articles and solutions.
+ * This class extends SearchLayout to provide search functionality for solutions
+ * including their names, status, and solution notes.
+ */
 public class SSolution extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SSolution() {
+    }
 
     /** ソリューション ID */
     protected static final String ID = "Id";
@@ -44,6 +54,7 @@ public class SSolution extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(SOLUTION_NAME, STATUS, SOLUTION_NOTE);
 
     @Override

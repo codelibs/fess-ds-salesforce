@@ -20,8 +20,18 @@ import java.util.List;
 
 import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 
-/** 商談 */
+/**
+ * Represents a Salesforce Opportunity object for tracking sales deals and prospects.
+ * This class extends SearchLayout to provide search functionality for opportunities
+ * including their names, stages, descriptions, and sales forecasting information.
+ */
 public class SOpportunity extends SearchLayout {
+
+    /**
+     * Creates a new instance.
+     */
+    public SOpportunity() {
+    }
 
     /** 商談 ID */
     protected static final String ID = "Id";
@@ -58,6 +68,7 @@ public class SOpportunity extends SearchLayout {
     /** 最終参照日 */
     protected static final String LAST_REFERENCED_DATE = "LastReferencedDate";
 
+    /** List of default fields used for content indexing in search results. */
     protected static final List<String> contents = Arrays.asList(NAME, DESCRIPTION, STAGE_NAME, TYPE, NEXT_STEP);
 
     @Override
