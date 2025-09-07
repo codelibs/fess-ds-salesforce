@@ -135,8 +135,9 @@ public class SalesforceClient implements Closeable {
         this.paramMap = paramMap;
         connectionProvider = new ConnectionProvider(paramMap);
         instanceUrl = connectionProvider.getPartnerConnection().getConfig().getServiceEndpoint().replaceFirst("/services/.*", "");
-        refreshTokenTask = TimeoutManager.getInstance().addTimeoutTarget(connectionProvider,
-                Integer.parseInt(paramMap.getAsString(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
+        refreshTokenTask = TimeoutManager.getInstance()
+                .addTimeoutTarget(connectionProvider,
+                        Integer.parseInt(paramMap.getAsString(REFRESH_TOKEN_INTERVAL_PARAM, DEFAULT_REFRESH_TOKEN_INTERVAL)), true);
     }
 
     @Override
@@ -506,7 +507,8 @@ public class SalesforceClient implements Closeable {
             try {
                 final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
                 final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer").param("assertion", jwt);
+                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                        .param("assertion", jwt);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
@@ -524,9 +526,12 @@ public class SalesforceClient implements Closeable {
          */
         protected TokenResponse getTokenResponseByPass() {
             try {
-                final CurlRequest request =
-                        Curl.post(baseUrl + "/services/oauth2/token").param("grant_type", "password").param("username", username)
-                                .param("password", pass + securityToken).param("client_id", clientId).param("client_secret", clientSecret);
+                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
+                        .param("grant_type", "password")
+                        .param("username", username)
+                        .param("password", pass + securityToken)
+                        .param("client_id", clientId)
+                        .param("client_secret", clientSecret);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }

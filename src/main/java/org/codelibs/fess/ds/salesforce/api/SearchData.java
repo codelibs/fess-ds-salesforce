@@ -59,13 +59,19 @@ public class SearchData {
             title = StringUtil.EMPTY;
         }
         if (obj.getContents() != null) {
-            this.content = obj.getContents().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText())
+            this.content = obj.getContents()
+                    .stream()
+                    .filter(o -> !node.get(o).isNull())
+                    .map(o -> node.get(o).asText())
                     .collect(Collectors.joining("\n"));
         } else {
             this.content = StringUtil.EMPTY;
         }
         if (obj.getDescriptions() != null) {
-            this.description = obj.getDescriptions().stream().filter(o -> !node.get(o).isNull()).map(o -> node.get(o).asText())
+            this.description = obj.getDescriptions()
+                    .stream()
+                    .filter(o -> !node.get(o).isNull())
+                    .map(o -> node.get(o).asText())
                     .collect(Collectors.joining("\n"));
         } else {
             this.description = StringUtil.EMPTY;
