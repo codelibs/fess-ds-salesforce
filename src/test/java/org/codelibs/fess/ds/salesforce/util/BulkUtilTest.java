@@ -35,8 +35,86 @@ public class BulkUtilTest extends LastaFluteTestCase {
         return true;
     }
 
-    public void test_createQuery() {
-        String query = BulkUtil.createQuery("TEST", Arrays.asList("a", "b", "c"));
-        assertEquals("SELECT a,b,c FROM TEST", query);
+    public void test_createQuery_withMultipleFields() {
+        // Arrange
+        String objectType = "Account";
+        List<String> fields = Arrays.asList("Id", "Name", "Description");
+
+        // Act
+        String query = BulkUtil.createQuery(objectType, fields);
+
+        // Assert
+        assertEquals("SELECT Id,Name,Description FROM Account", query);
+    }
+
+    public void test_createQuery_withSingleField() {
+        // Arrange
+        String objectType = "Contact";
+        List<String> fields = Arrays.asList("Email");
+
+        // Act
+        String query = BulkUtil.createQuery(objectType, fields);
+
+        // Assert
+        assertEquals("SELECT Email FROM Contact", query);
+    }
+
+    public void test_createQuery_withManyFields() {
+        // Arrange
+        String objectType = "Opportunity";
+        List<String> fields = Arrays.asList("Id", "Name", "Amount", "CloseDate", "StageName", "AccountId");
+
+        // Act
+        String query = BulkUtil.createQuery(objectType, fields);
+
+        // Assert
+        assertEquals("SELECT Id,Name,Amount,CloseDate,StageName,AccountId FROM Opportunity", query);
+    }
+
+    public void test_createQuery_withEmptyFields() {
+        // Arrange
+        String objectType = "Lead";
+        List<String> fields = Arrays.asList();
+
+        // Act
+        String query = BulkUtil.createQuery(objectType, fields);
+
+        // Assert
+        assertEquals("SELECT  FROM Lead", query);
+    }
+
+    public void test_createQuery_verifyFormat() {
+        // Arrange
+        String objectType = "Case";
+        List<String> fields = Arrays.asList("CaseNumber", "Subject", "Status");
+
+        // Act
+        String query = BulkUtil.createQuery(objectType, fields);
+
+        // Assert
+        assertTrue(query.startsWith("SELECT "));
+        assertTrue(query.contains(" FROM "));
+        assertTrue(query.endsWith("Case"));
+        assertTrue(query.contains("CaseNumber"));
+        assertTrue(query.contains("Subject"));
+        assertTrue(query.contains("Status"));
+    }
+
+    public void test_utilityClass_constructor() {
+        // Verify that the utility class constructor throws IllegalStateException
+        try {
+            // Use reflection to test private constructor
+            java.lang.reflect.Constructor<BulkUtil> constructor = BulkUtil.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            constructor.newInstance();
+            fail("Should throw IllegalStateException");
+        } catch (Exception e) {
+            // Expected - the cause should be IllegalStateException
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                assertTrue(cause instanceof IllegalStateException);
+                assertEquals("Utility class.", cause.getMessage());
+            }
+        }
     }
 }
