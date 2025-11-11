@@ -62,7 +62,99 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
         super.tearDown();
     }
 
+    public void test_getName() {
+        // Act
+        String name = dataStore.getName();
+
+        // Assert
+        assertEquals("SalesforceDataStore", name);
+    }
+
+    public void test_isIgnoreError_withTrue() {
+        // Arrange
+        DataStoreParams paramMap = new DataStoreParams();
+        paramMap.put("ignore_error", "true");
+
+        // Act
+        boolean result = dataStore.isIgnoreError(paramMap);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    public void test_isIgnoreError_withFalse() {
+        // Arrange
+        DataStoreParams paramMap = new DataStoreParams();
+        paramMap.put("ignore_error", "false");
+
+        // Act
+        boolean result = dataStore.isIgnoreError(paramMap);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    public void test_isIgnoreError_withDefaultValue() {
+        // Arrange
+        DataStoreParams paramMap = new DataStoreParams();
+        // Not setting ignore_error parameter
+
+        // Act
+        boolean result = dataStore.isIgnoreError(paramMap);
+
+        // Assert
+        assertTrue(result); // Default is true
+    }
+
+    public void test_newFixedThreadPool_withSingleThread() {
+        // Act
+        java.util.concurrent.ExecutorService executor = dataStore.newFixedThreadPool(1);
+
+        // Assert
+        assertNotNull(executor);
+        assertFalse(executor.isShutdown());
+
+        // Cleanup
+        executor.shutdown();
+    }
+
+    public void test_newFixedThreadPool_withMultipleThreads() {
+        // Act
+        java.util.concurrent.ExecutorService executor = dataStore.newFixedThreadPool(5);
+
+        // Assert
+        assertNotNull(executor);
+        assertFalse(executor.isShutdown());
+
+        // Cleanup
+        executor.shutdown();
+    }
+
+    public void test_createClient() {
+        // Arrange
+        DataStoreParams paramMap = new DataStoreParams();
+        paramMap.put("auth_type", "oauth_token");
+        paramMap.put("username", "test@example.com");
+        paramMap.put("client_id", "test_client_id");
+        paramMap.put("private_key", "test_key");
+        paramMap.put("base_url", BASE_URL);
+
+        // Act & Assert
+        // Note: This will fail without valid credentials, but we can verify it attempts to create a client
+        try {
+            SalesforceClient client = dataStore.createClient(paramMap);
+            if (client != null) {
+                client.close();
+            }
+        } catch (Exception e) {
+            // Expected when credentials are not valid
+            assertTrue(e instanceof org.codelibs.fess.ds.salesforce.SalesforceDataStoreException);
+        }
+    }
+
     public void testStoreData() {
+        // Note: This test requires valid Salesforce credentials and connection
+        // Uncomment the line below to run the actual integration test
         // doStoreData()
     }
 

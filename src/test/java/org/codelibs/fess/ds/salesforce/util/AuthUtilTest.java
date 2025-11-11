@@ -15,14 +15,6 @@
  */
 package org.codelibs.fess.ds.salesforce.util;
 
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.BASE_URL;
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.CLIENT_ID;
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.PRIVATE_KEY;
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.REFRESH_INTERVAL;
-import static org.codelibs.fess.ds.salesforce.SalesforceClientTest.USERNAME;
-
-import java.security.PrivateKey;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
@@ -41,26 +33,58 @@ public class AuthUtilTest extends LastaFluteTestCase {
         return true;
     }
 
-    public void test() {
-        // doGetPrivateKey();
-        // doCreateJWT();
-    }
+    // Note: Tests requiring valid cryptographic keys are integration tests
+    // and should be run with actual credentials in an integration test environment
 
-    protected void doGetPrivateKey() {
+    public void test_getPrivateKey_withInvalidPem() {
+        // Arrange
+        String invalidPem = "invalid_key_format";
+
+        // Act & Assert
         try {
-            PrivateKey privateKey = AuthUtil.getPrivateKey(PRIVATE_KEY);
-            assertNotNull(privateKey);
+            AuthUtil.getPrivateKey(invalidPem);
+            fail("Should throw exception for invalid PEM");
         } catch (final Exception e) {
-            fail(e.getMessage());
+            // Expected
+            assertNotNull(e);
         }
     }
 
-    protected void doCreateJWT() {
+
+    public void test_createJWT_withInvalidPrivateKey() {
+        // Arrange
+        String username = "test@example.com";
+        String clientId = "test_client_id";
+        String invalidPrivateKey = "invalid_key";
+        String baseUrl = "https://login.salesforce.com";
+        long refreshInterval = 3600;
+
+        // Act & Assert
         try {
-            String jwt = AuthUtil.createJWT(USERNAME, CLIENT_ID, PRIVATE_KEY, BASE_URL, REFRESH_INTERVAL);
-            assertNotNull(jwt);
+            AuthUtil.createJWT(username, clientId, invalidPrivateKey, baseUrl, refreshInterval);
+            fail("Should throw exception for invalid private key");
         } catch (final Exception e) {
-            fail(e.getMessage());
+            // Expected
+            assertNotNull(e);
+        }
+    }
+
+
+    public void test_utilityClass_constructor() {
+        // Verify that the utility class constructor throws IllegalStateException
+        try {
+            // Use reflection to test private constructor
+            java.lang.reflect.Constructor<AuthUtil> constructor = AuthUtil.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            constructor.newInstance();
+            fail("Should throw IllegalStateException");
+        } catch (Exception e) {
+            // Expected - the cause should be IllegalStateException
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                assertTrue(cause instanceof IllegalStateException);
+                assertEquals("Utility class.", cause.getMessage());
+            }
         }
     }
 
