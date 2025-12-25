@@ -50,7 +50,6 @@ public class AuthUtilTest extends LastaFluteTestCase {
         }
     }
 
-
     public void test_createJWT_withInvalidPrivateKey() {
         // Arrange
         String username = "test@example.com";
@@ -68,7 +67,6 @@ public class AuthUtilTest extends LastaFluteTestCase {
             assertNotNull(e);
         }
     }
-
 
     public void test_utilityClass_constructor() {
         // Verify that the utility class constructor throws IllegalStateException

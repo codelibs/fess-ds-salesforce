@@ -46,17 +46,11 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_deserialize_successResponse() throws IOException {
         // Arrange
-        String json = "{"
-                + "\"access_token\":\"test_access_token\","
-                + "\"instance_url\":\"https://test.salesforce.com\","
-                + "\"id\":\"https://login.salesforce.com/id/00D/005\","
-                + "\"token_type\":\"Bearer\""
-                + "}";
+        String json = "{" + "\"access_token\":\"test_access_token\"," + "\"instance_url\":\"https://test.salesforce.com\","
+                + "\"id\":\"https://login.salesforce.com/id/00D/005\"," + "\"token_type\":\"Bearer\"" + "}";
 
         // Act
-        TokenResponse response = mapper.readValue(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                TokenResponse.class);
+        TokenResponse response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
 
         // Assert
         assertEquals("test_access_token", response.getAccessToken());
@@ -69,15 +63,10 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_deserialize_errorResponse() throws IOException {
         // Arrange
-        String json = "{"
-                + "\"error\":\"invalid_grant\","
-                + "\"error_description\":\"authentication failure\""
-                + "}";
+        String json = "{" + "\"error\":\"invalid_grant\"," + "\"error_description\":\"authentication failure\"" + "}";
 
         // Act
-        TokenResponse response = mapper.readValue(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                TokenResponse.class);
+        TokenResponse response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
 
         // Assert
         assertNull(response.getAccessToken());
@@ -90,19 +79,11 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_deserialize_withUnknownProperties() throws IOException {
         // Arrange
-        String json = "{"
-                + "\"access_token\":\"test_token\","
-                + "\"instance_url\":\"https://test.salesforce.com\","
-                + "\"id\":\"test_id\","
-                + "\"token_type\":\"Bearer\","
-                + "\"unknown_field\":\"should_be_ignored\","
-                + "\"another_unknown\":123"
-                + "}";
+        String json = "{" + "\"access_token\":\"test_token\"," + "\"instance_url\":\"https://test.salesforce.com\"," + "\"id\":\"test_id\","
+                + "\"token_type\":\"Bearer\"," + "\"unknown_field\":\"should_be_ignored\"," + "\"another_unknown\":123" + "}";
 
         // Act
-        TokenResponse response = mapper.readValue(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                TokenResponse.class);
+        TokenResponse response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
 
         // Assert
         assertEquals("test_token", response.getAccessToken());
@@ -113,19 +94,13 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_toString_successResponse() {
         // Arrange
-        String json = "{"
-                + "\"access_token\":\"test_token\","
-                + "\"instance_url\":\"https://test.salesforce.com\","
-                + "\"id\":\"test_id\","
-                + "\"token_type\":\"Bearer\""
-                + "}";
+        String json = "{" + "\"access_token\":\"test_token\"," + "\"instance_url\":\"https://test.salesforce.com\"," + "\"id\":\"test_id\","
+                + "\"token_type\":\"Bearer\"" + "}";
 
         // Act
         TokenResponse response;
         try {
-            response = mapper.readValue(
-                    new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                    TokenResponse.class);
+            response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
         } catch (IOException e) {
             fail("Failed to parse JSON: " + e.getMessage());
             return;
@@ -141,17 +116,12 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_toString_errorResponse() {
         // Arrange
-        String json = "{"
-                + "\"error\":\"invalid_grant\","
-                + "\"error_description\":\"authentication failure\""
-                + "}";
+        String json = "{" + "\"error\":\"invalid_grant\"," + "\"error_description\":\"authentication failure\"" + "}";
 
         // Act
         TokenResponse response;
         try {
-            response = mapper.readValue(
-                    new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                    TokenResponse.class);
+            response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
         } catch (IOException e) {
             fail("Failed to parse JSON: " + e.getMessage());
             return;
@@ -165,17 +135,11 @@ public class TokenResponseTest extends LastaFluteTestCase {
 
     public void test_deserialize_snakeCaseConversion() throws IOException {
         // Arrange - testing snake_case to camelCase conversion
-        String json = "{"
-                + "\"access_token\":\"token_value\","
-                + "\"instance_url\":\"url_value\","
-                + "\"token_type\":\"type_value\","
-                + "\"error_description\":\"desc_value\""
-                + "}";
+        String json = "{" + "\"access_token\":\"token_value\"," + "\"instance_url\":\"url_value\"," + "\"token_type\":\"type_value\","
+                + "\"error_description\":\"desc_value\"" + "}";
 
         // Act
-        TokenResponse response = mapper.readValue(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                TokenResponse.class);
+        TokenResponse response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
 
         // Assert - verify snake_case properties are properly mapped to camelCase
         assertEquals("token_value", response.getAccessToken());
@@ -189,9 +153,7 @@ public class TokenResponseTest extends LastaFluteTestCase {
         String json = "{}";
 
         // Act
-        TokenResponse response = mapper.readValue(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-                TokenResponse.class);
+        TokenResponse response = mapper.readValue(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), TokenResponse.class);
 
         // Assert
         assertNull(response.getAccessToken());
