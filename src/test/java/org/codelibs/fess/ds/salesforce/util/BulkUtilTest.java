@@ -15,14 +15,16 @@
  */
 package org.codelibs.fess.ds.salesforce.util;
 
+import org.junit.jupiter.api.TestInfo;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
 
-public class BulkUtilTest extends LastaFluteTestCase {
+public class BulkUtilTest extends UnitDsTestCase {
 
     private static final Logger logger = LogManager.getLogger(BulkUtil.class);
 

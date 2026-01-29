@@ -15,6 +15,8 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
+import org.junit.jupiter.api.TestInfo;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +26,9 @@ import org.codelibs.fess.entity.DataStoreParams;
 import org.codelibs.fess.mylasta.direction.FessConfig;
 import org.codelibs.fess.opensearch.config.exentity.DataConfig;
 import org.codelibs.fess.util.ComponentUtil;
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
 
-public class SalesforceDataStoreTest extends LastaFluteTestCase {
+public class SalesforceDataStoreTest extends UnitDsTestCase {
 
     private Logger logger = LogManager.getLogger(SalesforceDataStoreTest.class);
 
@@ -51,15 +53,15 @@ public class SalesforceDataStoreTest extends LastaFluteTestCase {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
         dataStore = new SalesforceDataStore();
     }
 
     @Override
-    public void tearDown() throws Exception {
+    public void tearDown(TestInfo testInfo) throws Exception {
         ComponentUtil.setFessConfig(null);
-        super.tearDown();
+        super.tearDown(testInfo);
     }
 
     public void test_getName() {

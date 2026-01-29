@@ -15,6 +15,8 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
+import org.junit.jupiter.api.TestInfo;
+
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.API_VERSION;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.AUTH_TYPE_PARAM;
 import static org.codelibs.fess.ds.salesforce.SalesforceClient.BASE_URL_PARAM;
@@ -34,12 +36,12 @@ import org.codelibs.fess.ds.salesforce.api.SearchLayout;
 import org.codelibs.fess.ds.salesforce.api.TokenResponse;
 import org.codelibs.fess.ds.salesforce.api.sobject.StandardObject;
 import org.codelibs.fess.entity.DataStoreParams;
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
 
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
-public class SalesforceClientTest extends LastaFluteTestCase {
+public class SalesforceClientTest extends UnitDsTestCase {
 
     private static final Logger logger = LogManager.getLogger(SalesforceClientTest.class);
 
@@ -65,8 +67,8 @@ public class SalesforceClientTest extends LastaFluteTestCase {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
         paramMap = new DataStoreParams();
         paramMap.put(BASE_URL_PARAM, BASE_URL);
         paramMap.put(AUTH_TYPE_PARAM, AUTH_TYPE);

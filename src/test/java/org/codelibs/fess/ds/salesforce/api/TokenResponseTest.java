@@ -15,16 +15,18 @@
  */
 package org.codelibs.fess.ds.salesforce.api;
 
+import org.junit.jupiter.api.TestInfo;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TokenResponseTest extends LastaFluteTestCase {
+public class TokenResponseTest extends UnitDsTestCase {
 
     private ObjectMapper mapper;
 
@@ -39,8 +41,8 @@ public class TokenResponseTest extends LastaFluteTestCase {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
         mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
