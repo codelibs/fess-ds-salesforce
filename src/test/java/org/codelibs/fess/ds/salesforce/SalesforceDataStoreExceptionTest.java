@@ -15,9 +15,11 @@
  */
 package org.codelibs.fess.ds.salesforce;
 
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.junit.jupiter.api.TestInfo;
 
-public class SalesforceDataStoreExceptionTest extends LastaFluteTestCase {
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
+
+public class SalesforceDataStoreExceptionTest extends UnitDsTestCase {
 
     @Override
     protected String prepareConfigFile() {

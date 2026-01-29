@@ -15,12 +15,14 @@
  */
 package org.codelibs.fess.ds.salesforce.api;
 
+import org.junit.jupiter.api.TestInfo;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.dbflute.utflute.lastaflute.LastaFluteTestCase;
+import org.codelibs.fess.ds.salesforce.UnitDsTestCase;
 
-public class SearchLayoutTest extends LastaFluteTestCase {
+public class SearchLayoutTest extends UnitDsTestCase {
 
     @Override
     protected String prepareConfigFile() {
