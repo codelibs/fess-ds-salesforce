@@ -18,13 +18,17 @@ package org.codelibs.fess.ds.salesforce;
 import static java.util.Collections.emptyList;
 import static org.codelibs.core.stream.StreamUtil.split;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -68,6 +72,11 @@ public class SalesforceClient implements Closeable {
 
     /** Jackson object mapper for JSON processing. */
     protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    /** HTTP status code of a successful response. */
+    protected static final int HTTP_OK = 200;
+    /** The form of an OAuth error code such as invalid_grant. */
+    protected static final Pattern ERROR_CODE_PATTERN = Pattern.compile("[A-Za-z0-9_.-]{1,64}");
 
     /** Default Salesforce login URL. */
     protected static final String BASE_URL = "https://login.salesforce.com";
@@ -378,6 +387,9 @@ public class SalesforceClient implements Closeable {
          * @return The established PartnerConnection.
          */
         protected PartnerConnection getConnection() {
+            if (authType == null) {
+                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' required.");
+            }
             switch (authType) {
             case OAUTH_TOKEN: {
                 if (username == null || clientId == null || privateKey == null) {
@@ -499,6 +511,29 @@ public class SalesforceClient implements Closeable {
         }
 
         /**
+         * Creates a request to the OAuth token endpoint that carries the given parameters in a form-encoded body.
+         * Credentials must not go into the URL: a failed request reports its URL in the exception message,
+         * which ends up in the log. The body is passed as a stream so that curl4j does not log it either.
+         *
+         * @param keyValues The parameter names and values, alternating.
+         * @return The request.
+         */
+        protected CurlRequest createTokenRequest(final String... keyValues) {
+            final StringBuilder form = new StringBuilder();
+            for (int i = 0; i < keyValues.length; i += 2) {
+                if (form.length() > 0) {
+                    form.append('&');
+                }
+                form.append(URLEncoder.encode(keyValues[i], StandardCharsets.UTF_8))
+                        .append('=')
+                        .append(URLEncoder.encode(keyValues[i + 1], StandardCharsets.UTF_8));
+            }
+            return Curl.post(baseUrl + "/services/oauth2/token")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .body(new ByteArrayInputStream(form.toString().getBytes(StandardCharsets.UTF_8)));
+        }
+
+        /**
          * Retrieves a token response using the OAuth JWT Bearer Token Flow.
          *
          * @return The token response.
@@ -506,9 +541,8 @@ public class SalesforceClient implements Closeable {
         protected TokenResponse getTokenResponseByToken() {
             try {
                 final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
-                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        .param("assertion", jwt);
+                final CurlRequest request =
+                        createTokenRequest("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion", jwt);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
@@ -526,20 +560,42 @@ public class SalesforceClient implements Closeable {
          */
         protected TokenResponse getTokenResponseByPass() {
             try {
-                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "password")
-                        .param("username", username)
-                        .param("password", pass + securityToken)
-                        .param("client_id", clientId)
-                        .param("client_secret", clientSecret);
+                final CurlRequest request = createTokenRequest("grant_type", "password", "username", username, "password",
+                        pass + securityToken, "client_id", clientId, "client_secret", clientSecret);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
                 final CurlResponse response = request.execute();
+                if (response.getHttpStatusCode() != HTTP_OK) {
+                    throw new SalesforceDataStoreException("Failed to get token response by password authentication. HTTP status: "
+                            + response.getHttpStatusCode() + getErrorCode(response));
+                }
                 return parseTokenResponse(response.getContentAsStream());
             } catch (final CurlException | IOException e) {
                 throw new SalesforceDataStoreException("Failed to get token response.", e);
             }
+        }
+
+        /**
+         * Returns the error code of a failed token response as a message suffix.
+         * Only a short identifier such as invalid_grant is returned; the rest of the response is never included.
+         *
+         * @param response The token response.
+         * @return The suffix like ", error: invalid_grant", or an empty string if the response has no usable error code.
+         */
+        protected String getErrorCode(final CurlResponse response) {
+            try {
+                final String error = mapper.readTree(response.getContentAsStream()).path("error").asText("");
+                if (ERROR_CODE_PATTERN.matcher(error).matches()) {
+                    return ", error: " + error;
+                }
+            } catch (final Exception e) {
+                // the body is not JSON
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The token response has no error code.", e);
+                }
+            }
+            return "";
         }
 
     } // class ConnectionProvider
