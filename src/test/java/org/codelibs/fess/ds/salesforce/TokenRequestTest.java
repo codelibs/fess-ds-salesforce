@@ -252,4 +252,75 @@ public class TokenRequestTest {
 
         assertNoSecrets(everythingLogged(e));
     }
+
+    // ---- the cause of a failed token request is in the message ----
+
+    @Test
+    void unauthorizedReportsStatusAndErrorCode() {
+        responseStatus = 401;
+        responseBody = "{\"error\":\"invalid_grant\",\"error_description\":\"authentication failure\"}";
+
+        final SalesforceDataStoreException e = connectionFailure(baseUrl());
+
+        assertTrue(e.getMessage().contains("401"), e.getMessage());
+        assertTrue(e.getMessage().contains("invalid_grant"), e.getMessage());
+        assertFalse(e.getMessage().contains("authentication failure"), "response text must not be echoed: " + e.getMessage());
+    }
+
+    @Test
+    void tooManyRequestsReportsStatus() {
+        responseStatus = 429;
+        responseContentType = "text/plain";
+        responseBody = "slow down, <secret-detail>";
+
+        final SalesforceDataStoreException e = connectionFailure(baseUrl());
+
+        assertTrue(e.getMessage().contains("429"), e.getMessage());
+        assertFalse(e.getMessage().contains("secret-detail"), e.getMessage());
+    }
+
+    @Test
+    void serverErrorReportsStatus() {
+        responseStatus = 500;
+        responseContentType = "text/html";
+        responseBody = "<html><body>Internal <b>failure</b> detail</body></html>";
+
+        final SalesforceDataStoreException e = connectionFailure(baseUrl());
+
+        assertTrue(e.getMessage().contains("500"), e.getMessage());
+        assertFalse(e.getMessage().contains("failure"), e.getMessage());
+    }
+
+    @Test
+    void oddErrorCodeIsNotEchoed() {
+        responseStatus = 400;
+        responseBody = "{\"error\":\"some free text with spaces and <tags>\"}";
+
+        final SalesforceDataStoreException e = connectionFailure(baseUrl());
+
+        assertTrue(e.getMessage().contains("400"), e.getMessage());
+        assertFalse(e.getMessage().contains("free text"), e.getMessage());
+    }
+
+    // ---- auth_type is required ----
+
+    @Test
+    void missingAuthTypeIsReportedAsRequiredParameter() {
+        final DataStoreParams params = params(baseUrl(), null);
+
+        final SalesforceDataStoreException e = assertThrows(SalesforceDataStoreException.class, () -> new ConnectionProvider(params));
+
+        assertTrue(e.getMessage().contains("auth_type"), e.getMessage());
+        assertTrue(e.getMessage().contains("required"), e.getMessage());
+    }
+
+    @Test
+    void unknownAuthTypeIsStillInvalid() {
+        final DataStoreParams params = params(baseUrl(), "token");
+
+        final SalesforceDataStoreException e = assertThrows(SalesforceDataStoreException.class, () -> new ConnectionProvider(params));
+
+        assertTrue(e.getMessage().contains("auth_type"), e.getMessage());
+        assertTrue(e.getMessage().contains("invalid"), e.getMessage());
+    }
 }

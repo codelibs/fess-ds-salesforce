@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -71,6 +72,11 @@ public class SalesforceClient implements Closeable {
 
     /** Jackson object mapper for JSON processing. */
     protected static final ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    /** HTTP status code of a successful response. */
+    protected static final int HTTP_OK = 200;
+    /** The form of an OAuth error code such as invalid_grant. */
+    protected static final Pattern ERROR_CODE_PATTERN = Pattern.compile("[A-Za-z0-9_.-]{1,64}");
 
     /** Default Salesforce login URL. */
     protected static final String BASE_URL = "https://login.salesforce.com";
@@ -381,6 +387,9 @@ public class SalesforceClient implements Closeable {
          * @return The established PartnerConnection.
          */
         protected PartnerConnection getConnection() {
+            if (authType == null) {
+                throw new SalesforceDataStoreException("parameter '" + AUTH_TYPE_PARAM + "' required.");
+            }
             switch (authType) {
             case OAUTH_TOKEN: {
                 if (username == null || clientId == null || privateKey == null) {
@@ -557,10 +566,36 @@ public class SalesforceClient implements Closeable {
                     request.proxy(proxy);
                 }
                 final CurlResponse response = request.execute();
+                if (response.getHttpStatusCode() != HTTP_OK) {
+                    throw new SalesforceDataStoreException("Failed to get token response by password authentication. HTTP status: "
+                            + response.getHttpStatusCode() + getErrorCode(response));
+                }
                 return parseTokenResponse(response.getContentAsStream());
             } catch (final CurlException | IOException e) {
                 throw new SalesforceDataStoreException("Failed to get token response.", e);
             }
+        }
+
+        /**
+         * Returns the error code of a failed token response as a message suffix.
+         * Only a short identifier such as invalid_grant is returned; the rest of the response is never included.
+         *
+         * @param response The token response.
+         * @return The suffix like ", error: invalid_grant", or an empty string if the response has no usable error code.
+         */
+        protected String getErrorCode(final CurlResponse response) {
+            try {
+                final String error = mapper.readTree(response.getContentAsStream()).path("error").asText("");
+                if (ERROR_CODE_PATTERN.matcher(error).matches()) {
+                    return ", error: " + error;
+                }
+            } catch (final Exception e) {
+                // the body is not JSON
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The token response has no error code.", e);
+                }
+            }
+            return "";
         }
 
     } // class ConnectionProvider
