@@ -18,11 +18,14 @@ package org.codelibs.fess.ds.salesforce;
 import static java.util.Collections.emptyList;
 import static org.codelibs.core.stream.StreamUtil.split;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -499,6 +502,29 @@ public class SalesforceClient implements Closeable {
         }
 
         /**
+         * Creates a request to the OAuth token endpoint that carries the given parameters in a form-encoded body.
+         * Credentials must not go into the URL: a failed request reports its URL in the exception message,
+         * which ends up in the log. The body is passed as a stream so that curl4j does not log it either.
+         *
+         * @param keyValues The parameter names and values, alternating.
+         * @return The request.
+         */
+        protected CurlRequest createTokenRequest(final String... keyValues) {
+            final StringBuilder form = new StringBuilder();
+            for (int i = 0; i < keyValues.length; i += 2) {
+                if (form.length() > 0) {
+                    form.append('&');
+                }
+                form.append(URLEncoder.encode(keyValues[i], StandardCharsets.UTF_8))
+                        .append('=')
+                        .append(URLEncoder.encode(keyValues[i + 1], StandardCharsets.UTF_8));
+            }
+            return Curl.post(baseUrl + "/services/oauth2/token")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .body(new ByteArrayInputStream(form.toString().getBytes(StandardCharsets.UTF_8)));
+        }
+
+        /**
          * Retrieves a token response using the OAuth JWT Bearer Token Flow.
          *
          * @return The token response.
@@ -506,9 +532,8 @@ public class SalesforceClient implements Closeable {
         protected TokenResponse getTokenResponseByToken() {
             try {
                 final String jwt = AuthUtil.createJWT(username, clientId, privateKey, baseUrl, refreshInterval);
-                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        .param("assertion", jwt);
+                final CurlRequest request =
+                        createTokenRequest("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion", jwt);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
@@ -526,12 +551,8 @@ public class SalesforceClient implements Closeable {
          */
         protected TokenResponse getTokenResponseByPass() {
             try {
-                final CurlRequest request = Curl.post(baseUrl + "/services/oauth2/token")
-                        .param("grant_type", "password")
-                        .param("username", username)
-                        .param("password", pass + securityToken)
-                        .param("client_id", clientId)
-                        .param("client_secret", clientSecret);
+                final CurlRequest request = createTokenRequest("grant_type", "password", "username", username, "password",
+                        pass + securityToken, "client_id", clientId, "client_secret", clientSecret);
                 if (proxy != null) {
                     request.proxy(proxy);
                 }
