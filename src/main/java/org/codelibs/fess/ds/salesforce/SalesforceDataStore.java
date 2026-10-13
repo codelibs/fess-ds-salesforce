@@ -248,7 +248,9 @@ public class SalesforceDataStore extends AbstractDataStore {
         final Map<String, Object> dataMap = new HashMap<>(defaultDataMap);
         final String url = client.getInstanceUrl() + "/" + data.getId();
         final StatsKeyObject statsKey = new StatsKeyObject(url);
-        paramMap.put(Constants.CRAWLER_STATS_KEY, statsKey);
+        // The stats key identifies this document only; keep it off the DataStoreParams shared by all worker threads.
+        final DataStoreParams localParams = paramMap.newInstance();
+        localParams.put(Constants.CRAWLER_STATS_KEY, statsKey);
         try {
             crawlerStatsHelper.begin(statsKey);
 
@@ -302,7 +304,7 @@ public class SalesforceDataStore extends AbstractDataStore {
                 statsKey.setUrl(statsUrl);
             }
 
-            callback.store(paramMap, dataMap);
+            callback.store(localParams, dataMap);
             crawlerStatsHelper.record(statsKey, StatsAction.FINISHED);
         } catch (final CrawlingAccessException e) {
             logger.warn("Crawling Access Exception at : {}", dataMap, e);
